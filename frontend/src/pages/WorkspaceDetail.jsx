@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import Layout from '../components/Layout';
 import TicketBoard from '../components/TicketBoard';
 import TicketDetailModal from '../components/TicketDetailModal';
+import UserAvatar from '../components/UserAvatar';
 import api from '../utils/api';
 import { useAuth } from '../context/AuthContext';
 
@@ -15,6 +16,7 @@ const WorkspaceDetail = () => {
   const [selectedTicket, setSelectedTicket] = useState(null);
   const [showHoursModal, setShowHoursModal] = useState(null);
   const [hoursWorked, setHoursWorked] = useState('');
+  const [selectedUserId, setSelectedUserId] = useState(null);
   const [newTicket, setNewTicket] = useState({
     title: '',
     description: '',
@@ -145,6 +147,52 @@ const WorkspaceDetail = () => {
     }
   };
 
+  // Extract unique users from tickets
+  const uniqueUsers = useMemo(() => {
+    const userMap = new Map();
+    tickets.forEach(ticket => {
+      if (ticket.assignee && ticket.assignee._id) {
+        const userId = ticket.assignee._id;
+        if (!userMap.has(userId)) {
+          userMap.set(userId, ticket.assignee);
+        }
+      }
+    });
+    return Array.from(userMap.values());
+  }, [tickets]);
+
+  // Filter tickets based on selected user
+  const filteredTickets = useMemo(() => {
+    if (!selectedUserId) return tickets;
+    
+    return tickets.filter(ticket => {
+      // Include tickets (both stories and subtasks) assigned to the selected user
+      if (ticket.assignee?._id === selectedUserId) return true;
+      
+      // Also include parent tickets (stories) if any of their subtasks are assigned to the user
+      if (ticket.type === 'story') {
+        const hasMatchingSubtask = tickets.some(subtask => {
+          if (subtask.type !== 'subtask' || subtask.assignee?._id !== selectedUserId) {
+            return false;
+          }
+          // Handle both populated and unpopulated parentTicket
+          const subtaskParentId = typeof subtask.parentTicket === 'object' 
+            ? subtask.parentTicket?._id 
+            : subtask.parentTicket;
+          return subtaskParentId === ticket._id;
+        });
+        return hasMatchingSubtask;
+      }
+      
+      return false;
+    });
+  }, [tickets, selectedUserId]);
+
+  const handleUserFilter = (userId) => {
+    // Toggle filter: if clicking the same user, clear filter
+    setSelectedUserId(prev => prev === userId ? null : userId);
+  };
+
   if (loading) {
     return (
       <Layout>
@@ -197,10 +245,41 @@ const WorkspaceDetail = () => {
         </div>
       </div>
 
+      {/* User Filter Avatars */}
+      {uniqueUsers.length > 0 && (
+        <div className="mb-4 bg-white rounded-lg shadow p-4">
+          <div className="flex items-center gap-3">
+            <span className="text-sm font-medium text-gray-700 mr-2">Filter by:</span>
+            <button
+              onClick={() => handleUserFilter(null)}
+              className={`
+                px-3 py-1.5 text-sm rounded-lg transition-all
+                ${selectedUserId === null
+                  ? 'bg-primary-600 text-white font-semibold'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }
+              `}
+            >
+              All
+            </button>
+            <div className="flex items-center gap-2">
+              {uniqueUsers.map((user) => (
+                <UserAvatar
+                  key={user._id}
+                  user={user}
+                  isActive={selectedUserId === user._id}
+                  onClick={() => handleUserFilter(user._id)}
+                />
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Ticket Board */}
       <div className="bg-white rounded-lg shadow p-6">
         <TicketBoard
-          tickets={tickets}
+          tickets={filteredTickets}
           onStatusChange={handleStatusChange}
           onTicketClick={setSelectedTicket}
         />
