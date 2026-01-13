@@ -33,13 +33,14 @@ router.post('/generate', auth, async (req, res) => {
       return res.status(400).json({ message: 'User is not a member of this workspace' });
     }
 
-    // Get tickets
+    // Get tickets (only stories, not subtasks)
     const tickets = await Ticket.find({
       _id: { $in: ticketIds },
       workspace: workspaceId,
       assignee: userId,
       status: 'completed',
-      hoursWorked: { $gt: 0 }
+      hoursWorked: { $gt: 0 },
+      type: 'story' // Only bill for stories
     }).populate('assignee', 'username name');
 
     if (tickets.length === 0) {
@@ -99,13 +100,14 @@ router.get('/workspace/:workspaceId/user/:userId', auth, async (req, res) => {
       return res.status(404).json({ message: 'Workspace not found or you are not the owner' });
     }
 
-    // Get completed tickets with hours worked and pending payment
+    // Get completed tickets with hours worked and pending payment (only stories)
     const tickets = await Ticket.find({
       workspace: workspaceId,
       assignee: userId,
       status: 'completed',
       hoursWorked: { $gt: 0 },
-      paymentStatus: { $in: ['pending-pay', 'not-applicable'] }
+      paymentStatus: { $in: ['pending-pay', 'not-applicable'] },
+      type: 'story' // Only bill for stories
     })
     .populate('assignee', 'username name')
     .sort({ completedAt: -1 });
@@ -131,12 +133,13 @@ router.get('/workspace/:workspaceId/billable', auth, async (req, res) => {
       return res.status(404).json({ message: 'Workspace not found or you are not the owner' });
     }
 
-    // Get completed tickets with hours worked, grouped by user
+    // Get completed tickets with hours worked, grouped by user (only stories)
     const tickets = await Ticket.find({
       workspace: workspaceId,
       status: 'completed',
       hoursWorked: { $gt: 0 },
-      paymentStatus: { $in: ['pending-pay', 'not-applicable'] }
+      paymentStatus: { $in: ['pending-pay', 'not-applicable'] },
+      type: 'story' // Only bill for stories
     })
     .populate('assignee', 'username name')
     .sort({ completedAt: -1 });

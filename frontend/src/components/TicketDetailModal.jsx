@@ -7,8 +7,6 @@ const TicketDetailModal = ({ ticket, workspace, onClose, onUpdate }) => {
   const [subtasks, setSubtasks] = useState([]);
   const [newComment, setNewComment] = useState('');
   const [newSubtaskTitle, setNewSubtaskTitle] = useState('');
-  const [editingSubtask, setEditingSubtask] = useState(null);
-  const [editSubtaskTitle, setEditSubtaskTitle] = useState('');
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
 
@@ -42,7 +40,7 @@ const TicketDetailModal = ({ ticket, workspace, onClose, onUpdate }) => {
 
   const fetchSubtasks = async () => {
     try {
-      const response = await api.get(`/subtasks/ticket/${ticket._id}`);
+      const response = await api.get(`/tickets/${ticket._id}/subtasks`);
       setSubtasks(response.data);
     } catch (error) {
       console.error('Error fetching subtasks:', error);
@@ -73,16 +71,39 @@ const TicketDetailModal = ({ ticket, workspace, onClose, onUpdate }) => {
     e.preventDefault();
     if (!newSubtaskTitle.trim()) return;
 
+    // Prevent creating subtasks inside subtasks
+    if (ticket.type === 'subtask') {
+      alert('Cannot create subtask inside a subtask');
+      return;
+    }
+
     setSubmitting(true);
     try {
-      const response = await api.post('/subtasks', {
-        ticketId: ticket._id,
+      // Get the first member as default assignee (or use ticket assignee)
+      const defaultAssignee = ticket.assignee?._id || ticket.assignee || workspace?.members?.[0]?._id;
+      const defaultGoLiveDate = ticket.goLiveDate || new Date().toISOString().split('T')[0];
+
+      const workspaceId = typeof ticket.workspace === 'object' 
+        ? ticket.workspace._id 
+        : ticket.workspace;
+
+      const response = await api.post('/tickets', {
         title: newSubtaskTitle,
-        order: subtasks.length
+        description: '',
+        goLiveDate: defaultGoLiveDate,
+        assignee: defaultAssignee,
+        workspace: workspaceId,
+        type: 'subtask',
+        parentTicket: ticket._id
       });
       setSubtasks([...subtasks, response.data]);
       setNewSubtaskTitle('');
       await fetchHistory();
+      // Refresh parent ticket to update hours if needed
+      if (onUpdate) {
+        const refreshed = await api.get(`/tickets/${ticket._id}`);
+        onUpdate(refreshed.data);
+      }
     } catch (error) {
       alert(error.response?.data?.message || 'Failed to add subtask');
     } finally {
@@ -90,38 +111,24 @@ const TicketDetailModal = ({ ticket, workspace, onClose, onUpdate }) => {
     }
   };
 
-  const handleToggleSubtask = async (subtaskId, completed) => {
-    try {
-      const response = await api.put(`/subtasks/${subtaskId}`, { completed: !completed });
-      setSubtasks(subtasks.map(s => s._id === subtaskId ? response.data : s));
-    } catch (error) {
-      alert(error.response?.data?.message || 'Failed to update subtask');
-    }
-  };
-
-  const handleEditSubtask = async (subtaskId) => {
-    if (!editSubtaskTitle.trim()) {
-      setEditingSubtask(null);
-      setEditSubtaskTitle('');
-      return;
-    }
-
-    try {
-      const response = await api.put(`/subtasks/${subtaskId}`, { title: editSubtaskTitle });
-      setSubtasks(subtasks.map(s => s._id === subtaskId ? response.data : s));
-      setEditingSubtask(null);
-      setEditSubtaskTitle('');
-    } catch (error) {
-      alert(error.response?.data?.message || 'Failed to update subtask');
-    }
+  const handleSubtaskClick = (subtask) => {
+    // Open subtask in modal (could be handled by parent component)
+    // For now, we'll just update the current ticket view
+    // In a real app, you might want to navigate or open a nested modal
   };
 
   const handleDeleteSubtask = async (subtaskId) => {
     if (!window.confirm('Are you sure you want to delete this subtask?')) return;
 
     try {
-      await api.delete(`/subtasks/${subtaskId}`);
+      await api.delete(`/tickets/${subtaskId}`);
       setSubtasks(subtasks.filter(s => s._id !== subtaskId));
+      await fetchHistory();
+      // Refresh parent ticket to update hours if needed
+      if (onUpdate) {
+        const refreshed = await api.get(`/tickets/${ticket._id}`);
+        onUpdate(refreshed.data);
+      }
     } catch (error) {
       alert(error.response?.data?.message || 'Failed to delete subtask');
     }
@@ -141,7 +148,7 @@ const TicketDetailModal = ({ ticket, workspace, onClose, onUpdate }) => {
 
   if (!ticket) return null;
 
-  const completedSubtasks = subtasks.filter(s => s.completed).length;
+  const completedSubtasks = subtasks.filter(s => s.status === 'completed').length;
   const totalSubtasks = subtasks.length;
 
   return (
@@ -152,10 +159,20 @@ const TicketDetailModal = ({ ticket, workspace, onClose, onUpdate }) => {
           <div className="flex-1">
             <h2 className="text-2xl font-bold text-gray-900 mb-2">{ticket.title}</h2>
             <div className="flex items-center space-x-4 text-sm text-gray-600">
+              <span className={`px-2 py-1 rounded text-xs ${
+                ticket.type === 'story' 
+                  ? 'bg-blue-100 text-blue-800' 
+                  : 'bg-purple-100 text-purple-800'
+              }`}>
+                {ticket.type === 'story' ? 'Story' : 'Subtask'}
+              </span>
               <span>Go Live: {new Date(ticket.goLiveDate).toLocaleDateString()}</span>
               {ticket.hoursWorked > 0 && <span>Hours: {ticket.hoursWorked}</span>}
-              {totalSubtasks > 0 && (
+              {ticket.type === 'story' && totalSubtasks > 0 && (
                 <span>Subtasks: {completedSubtasks}/{totalSubtasks}</span>
+              )}
+              {ticket.type === 'subtask' && ticket.parentTicket && (
+                <span>Parent: {ticket.parentTicket.title}</span>
               )}
             </div>
           </div>
@@ -181,86 +198,81 @@ const TicketDetailModal = ({ ticket, workspace, onClose, onUpdate }) => {
               </div>
 
               {/* Subtasks */}
-              <div>
-                <h3 className="font-semibold text-gray-900 mb-3">Subtasks</h3>
-                <div className="space-y-2 mb-4">
-                  {subtasks.length === 0 ? (
-                    <p className="text-gray-500 text-sm">No subtasks yet</p>
-                  ) : (
-                    subtasks.map((subtask) => (
-                      <div
-                        key={subtask._id}
-                        className="flex items-center space-x-3 bg-gray-50 p-3 rounded-lg"
-                      >
-                        <input
-                          type="checkbox"
-                          checked={subtask.completed}
-                          onChange={() => handleToggleSubtask(subtask._id, subtask.completed)}
-                          className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
-                        />
-                        {editingSubtask === subtask._id ? (
-                          <div className="flex-1 flex items-center space-x-2">
-                            <input
-                              type="text"
-                              value={editSubtaskTitle}
-                              onChange={(e) => setEditSubtaskTitle(e.target.value)}
-                              onBlur={() => handleEditSubtask(subtask._id)}
-                              onKeyDown={(e) => {
-                                if (e.key === 'Enter') {
-                                  handleEditSubtask(subtask._id);
-                                } else if (e.key === 'Escape') {
-                                  setEditingSubtask(null);
-                                  setEditSubtaskTitle('');
-                                }
-                              }}
-                              className="flex-1 px-2 py-1 border border-gray-300 rounded focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none"
-                              autoFocus
-                            />
-                          </div>
-                        ) : (
-                          <>
-                            <span
-                              className={`flex-1 cursor-pointer ${
-                                subtask.completed
-                                  ? 'line-through text-gray-500'
-                                  : 'text-gray-900'
-                              }`}
-                              onClick={() => {
-                                setEditingSubtask(subtask._id);
-                                setEditSubtaskTitle(subtask.title);
-                              }}
-                            >
-                              {subtask.title}
-                            </span>
+              {ticket.type === 'story' && (
+                <div>
+                  <h3 className="font-semibold text-gray-900 mb-3">Subtasks</h3>
+                  <div className="space-y-3 mb-4">
+                    {subtasks.length === 0 ? (
+                      <p className="text-gray-500 text-sm">No subtasks yet</p>
+                    ) : (
+                      subtasks.map((subtask) => (
+                        <div
+                          key={subtask._id}
+                          className="bg-gray-50 p-4 rounded-lg border border-gray-200 hover:border-gray-300 transition"
+                        >
+                          <div className="flex items-start justify-between mb-2">
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2 mb-1">
+                                <span className="text-xs px-2 py-0.5 rounded bg-purple-100 text-purple-800">
+                                  Subtask
+                                </span>
+                                <span className={`text-xs px-2 py-0.5 rounded ${
+                                  subtask.status === 'completed' 
+                                    ? 'bg-green-100 text-green-800'
+                                    : subtask.status === 'in-progress'
+                                    ? 'bg-yellow-100 text-yellow-800'
+                                    : 'bg-blue-100 text-blue-800'
+                                }`}>
+                                  {subtask.status}
+                                </span>
+                              </div>
+                              <h4 className="font-semibold text-gray-900">{subtask.title}</h4>
+                              {subtask.description && (
+                                <p className="text-sm text-gray-600 mt-1">{subtask.description}</p>
+                              )}
+                            </div>
                             <button
                               onClick={() => handleDeleteSubtask(subtask._id)}
-                              className="text-red-600 hover:text-red-800 text-sm"
+                              className="text-red-600 hover:text-red-800 text-sm ml-2"
                             >
                               Delete
                             </button>
-                          </>
-                        )}
-                      </div>
-                    ))
-                  )}
+                          </div>
+                          <div className="flex items-center justify-between text-xs text-gray-500 mt-2">
+                            <div className="flex items-center gap-3">
+                              <span>{subtask.assignee?.name || subtask.assignee?.username}</span>
+                              {subtask.hoursWorked > 0 && (
+                                <span className="bg-gray-200 px-2 py-1 rounded">
+                                  {subtask.hoursWorked}h
+                                </span>
+                              )}
+                            </div>
+                            {subtask.goLiveDate && (
+                              <span>Due: {new Date(subtask.goLiveDate).toLocaleDateString()}</span>
+                            )}
+                          </div>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                  <form onSubmit={handleAddSubtask} className="flex space-x-2">
+                    <input
+                      type="text"
+                      value={newSubtaskTitle}
+                      onChange={(e) => setNewSubtaskTitle(e.target.value)}
+                      placeholder="Add a subtask..."
+                      className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none"
+                    />
+                    <button
+                      type="submit"
+                      disabled={submitting || !newSubtaskTitle.trim()}
+                      className="bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      Add
+                    </button>
+                  </form>
                 </div>
-                <form onSubmit={handleAddSubtask} className="flex space-x-2">
-                  <input
-                    type="text"
-                    value={newSubtaskTitle}
-                    onChange={(e) => setNewSubtaskTitle(e.target.value)}
-                    placeholder="Add a subtask..."
-                    className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none"
-                  />
-                  <button
-                    type="submit"
-                    disabled={submitting || !newSubtaskTitle.trim()}
-                    className="bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    Add
-                  </button>
-                </form>
-              </div>
+              )}
 
               {/* Comments */}
               <div>

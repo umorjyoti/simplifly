@@ -24,6 +24,7 @@ router.get('/workspace/:workspaceId', auth, async (req, res) => {
     const tickets = await Ticket.find({ workspace: req.params.workspaceId })
       .populate('assignee', 'username name')
       .populate('workspace', 'name')
+      .populate('parentTicket', 'title type')
       .sort({ createdAt: -1 });
 
     res.json(tickets);
@@ -37,7 +38,8 @@ router.get('/:id', auth, async (req, res) => {
   try {
     const ticket = await Ticket.findById(req.params.id)
       .populate('assignee', 'username name')
-      .populate('workspace', 'name owner members');
+      .populate('workspace', 'name owner members')
+      .populate('parentTicket', 'title type');
 
     if (!ticket) {
       return res.status(404).json({ message: 'Ticket not found' });
@@ -53,6 +55,39 @@ router.get('/:id', auth, async (req, res) => {
     }
 
     res.json(ticket);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// Get subtasks for a ticket
+router.get('/:id/subtasks', auth, async (req, res) => {
+  try {
+    const ticket = await Ticket.findById(req.params.id)
+      .populate('workspace', 'owner members');
+
+    if (!ticket) {
+      return res.status(404).json({ message: 'Ticket not found' });
+    }
+
+    // Verify user has access to workspace
+    const workspace = ticket.workspace;
+    const hasAccess = workspace.owner.toString() === req.user._id.toString() ||
+      workspace.members.some(member => member.toString() === req.user._id.toString());
+
+    if (!hasAccess) {
+      return res.status(403).json({ message: 'Access denied' });
+    }
+
+    const subtasks = await Ticket.find({ 
+      parentTicket: req.params.id,
+      type: 'subtask'
+    })
+      .populate('assignee', 'username name')
+      .populate('workspace', 'name')
+      .sort({ createdAt: 1 });
+
+    res.json(subtasks);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -90,7 +125,7 @@ router.get('/:id/history', auth, async (req, res) => {
 // Create ticket
 router.post('/', auth, async (req, res) => {
   try {
-    const { title, description, goLiveDate, assignee, workspace } = req.body;
+    const { title, description, goLiveDate, assignee, workspace, type, parentTicket } = req.body;
 
     // Verify user has access to workspace
     const workspaceDoc = await Workspace.findOne({
@@ -113,24 +148,62 @@ router.post('/', auth, async (req, res) => {
       return res.status(400).json({ message: 'Assignee must be a member of the workspace' });
     }
 
+    // If creating a subtask, validate parent ticket
+    if (type === 'subtask') {
+      if (!parentTicket) {
+        return res.status(400).json({ message: 'Subtask must have a parent ticket' });
+      }
+
+      const parent = await Ticket.findById(parentTicket)
+        .populate('workspace', 'owner members');
+
+      if (!parent) {
+        return res.status(404).json({ message: 'Parent ticket not found' });
+      }
+
+      // Verify parent is in the same workspace
+      if (parent.workspace._id.toString() !== workspace) {
+        return res.status(400).json({ message: 'Parent ticket must be in the same workspace' });
+      }
+
+      // Prevent creating subtasks inside subtasks
+      if (parent.type === 'subtask') {
+        return res.status(400).json({ message: 'Cannot create subtask inside a subtask' });
+      }
+
+      // Verify user has access to parent ticket's workspace
+      const hasAccess = parent.workspace.owner.toString() === req.user._id.toString() ||
+        parent.workspace.members.some(member => member.toString() === req.user._id.toString());
+
+      if (!hasAccess) {
+        return res.status(403).json({ message: 'Access denied to parent ticket' });
+      }
+    }
+
     const ticket = new Ticket({
       title,
       description,
       goLiveDate,
       assignee,
-      workspace
+      workspace,
+      type: type || 'story',
+      parentTicket: type === 'subtask' ? parentTicket : null
     });
 
     await ticket.save();
     await ticket.populate('assignee', 'username name');
     await ticket.populate('workspace', 'name');
+    if (ticket.parentTicket) {
+      await ticket.populate('parentTicket', 'title');
+    }
 
     // Create history entry
+    const ticketType = type === 'subtask' ? 'subtask' : 'ticket';
     const history = new TicketHistory({
       ticket: ticket._id,
       user: req.user._id,
       action: 'created',
-      description: `Created ticket "${title}"`
+      description: `Created ${ticketType} "${title}"`
     });
     await history.save();
 
@@ -159,9 +232,23 @@ router.put('/:id', auth, async (req, res) => {
       return res.status(403).json({ message: 'Access denied' });
     }
 
-    const { title, description, goLiveDate, assignee, status, paymentStatus } = req.body;
+    const { title, description, goLiveDate, assignee, status, paymentStatus, type, parentTicket } = req.body;
     const oldStatus = ticket.status;
     const oldAssignee = ticket.assignee?.toString();
+
+    // Prevent changing ticket type after creation
+    if (type && type !== ticket.type) {
+      return res.status(400).json({ message: 'Cannot change ticket type after creation' });
+    }
+
+    // Prevent changing parentTicket after creation
+    if (parentTicket !== undefined) {
+      const currentParent = ticket.parentTicket?.toString() || null;
+      const newParent = parentTicket || null;
+      if (currentParent !== newParent) {
+        return res.status(400).json({ message: 'Cannot change parent ticket after creation' });
+      }
+    }
 
     // Track status change
     if (status && status !== oldStatus) {
@@ -221,6 +308,9 @@ router.put('/:id', auth, async (req, res) => {
     await ticket.save();
     await ticket.populate('assignee', 'username name');
     await ticket.populate('workspace', 'name');
+    if (ticket.parentTicket) {
+      await ticket.populate('parentTicket', 'title type');
+    }
 
     res.json(ticket);
   } catch (error) {
@@ -278,6 +368,9 @@ router.patch('/:id/status', auth, async (req, res) => {
     await ticket.save();
     await ticket.populate('assignee', 'username name');
     await ticket.populate('workspace', 'name');
+    if (ticket.parentTicket) {
+      await ticket.populate('parentTicket', 'title type');
+    }
 
     res.json(ticket);
   } catch (error) {
@@ -326,8 +419,31 @@ router.patch('/:id/hours', auth, async (req, res) => {
     }
 
     await ticket.save();
+
+    // If this is a subtask, aggregate hours to parent story
+    if (ticket.type === 'subtask' && ticket.parentTicket) {
+      const parentStory = await Ticket.findById(ticket.parentTicket);
+      if (parentStory) {
+        // Calculate total hours from all subtasks
+        const allSubtasks = await Ticket.find({
+          parentTicket: ticket.parentTicket,
+          type: 'subtask'
+        });
+        const totalSubtaskHours = allSubtasks.reduce((sum, subtask) => sum + (subtask.hoursWorked || 0), 0);
+        
+        // Update parent story hours (only count subtask hours, don't override direct hours)
+        // If parent has direct hours, we keep them separate, but for billing we'll use subtask hours
+        // Actually, let's set parent hours to the sum of all subtask hours
+        parentStory.hoursWorked = totalSubtaskHours;
+        await parentStory.save();
+      }
+    }
+
     await ticket.populate('assignee', 'username name');
     await ticket.populate('workspace', 'name');
+    if (ticket.parentTicket) {
+      await ticket.populate('parentTicket', 'title');
+    }
 
     res.json(ticket);
   } catch (error) {
@@ -350,7 +466,25 @@ router.delete('/:id', auth, async (req, res) => {
       return res.status(403).json({ message: 'Only workspace owner can delete tickets' });
     }
 
+    // If deleting a subtask, recalculate parent story hours
+    const parentTicketId = ticket.type === 'subtask' ? ticket.parentTicket : null;
+
     await ticket.deleteOne();
+
+    // Recalculate parent story hours if this was a subtask
+    if (parentTicketId) {
+      const parentStory = await Ticket.findById(parentTicketId);
+      if (parentStory) {
+        const allSubtasks = await Ticket.find({
+          parentTicket: parentTicketId,
+          type: 'subtask'
+        });
+        const totalSubtaskHours = allSubtasks.reduce((sum, subtask) => sum + (subtask.hoursWorked || 0), 0);
+        parentStory.hoursWorked = totalSubtaskHours;
+        await parentStory.save();
+      }
+    }
+
     res.json({ message: 'Ticket deleted' });
   } catch (error) {
     res.status(500).json({ message: error.message });

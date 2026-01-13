@@ -55,7 +55,8 @@ const WorkspaceDetail = () => {
       const response = await api.post('/tickets', {
         ...newTicket,
         workspace: id,
-        goLiveDate: new Date(newTicket.goLiveDate)
+        goLiveDate: new Date(newTicket.goLiveDate),
+        type: 'story' // Default to story for main ticket creation
       });
       setTickets([response.data, ...tickets]);
       setNewTicket({ title: '', description: '', goLiveDate: '', assignee: '' });

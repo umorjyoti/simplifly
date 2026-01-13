@@ -77,8 +77,26 @@ const TicketBoard = ({ tickets, onStatusChange, onTicketClick }) => {
                                 snapshot.isDragging ? 'opacity-50' : ''
                               }`}
                             >
-                              <div className="font-semibold text-gray-900 mb-2 line-clamp-2">
-                                {ticket.title}
+                              <div className="flex items-start justify-between mb-2">
+                                <div className="flex-1">
+                                  <div className="font-semibold text-gray-900 mb-1 line-clamp-2">
+                                    {ticket.title}
+                                  </div>
+                                  <div className="flex items-center gap-2">
+                                    <span className={`text-xs px-2 py-0.5 rounded ${
+                                      ticket.type === 'story' 
+                                        ? 'bg-blue-100 text-blue-800' 
+                                        : 'bg-purple-100 text-purple-800'
+                                    }`}>
+                                      {ticket.type === 'story' ? 'Story' : 'Subtask'}
+                                    </span>
+                                    {ticket.parentTicket && (
+                                      <span className="text-xs text-gray-400">
+                                        of {ticket.parentTicket.title}
+                                      </span>
+                                    )}
+                                  </div>
+                                </div>
                               </div>
                               {ticket.description && (
                                 <div className="text-sm text-gray-600 mb-2 line-clamp-2">
