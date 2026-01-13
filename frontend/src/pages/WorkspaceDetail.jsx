@@ -282,6 +282,7 @@ const WorkspaceDetail = () => {
           tickets={filteredTickets}
           onStatusChange={handleStatusChange}
           onTicketClick={setSelectedTicket}
+          workspaceId={id}
         />
       </div>
 
@@ -422,6 +423,7 @@ const WorkspaceDetail = () => {
           workspace={workspace}
           onClose={() => setSelectedTicket(null)}
           onUpdate={handleTicketUpdate}
+          workspaceId={id}
         />
       )}
     </Layout>

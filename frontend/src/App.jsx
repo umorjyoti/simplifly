@@ -5,6 +5,7 @@ import Login from './pages/Login';
 import Signup from './pages/Signup';
 import Dashboard from './pages/Dashboard';
 import WorkspaceDetail from './pages/WorkspaceDetail';
+import TicketDetail from './pages/TicketDetail';
 import Billing from './pages/Billing';
 import MyTeam from './pages/MyTeam';
 import JoinWorkspace from './pages/JoinWorkspace';
@@ -47,6 +48,7 @@ function App() {
           <Route path="/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
           <Route path="/my-team" element={<PrivateRoute><MyTeam /></PrivateRoute>} />
           <Route path="/workspace/:id" element={<PrivateRoute><WorkspaceDetail /></PrivateRoute>} />
+          <Route path="/workspace/:workspaceId/ticket/:ticketId" element={<PrivateRoute><TicketDetail /></PrivateRoute>} />
           <Route path="/workspace/:id/billing" element={<PrivateRoute><Billing /></PrivateRoute>} />
           <Route path="/join/:token" element={<PrivateRoute><JoinWorkspace /></PrivateRoute>} />
           <Route path="/" element={<Navigate to="/dashboard" />} />

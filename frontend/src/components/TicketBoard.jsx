@@ -1,7 +1,11 @@
 import React, { useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 
-const TicketBoard = ({ tickets, onStatusChange, onTicketClick }) => {
+const TicketBoard = ({ tickets, onStatusChange, onTicketClick, workspaceId: propWorkspaceId }) => {
+  const navigate = useNavigate();
+  const params = useParams();
+  const workspaceId = propWorkspaceId || params.id || params.workspaceId;
   const columns = [
     { id: 'todo', title: 'To Do', status: 'todo' },
     { id: 'in-progress', title: 'In Progress', status: 'in-progress' },
@@ -72,15 +76,29 @@ const TicketBoard = ({ tickets, onStatusChange, onTicketClick }) => {
                               ref={provided.innerRef}
                               {...provided.draggableProps}
                               {...provided.dragHandleProps}
-                              onClick={() => onTicketClick(ticket)}
+                              onClick={(e) => {
+                                // Allow opening in full-screen view
+                                if (e.ctrlKey || e.metaKey) {
+                                  navigate(`/workspace/${workspaceId}/ticket/${ticket._id}`);
+                                } else {
+                                  onTicketClick(ticket);
+                                }
+                              }}
                               className={`bg-white rounded-lg shadow-md p-4 mb-3 cursor-pointer hover:shadow-lg transition ${
                                 snapshot.isDragging ? 'opacity-50' : ''
                               }`}
                             >
                               <div className="flex items-start justify-between mb-2">
                                 <div className="flex-1">
-                                  <div className="font-semibold text-gray-900 mb-1 line-clamp-2">
-                                    {ticket.title}
+                                  <div className="flex items-center gap-2 mb-1">
+                                    {ticket.ticketNumber && (
+                                      <span className="text-xs font-mono text-gray-500 bg-gray-100 px-2 py-0.5 rounded">
+                                        {ticket.ticketNumber}
+                                      </span>
+                                    )}
+                                    <div className="font-semibold text-gray-900 line-clamp-2 flex-1">
+                                      {ticket.title}
+                                    </div>
                                   </div>
                                   <div className="flex items-center gap-2">
                                     <span className={`text-xs px-2 py-0.5 rounded ${

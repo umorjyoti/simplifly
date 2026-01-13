@@ -122,6 +122,61 @@ router.get('/:id/history', auth, async (req, res) => {
   }
 });
 
+// Helper function to generate workspace initials
+function getWorkspaceInitials(workspaceName) {
+  if (!workspaceName || typeof workspaceName !== 'string') {
+    return 'WS'; // Default fallback
+  }
+  
+  // Remove special characters and split into words
+  const cleanName = workspaceName.trim().replace(/[^a-zA-Z0-9\s]/g, '');
+  const words = cleanName.split(/\s+/).filter(word => word.length > 0);
+  
+  if (words.length === 0) {
+    return 'WS'; // Default fallback
+  }
+  
+  if (words.length === 1) {
+    // Single word: take first 2 uppercase letters (or pad if too short)
+    const word = words[0].toUpperCase();
+    return word.length >= 2 ? word.substring(0, 2) : word.padEnd(2, 'X');
+  }
+  
+  // Multiple words: take first letter of each word (up to 2 words)
+  const initials = words.slice(0, 2)
+    .map(word => word.charAt(0).toUpperCase())
+    .join('');
+  
+  return initials.length >= 2 ? initials : initials.padEnd(2, 'X');
+}
+
+// Helper function to generate ticket number
+async function generateTicketNumber(workspaceId, workspaceName, ticketType) {
+  const initials = getWorkspaceInitials(workspaceName);
+  const prefix = ticketType === 'subtask' ? `${initials}SUB` : initials;
+  
+  // Find the highest ticket number for this workspace and type
+  // Escape special regex characters in prefix
+  const escapedPrefix = prefix.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const existingTickets = await Ticket.find({
+    workspace: workspaceId,
+    type: ticketType,
+    ticketNumber: { $regex: `^${escapedPrefix}` }
+  }).sort({ ticketNumber: -1 }).limit(1);
+
+  let nextNumber = 1;
+  if (existingTickets.length > 0 && existingTickets[0].ticketNumber) {
+    // Extract the number part from the ticket number (e.g., "TP0001" -> 1)
+    const match = existingTickets[0].ticketNumber.match(/\d+$/);
+    if (match) {
+      nextNumber = parseInt(match[0], 10) + 1;
+    }
+  }
+
+  // Format as 4-digit number with leading zeros
+  return `${prefix}${nextNumber.toString().padStart(4, '0')}`;
+}
+
 // Create ticket
 router.post('/', auth, async (req, res) => {
   try {
@@ -180,13 +235,18 @@ router.post('/', auth, async (req, res) => {
       }
     }
 
+    // Generate ticket number
+    const ticketType = type || 'story';
+    const ticketNumber = await generateTicketNumber(workspace, workspaceDoc.name, ticketType);
+
     const ticket = new Ticket({
+      ticketNumber,
       title,
       description,
       goLiveDate,
       assignee,
       workspace,
-      type: type || 'story',
+      type: ticketType,
       parentTicket: type === 'subtask' ? parentTicket : null
     });
 
@@ -198,12 +258,12 @@ router.post('/', auth, async (req, res) => {
     }
 
     // Create history entry
-    const ticketType = type === 'subtask' ? 'subtask' : 'ticket';
+    const historyTypeLabel = ticketType === 'subtask' ? 'subtask' : 'ticket';
     const history = new TicketHistory({
       ticket: ticket._id,
       user: req.user._id,
       action: 'created',
-      description: `Created ${ticketType} "${title}"`
+      description: `Created ${historyTypeLabel} "${title}"`
     });
     await history.save();
 
