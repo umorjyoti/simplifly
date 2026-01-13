@@ -16,10 +16,24 @@ const Layout = ({ children }) => {
       <nav className="bg-white shadow-sm border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16">
-            <div className="flex items-center">
+            <div className="flex items-center space-x-6">
               <Link to="/dashboard" className="text-2xl font-bold text-primary-600">
                 Simplifly
               </Link>
+              <nav className="hidden md:flex space-x-4">
+                <Link
+                  to="/dashboard"
+                  className="px-3 py-2 text-sm text-gray-700 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition"
+                >
+                  Workspaces
+                </Link>
+                <Link
+                  to="/my-team"
+                  className="px-3 py-2 text-sm text-gray-700 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition"
+                >
+                  My Team
+                </Link>
+              </nav>
             </div>
             <div className="flex items-center space-x-4">
               <span className="text-gray-700">Welcome, {user?.name || user?.username}</span>

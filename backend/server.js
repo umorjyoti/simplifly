@@ -16,6 +16,7 @@ app.use('/api/tickets', require('./routes/tickets'));
 app.use('/api/comments', require('./routes/comments'));
 app.use('/api/subtasks', require('./routes/subtasks'));
 app.use('/api/billing', require('./routes/billing'));
+app.use('/api/invites', require('./routes/invites'));
 
 // Connect to MongoDB
 mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/simplifly')
