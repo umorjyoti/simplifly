@@ -32,7 +32,7 @@ const workspaceInviteSchema = new mongoose.Schema({
 });
 
 // Index for faster lookups
-workspaceInviteSchema.index({ inviteToken: 1 });
+// Note: inviteToken already has an index from unique: true, so we don't need to add it again
 workspaceInviteSchema.index({ workspace: 1, status: 1 });
 
 module.exports = mongoose.model('WorkspaceInvite', workspaceInviteSchema);
