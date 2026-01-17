@@ -10,7 +10,6 @@ const workspaceInviteSchema = new mongoose.Schema({
   inviteToken: {
     type: String,
     required: true,
-    unique: true,
     default: () => crypto.randomBytes(32).toString('hex')
   },
   requestedBy: {
@@ -31,8 +30,8 @@ const workspaceInviteSchema = new mongoose.Schema({
   timestamps: true
 });
 
-// Index for faster lookups
-// Note: inviteToken already has an index from unique: true, so we don't need to add it again
+// Indexes for faster lookups
+workspaceInviteSchema.index({ inviteToken: 1 }, { unique: true });
 workspaceInviteSchema.index({ workspace: 1, status: 1 });
 
 module.exports = mongoose.model('WorkspaceInvite', workspaceInviteSchema);
