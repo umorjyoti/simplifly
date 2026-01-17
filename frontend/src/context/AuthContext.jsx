@@ -38,9 +38,9 @@ export const AuthProvider = ({ children }) => {
     fetchUser();
   }, []);
 
-  const login = async (username, password) => {
+  const handleGoogleSignIn = async (credential) => {
     try {
-      const response = await api.post('/auth/login', { username, password });
+      const response = await api.post('/auth/google', { credential });
       const { token, user } = response.data;
       localStorage.setItem('token', token);
       localStorage.setItem('user', JSON.stringify(user));
@@ -54,27 +54,6 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const signup = async (username, password, email, name) => {
-    try {
-      const response = await api.post('/auth/signup', { 
-        username, 
-        password, 
-        email, 
-        name 
-      });
-      const { token, user } = response.data;
-      localStorage.setItem('token', token);
-      localStorage.setItem('user', JSON.stringify(user));
-      setUser(user);
-      return { success: true };
-    } catch (error) {
-      return { 
-        success: false, 
-        message: error.response?.data?.message || 'Signup failed' 
-      };
-    }
-  };
-
   const logout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
@@ -82,7 +61,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, signup, logout, loading }}>
+    <AuthContext.Provider value={{ user, handleGoogleSignIn, logout, loading }}>
       {children}
     </AuthContext.Provider>
   );
