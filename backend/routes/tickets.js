@@ -4,6 +4,7 @@ const auth = require('../middleware/auth');
 const Ticket = require('../models/Ticket');
 const Workspace = require('../models/Workspace');
 const TicketHistory = require('../models/TicketHistory');
+const { getPeriodRange, isDateInPeriod } = require('../utils/periodUtils');
 
 // Get all tickets for a workspace
 router.get('/workspace/:workspaceId', auth, async (req, res) => {
@@ -21,11 +22,29 @@ router.get('/workspace/:workspaceId', auth, async (req, res) => {
       return res.status(404).json({ message: 'Workspace not found or access denied' });
     }
 
-    const tickets = await Ticket.find({ workspace: req.params.workspaceId })
+    // Check for period filter query params
+    const { periodType, periodDate, includeBacklog } = req.query;
+    
+    let tickets = await Ticket.find({ workspace: req.params.workspaceId })
       .populate('assignee', 'username name')
       .populate('workspace', 'name')
       .populate('parentTicket', 'title type')
       .sort({ createdAt: -1 });
+
+    // Filter by period if provided
+    if (periodType && periodDate && periodType !== 'backlog') {
+      const period = getPeriodRange(new Date(periodDate), periodType);
+      tickets = tickets.filter(ticket => {
+        if (!ticket.goLiveDate) return false; // Exclude backlog items
+        return isDateInPeriod(new Date(ticket.goLiveDate), period.start, period.end);
+      });
+    } else if (periodType === 'backlog' || includeBacklog === 'true') {
+      // Return only backlog items (no goLiveDate)
+      tickets = tickets.filter(ticket => !ticket.goLiveDate);
+    } else if (periodType && periodDate) {
+      // If period filter is applied, exclude backlog by default
+      tickets = tickets.filter(ticket => ticket.goLiveDate);
+    }
 
     res.json(tickets);
   } catch (error) {
@@ -181,6 +200,8 @@ async function generateTicketNumber(workspaceId, workspaceName, ticketType) {
 router.post('/', auth, async (req, res) => {
   try {
     const { title, description, goLiveDate, assignee, workspace, type, parentTicket } = req.body;
+    
+    // goLiveDate is optional (for backlog items)
 
     // Verify user has access to workspace
     const workspaceDoc = await Workspace.findOne({
@@ -243,7 +264,7 @@ router.post('/', auth, async (req, res) => {
       ticketNumber,
       title,
       description,
-      goLiveDate,
+      goLiveDate: goLiveDate ? new Date(goLiveDate) : undefined, // Optional for backlog
       assignee,
       workspace,
       type: ticketType,
@@ -338,7 +359,10 @@ router.put('/:id', auth, async (req, res) => {
 
     if (title) ticket.title = title;
     if (description !== undefined) ticket.description = description;
-    if (goLiveDate) ticket.goLiveDate = goLiveDate;
+    if (goLiveDate !== undefined) {
+      // Allow setting goLiveDate to null for backlog items
+      ticket.goLiveDate = goLiveDate ? new Date(goLiveDate) : null;
+    }
     if (assignee) {
       // Verify assignee is a member
       const isMember = workspace.owner.toString() === assignee ||

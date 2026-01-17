@@ -44,14 +44,14 @@ const TicketBoard = ({ tickets, onStatusChange, onTicketClick, workspaceId: prop
 
   return (
     <DragDropContext onDragEnd={handleDragEnd}>
-      <div className="grid grid-cols-3 gap-4 h-full">
+      <div className="grid grid-cols-3 gap-2 h-full">
         {columns.map((column) => {
           const columnTickets = getTicketsByStatus(column.status);
           
           return (
             <div key={column.id} className="flex flex-col h-full">
-              <div className={`${getStatusColor(column.status)} px-4 py-3 rounded-t-lg border-2`}>
-                <h3 className="font-semibold text-gray-800">
+              <div className={`${getStatusColor(column.status)} px-3 py-2 rounded-t border-2 flex-shrink-0`}>
+                <h3 className="font-semibold text-gray-800 text-sm">
                   {column.title} ({columnTickets.length})
                 </h3>
               </div>
@@ -60,12 +60,12 @@ const TicketBoard = ({ tickets, onStatusChange, onTicketClick, workspaceId: prop
                   <div
                     ref={provided.innerRef}
                     {...provided.droppableProps}
-                    className={`flex-1 p-3 rounded-b-lg border-2 border-t-0 ${
+                    className={`flex-1 p-2 rounded-b border-2 border-t-0 ${
                       getStatusColor(column.status)
-                    } ${snapshot.isDraggingOver ? 'bg-opacity-80' : ''} min-h-[500px] overflow-y-auto`}
+                    } ${snapshot.isDraggingOver ? 'bg-opacity-80' : ''} overflow-y-auto`}
                   >
                     {columnTickets.length === 0 ? (
-                      <div className="text-center text-gray-500 py-8 text-sm">
+                      <div className="text-center text-gray-500 py-4 text-xs">
                         No tickets
                       </div>
                     ) : (
@@ -84,24 +84,24 @@ const TicketBoard = ({ tickets, onStatusChange, onTicketClick, workspaceId: prop
                                   onTicketClick(ticket);
                                 }
                               }}
-                              className={`bg-white rounded-lg shadow-md p-4 mb-3 cursor-pointer hover:shadow-lg transition ${
+                              className={`bg-white rounded shadow p-2 mb-2 cursor-pointer hover:shadow-md transition ${
                                 snapshot.isDragging ? 'opacity-50' : ''
                               }`}
                             >
-                              <div className="flex items-start justify-between mb-2">
-                                <div className="flex-1">
-                                  <div className="flex items-center gap-2 mb-1">
+                              <div className="flex items-start justify-between mb-1">
+                                <div className="flex-1 min-w-0">
+                                  <div className="flex items-center gap-1 mb-1">
                                     {ticket.ticketNumber && (
-                                      <span className="text-xs font-mono text-gray-500 bg-gray-100 px-2 py-0.5 rounded">
+                                      <span className="text-xs font-mono text-gray-500 bg-gray-100 px-1 py-0.5 rounded flex-shrink-0">
                                         {ticket.ticketNumber}
                                       </span>
                                     )}
-                                    <div className="font-semibold text-gray-900 line-clamp-2 flex-1">
+                                    <div className="font-semibold text-gray-900 line-clamp-1 text-sm flex-1 min-w-0">
                                       {ticket.title}
                                     </div>
                                   </div>
-                                  <div className="flex items-center gap-2">
-                                    <span className={`text-xs px-2 py-0.5 rounded ${
+                                  <div className="flex items-center gap-1 flex-wrap">
+                                    <span className={`text-xs px-1.5 py-0.5 rounded ${
                                       ticket.type === 'story' 
                                         ? 'bg-blue-100 text-blue-800' 
                                         : 'bg-purple-100 text-purple-800'
@@ -109,7 +109,7 @@ const TicketBoard = ({ tickets, onStatusChange, onTicketClick, workspaceId: prop
                                       {ticket.type === 'story' ? 'Story' : 'Subtask'}
                                     </span>
                                     {ticket.parentTicket && (
-                                      <span className="text-xs text-gray-400">
+                                      <span className="text-xs text-gray-400 truncate">
                                         of {ticket.parentTicket.title}
                                       </span>
                                     )}
@@ -117,14 +117,14 @@ const TicketBoard = ({ tickets, onStatusChange, onTicketClick, workspaceId: prop
                                 </div>
                               </div>
                               {ticket.description && (
-                                <div className="text-sm text-gray-600 mb-2 line-clamp-2">
+                                <div className="text-xs text-gray-600 mb-1 line-clamp-1">
                                   {ticket.description}
                                 </div>
                               )}
-                              <div className="flex items-center justify-between text-xs text-gray-500 mt-3">
-                                <span>{ticket.assignee?.name || ticket.assignee?.username}</span>
+                              <div className="flex items-center justify-between text-xs text-gray-500 mt-1">
+                                <span className="truncate">{ticket.assignee?.name || ticket.assignee?.username}</span>
                                 {ticket.hoursWorked > 0 && (
-                                  <span className="bg-gray-200 px-2 py-1 rounded">
+                                  <span className="bg-gray-200 px-1.5 py-0.5 rounded flex-shrink-0 ml-1">
                                     {ticket.hoursWorked}h
                                   </span>
                                 )}

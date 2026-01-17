@@ -18,7 +18,19 @@ const workspaceSchema = new mongoose.Schema({
   members: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User'
-  }]
+  }],
+  settings: {
+    periodType: {
+      type: String,
+      enum: ['weekly', 'monthly', 'quarterly'],
+      default: 'monthly'
+    },
+    currency: {
+      type: String,
+      enum: ['USD', 'INR'],
+      default: 'USD'
+    }
+  }
 }, {
   timestamps: true
 });

@@ -1,0 +1,10 @@
+<svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Streamlined paper plane with checkmark - representing simplification and speed -->
+  <!-- Paper plane body -->
+  <path d="M10 22L20 10L30 22L20 30L10 22Z" fill="#0284c7" opacity="0.15"/>
+  <!-- Paper plane outline -->
+  <path d="M10 22L20 10L30 22" stroke="#0284c7" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M20 10V30" stroke="#0284c7" stroke-width="2.5" stroke-linecap="round"/>
+  <!-- Checkmark representing completion/simplification -->
+  <path d="M15 22L18 25L25 18" stroke="#0284c7" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

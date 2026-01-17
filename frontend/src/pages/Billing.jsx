@@ -17,6 +17,7 @@ const Billing = () => {
   const [loading, setLoading] = useState(true);
   const [showAddManualItem, setShowAddManualItem] = useState(false);
   const [editingManualItem, setEditingManualItem] = useState(null);
+  const [workspace, setWorkspace] = useState(null);
   const [manualItemForm, setManualItemForm] = useState({
     title: '',
     description: '',
@@ -24,10 +25,280 @@ const Billing = () => {
     userId: ''
   });
 
+  // Helper function to get currency symbol
+  const getCurrencySymbol = () => {
+    const currency = workspace?.settings?.currency || 'USD';
+    return currency === 'INR' ? '₹' : '$';
+  };
+
+  // Function to generate and print invoice in a new window
+  const handlePrintInvoice = () => {
+    if (!bill) return;
+
+    const currencySymbol = getCurrencySymbol();
+    
+    // Generate HTML for the invoice
+    const invoiceHTML = `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <title>Invoice - ${bill.workspace.name}</title>
+          <style>
+            * {
+              margin: 0;
+              padding: 0;
+              box-sizing: border-box;
+            }
+            body {
+              font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+              padding: 0;
+              color: #000;
+              background: white;
+              width: 210mm;
+              min-height: 297mm;
+              margin: 0 auto;
+            }
+            .invoice-container {
+              padding: 20mm;
+              width: 100%;
+              height: 100%;
+            }
+            .invoice-header {
+              margin-bottom: 30px;
+            }
+            .invoice-title {
+              font-size: 28px;
+              font-weight: bold;
+              margin-bottom: 8px;
+              color: #111827;
+            }
+            .invoice-date {
+              font-size: 14px;
+              color: #6b7280;
+            }
+            .invoice-info {
+              display: grid;
+              grid-template-columns: 1fr 1fr;
+              gap: 30px;
+              margin-bottom: 30px;
+            }
+            .info-section h3 {
+              font-size: 12px;
+              font-weight: 500;
+              color: #6b7280;
+              margin-bottom: 4px;
+              text-transform: uppercase;
+            }
+            .info-section p {
+              font-size: 16px;
+              font-weight: 600;
+              color: #111827;
+            }
+            .work-items-section {
+              margin-bottom: 30px;
+            }
+            .section-title {
+              font-size: 18px;
+              font-weight: 600;
+              margin-bottom: 12px;
+              color: #111827;
+            }
+            table {
+              width: 100%;
+              border-collapse: collapse;
+              border: 1px solid #e5e7eb;
+            }
+            thead {
+              background-color: #f9fafb;
+            }
+            th {
+              padding: 12px 16px;
+              text-align: left;
+              font-size: 12px;
+              font-weight: 500;
+              color: #6b7280;
+              text-transform: uppercase;
+              border-bottom: 1px solid #e5e7eb;
+            }
+            th.text-right {
+              text-align: right;
+            }
+            td {
+              padding: 12px 16px;
+              border-bottom: 1px solid #e5e7eb;
+            }
+            tbody tr:last-child td {
+              border-bottom: none;
+            }
+            .item-title {
+              font-weight: 500;
+              color: #111827;
+              margin-bottom: 4px;
+            }
+            .item-description {
+              font-size: 14px;
+              color: #6b7280;
+              margin-bottom: 4px;
+            }
+            .item-type {
+              font-size: 12px;
+              color: #9ca3af;
+            }
+            .text-right {
+              text-align: right;
+            }
+            .summary {
+              border-top: 2px solid #e5e7eb;
+              padding-top: 16px;
+              margin-top: 20px;
+            }
+            .summary-row {
+              display: flex;
+              justify-content: space-between;
+              margin-bottom: 8px;
+              font-size: 14px;
+            }
+            .summary-label {
+              color: #6b7280;
+            }
+            .summary-value {
+              color: #111827;
+              font-weight: 600;
+            }
+            .summary-total {
+              border-top: 2px solid #e5e7eb;
+              padding-top: 12px;
+              margin-top: 12px;
+              font-size: 18px;
+              font-weight: bold;
+            }
+            @media print {
+              @page {
+                size: A4;
+                margin: 0;
+              }
+              body {
+                width: 210mm;
+                min-height: 297mm;
+                margin: 0;
+                padding: 0;
+              }
+              .invoice-container {
+                padding: 20mm;
+                width: 100%;
+                height: 100%;
+              }
+            }
+            @media screen {
+              body {
+                background: #f3f4f6;
+                padding: 20px;
+              }
+              .invoice-container {
+                background: white;
+                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+                margin: 0 auto;
+              }
+            }
+          </style>
+        </head>
+        <body>
+          <div class="invoice-container">
+          <div class="invoice-header">
+            <h1 class="invoice-title">Invoice</h1>
+            <p class="invoice-date">Generated: ${new Date(bill.generatedAt).toLocaleString()}</p>
+          </div>
+
+          <div class="invoice-info">
+            <div class="info-section">
+              <h3>Workspace</h3>
+              <p>${bill.workspace.name}</p>
+            </div>
+            ${!bill.isAgencyLevel ? `
+            <div class="info-section">
+              <h3>User</h3>
+              <p>${bill.user?.name || bill.user?.username || 'N/A'}</p>
+            </div>
+            ` : ''}
+          </div>
+
+          <div class="work-items-section">
+            <h2 class="section-title">Work Items</h2>
+            <table>
+              <thead>
+                <tr>
+                  <th>Work Item</th>
+                  <th>Hours</th>
+                  <th class="text-right">Amount</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${bill.workItems.map(item => `
+                  <tr>
+                    <td>
+                      <div class="item-title">${item.title}</div>
+                      ${item.description ? `<div class="item-description">${item.description}</div>` : ''}
+                      <div class="item-type">${item.type === 'manual' ? 'Manual Item' : 'Ticket'}</div>
+                    </td>
+                    <td>${item.hours}</td>
+                    <td class="text-right">${currencySymbol}${(item.hours * bill.hourlyRate).toFixed(2)}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+
+          <div class="summary">
+            <div class="summary-row">
+              <span class="summary-label">Hourly Rate:</span>
+              <span class="summary-value">${currencySymbol}${bill.hourlyRate.toFixed(2)}</span>
+            </div>
+            <div class="summary-row">
+              <span class="summary-label">Total Items:</span>
+              <span class="summary-value">${bill.summary.totalItems}</span>
+            </div>
+            <div class="summary-row">
+              <span class="summary-label">Total Hours:</span>
+              <span class="summary-value">${bill.summary.totalHours}</span>
+            </div>
+            <div class="summary-row summary-total">
+              <span>Total Amount:</span>
+              <span>${currencySymbol}${bill.summary.totalAmount.toFixed(2)}</span>
+            </div>
+          </div>
+          </div>
+
+          <script>
+            window.onload = function() {
+              window.print();
+            };
+          </script>
+        </body>
+      </html>
+    `;
+
+    // Open new window and write HTML
+    const printWindow = window.open('', '_blank');
+    if (printWindow) {
+      printWindow.document.write(invoiceHTML);
+      printWindow.document.close();
+    }
+  };
+
   useEffect(() => {
+    fetchWorkspace();
     fetchBillableData();
     fetchManualItems();
   }, [id]);
+
+  const fetchWorkspace = async () => {
+    try {
+      const response = await api.get(`/workspaces/${id}`);
+      setWorkspace(response.data);
+    } catch (error) {
+      console.error('Error fetching workspace:', error);
+    }
+  };
 
   const fetchBillableData = async () => {
     try {
@@ -250,7 +521,7 @@ const Billing = () => {
 
   return (
     <Layout>
-      <div className="mb-6">
+      <div className="mb-6 no-print">
         <Link to={`/workspace/${id}`} className="text-primary-600 hover:text-primary-700 mb-4 inline-block">
           ← Back to Workspace
         </Link>
@@ -259,7 +530,7 @@ const Billing = () => {
       </div>
 
       {/* Billing Mode Toggle */}
-      <div className="bg-white rounded-lg shadow p-6 mb-6">
+      <div className="bg-white rounded-lg shadow p-6 mb-6 no-print">
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-lg font-semibold text-gray-900 mb-2">Billing Mode</h2>
@@ -292,7 +563,7 @@ const Billing = () => {
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 no-print">
           {/* User Selection (only for user-level) */}
           {!isAgencyLevel && (
             <div className="lg:col-span-1">
@@ -557,11 +828,11 @@ const Billing = () => {
 
               {/* Bill Generation */}
               {(selectedTickets.length > 0 || selectedManualItems.length > 0) && (
-                <div className="bg-white rounded-lg shadow p-6">
+                <div className="bg-white rounded-lg shadow p-6 no-print">
                   <h2 className="text-xl font-semibold text-gray-900 mb-4">Generate Bill</h2>
                   <div className="mb-4">
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      {isAgencyLevel ? 'Agency Hourly Rate ($)' : 'Hourly Rate ($)'}
+                      {isAgencyLevel ? `Agency Hourly Rate (${getCurrencySymbol()})` : `Hourly Rate (${getCurrencySymbol()})`}
                     </label>
                     <input
                       type="number"
@@ -592,7 +863,7 @@ const Billing = () => {
 
               {/* Bill Display */}
               {bill && (
-                <div className="bg-white rounded-lg shadow-lg p-6 border-2 border-primary-200">
+                <div className="bg-white rounded-lg shadow-lg p-6 border-2 border-primary-200 print-bill">
                   <div className="flex justify-between items-start mb-6">
                     <div>
                       <h2 className="text-2xl font-bold text-gray-900">Invoice</h2>
@@ -601,10 +872,10 @@ const Billing = () => {
                       </p>
                     </div>
                     <button
-                      onClick={() => window.print()}
+                      onClick={handlePrintInvoice}
                       className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition"
                     >
-                      Print
+                      Print / Save as PDF
                     </button>
                   </div>
 
@@ -666,7 +937,7 @@ const Billing = () => {
                                 {item.hours}
                               </td>
                               <td className="px-4 py-3 text-right text-gray-900 font-semibold">
-                                ${(item.hours * bill.hourlyRate).toFixed(2)}
+                                {getCurrencySymbol()}{(item.hours * bill.hourlyRate).toFixed(2)}
                               </td>
                             </tr>
                           ))}
@@ -678,7 +949,7 @@ const Billing = () => {
                   <div className="border-t border-gray-200 pt-4">
                     <div className="flex justify-between items-center mb-2">
                       <span className="text-gray-600">Hourly Rate:</span>
-                      <span className="text-gray-900 font-semibold">${bill.hourlyRate.toFixed(2)}</span>
+                      <span className="text-gray-900 font-semibold">{getCurrencySymbol()}{bill.hourlyRate.toFixed(2)}</span>
                     </div>
                     <div className="flex justify-between items-center mb-2">
                       <span className="text-gray-600">Total Items:</span>
@@ -690,7 +961,7 @@ const Billing = () => {
                     </div>
                     <div className="flex justify-between items-center text-lg font-bold text-gray-900 pt-2 border-t border-gray-200">
                       <span>Total Amount:</span>
-                      <span>${bill.summary.totalAmount.toFixed(2)}</span>
+                      <span>{getCurrencySymbol()}{bill.summary.totalAmount.toFixed(2)}</span>
                     </div>
                   </div>
                 </div>

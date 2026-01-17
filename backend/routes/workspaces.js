@@ -78,9 +78,24 @@ router.put('/:id', auth, async (req, res) => {
       return res.status(404).json({ message: 'Workspace not found or you are not the owner' });
     }
 
-    const { name, description } = req.body;
+    const { name, description, settings } = req.body;
     if (name) workspace.name = name;
     if (description !== undefined) workspace.description = description;
+    if (settings) {
+      workspace.settings = workspace.settings || {};
+      if (settings.periodType) {
+        if (!['weekly', 'monthly', 'quarterly'].includes(settings.periodType)) {
+          return res.status(400).json({ message: 'Invalid period type. Must be weekly, monthly, or quarterly' });
+        }
+        workspace.settings.periodType = settings.periodType;
+      }
+      if (settings.currency) {
+        if (!['USD', 'INR'].includes(settings.currency)) {
+          return res.status(400).json({ message: 'Invalid currency. Must be USD or INR' });
+        }
+        workspace.settings.currency = settings.currency;
+      }
+    }
 
     await workspace.save();
     await workspace.populate('owner', 'username name');

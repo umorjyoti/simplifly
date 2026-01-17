@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import Logo from '../components/Logo';
 
 const Signup = () => {
   const [formData, setFormData] = useState({
@@ -58,7 +59,9 @@ const Signup = () => {
     <div className="min-h-screen bg-gradient-to-br from-primary-50 to-primary-100 flex items-center justify-center px-4 py-8">
       <div className="max-w-md w-full bg-white rounded-2xl shadow-xl p-8">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Simplifly</h1>
+          <div className="flex justify-center mb-4">
+            <Logo showText={true} size="lg" />
+          </div>
           <p className="text-gray-600">Create your account</p>
         </div>
 

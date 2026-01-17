@@ -15,3 +15,80 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+/* Print Styles */
+@media print {
+  /* Hide everything by default */
+  body * {
+    visibility: hidden;
+  }
+
+  /* Show only the bill section */
+  .print-bill,
+  .print-bill * {
+    visibility: visible;
+  }
+
+  /* Position the bill at the top of the page */
+  .print-bill {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    margin: 0;
+    padding: 20px;
+    box-shadow: none;
+    border: none;
+    page-break-inside: avoid;
+  }
+
+  /* Hide elements with no-print class */
+  .no-print,
+  .no-print * {
+    display: none !important;
+    visibility: hidden !important;
+  }
+
+  /* Hide navigation and layout elements */
+  nav,
+  header,
+  footer,
+  aside {
+    display: none !important;
+    visibility: hidden !important;
+  }
+
+  /* Ensure proper page breaks */
+  .print-bill {
+    page-break-after: always;
+  }
+
+  /* Remove background colors for printing */
+  .print-bill {
+    background: white !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* Style table borders for printing */
+  .print-bill table {
+    border-collapse: collapse;
+    width: 100%;
+  }
+
+  .print-bill table th,
+  .print-bill table td {
+    border: 1px solid #e5e7eb;
+    padding: 8px;
+  }
+
+  /* Ensure text is black for printing */
+  .print-bill {
+    color: #000 !important;
+  }
+
+  /* Remove any margins from body */
+  @page {
+    margin: 0.5cm;
+  }
+}

@@ -17,7 +17,7 @@ const ticketSchema = new mongoose.Schema({
   },
   goLiveDate: {
     type: Date,
-    required: true
+    required: false // Optional for backlog items
   },
   assignee: {
     type: mongoose.Schema.Types.ObjectId,

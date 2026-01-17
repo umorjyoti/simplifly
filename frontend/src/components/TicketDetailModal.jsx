@@ -85,21 +85,28 @@ const TicketDetailModal = ({ ticket, workspace, onClose, onUpdate, workspaceId: 
     try {
       // Get the first member as default assignee (or use ticket assignee)
       const defaultAssignee = ticket.assignee?._id || ticket.assignee || workspace?.members?.[0]?._id;
-      const defaultGoLiveDate = ticket.goLiveDate || new Date().toISOString().split('T')[0];
+      // Subtasks inherit goLiveDate from parent, or can be null for backlog
+      const defaultGoLiveDate = ticket.goLiveDate ? new Date(ticket.goLiveDate).toISOString().split('T')[0] : null;
 
       const workspaceId = typeof ticket.workspace === 'object' 
         ? ticket.workspace._id 
         : ticket.workspace;
 
-      const response = await api.post('/tickets', {
+      const payload = {
         title: newSubtaskTitle,
         description: '',
-        goLiveDate: defaultGoLiveDate,
         assignee: defaultAssignee,
         workspace: workspaceId,
         type: 'subtask',
         parentTicket: ticket._id
-      });
+      };
+      
+      // Only include goLiveDate if parent has one
+      if (defaultGoLiveDate) {
+        payload.goLiveDate = defaultGoLiveDate;
+      }
+
+      const response = await api.post('/tickets', payload);
       setSubtasks([...subtasks, response.data]);
       setNewSubtaskTitle('');
       await fetchHistory();
@@ -192,7 +199,11 @@ const TicketDetailModal = ({ ticket, workspace, onClose, onUpdate, workspaceId: 
               }`}>
                 {ticket.type === 'story' ? 'Story' : 'Subtask'}
               </span>
-              <span>Go Live: {new Date(ticket.goLiveDate).toLocaleDateString()}</span>
+              {ticket.goLiveDate ? (
+                <span>Go Live: {new Date(ticket.goLiveDate).toLocaleDateString()}</span>
+              ) : (
+                <span className="text-orange-600">Backlog</span>
+              )}
               {ticket.hoursWorked > 0 && <span>Hours: {ticket.hoursWorked}</span>}
               {ticket.type === 'story' && totalSubtasks > 0 && (
                 <span>Subtasks: {completedSubtasks}/{totalSubtasks}</span>
@@ -412,6 +423,26 @@ const TicketDetailModal = ({ ticket, workspace, onClose, onUpdate, workspaceId: 
                   </select>
                 </div>
               )}
+
+              {/* Go Live Date */}
+              <div>
+                <h3 className="font-semibold text-gray-900 mb-2">Go Live Date</h3>
+                <input
+                  type="date"
+                  value={ticket.goLiveDate ? new Date(ticket.goLiveDate).toISOString().split('T')[0] : ''}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    onUpdate({ goLiveDate: value ? new Date(value) : null });
+                  }}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none"
+                />
+                <button
+                  onClick={() => onUpdate({ goLiveDate: null })}
+                  className="mt-2 text-xs text-red-600 hover:text-red-700"
+                >
+                  Move to backlog
+                </button>
+              </div>
 
               {/* Hours Worked */}
               <div>
