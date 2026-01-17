@@ -19,22 +19,49 @@ const allowedOrigins = [
 const corsOptions = {
   origin: function (origin, callback) {
     // Allow requests with no origin (like mobile apps or curl requests)
-    if (!origin) return callback(null, true);
+    if (!origin) {
+      return callback(null, true);
+    }
     
-    if (allowedOrigins.indexOf(origin) !== -1 || process.env.NODE_ENV === 'development') {
+    // Normalize origin (remove trailing slash, convert to lowercase for comparison)
+    const normalizedOrigin = origin.toLowerCase().replace(/\/$/, '');
+    const normalizedAllowed = allowedOrigins.map(o => o.toLowerCase().replace(/\/$/, ''));
+    
+    // Check if origin matches any allowed origin (exact match or subdomain)
+    const isAllowed = normalizedAllowed.some(allowed => {
+      if (normalizedOrigin === allowed) return true;
+      // Allow all cloudflare tunnel subdomains
+      if (normalizedOrigin.includes('trycloudflare.com')) {
+        return true;
+      }
+      return false;
+    });
+    
+    // In development, be more permissive
+    if (process.env.NODE_ENV === 'development') {
+      return callback(null, true);
+    }
+    
+    if (isAllowed) {
       callback(null, true);
     } else {
+      console.error('CORS blocked origin:', origin);
+      console.error('Allowed origins:', allowedOrigins);
       callback(new Error('Not allowed by CORS'));
     }
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-  optionsSuccessStatus: 200
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+  exposedHeaders: ['Content-Type', 'Authorization'],
+  optionsSuccessStatus: 200,
+  preflightContinue: false
 };
 
 // Middleware
+// Apply CORS to all routes - must be before other middleware
 app.use(cors(corsOptions));
+
 app.use(express.json());
 
 // Routes
