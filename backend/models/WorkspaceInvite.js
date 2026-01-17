@@ -10,6 +10,7 @@ const workspaceInviteSchema = new mongoose.Schema({
   inviteToken: {
     type: String,
     required: true,
+    unique: true,
     default: () => crypto.randomBytes(32).toString('hex')
   },
   requestedBy: {
@@ -31,7 +32,12 @@ const workspaceInviteSchema = new mongoose.Schema({
 });
 
 // Indexes for faster lookups
-workspaceInviteSchema.index({ inviteToken: 1 }, { unique: true });
 workspaceInviteSchema.index({ workspace: 1, status: 1 });
 
-module.exports = mongoose.model('WorkspaceInvite', workspaceInviteSchema);
+// Compile model - check if already exists to prevent recompilation
+if (mongoose.models.WorkspaceInvite) {
+  module.exports = mongoose.models.WorkspaceInvite;
+} else {
+  const WorkspaceInvite = mongoose.model('WorkspaceInvite', workspaceInviteSchema);
+  module.exports = WorkspaceInvite;
+}
