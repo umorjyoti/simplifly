@@ -15,11 +15,19 @@ const TicketDetail = () => {
   const [newSubtaskTitle, setNewSubtaskTitle] = useState('');
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  const [hoursInput, setHoursInput] = useState('');
 
   useEffect(() => {
     fetchTicket();
     fetchWorkspace();
   }, [ticketId, workspaceId]);
+
+  // Update hours input when ticket changes
+  useEffect(() => {
+    if (ticket) {
+      setHoursInput(ticket.hoursWorked !== undefined ? ticket.hoursWorked.toString() : '');
+    }
+  }, [ticket]);
 
   const fetchTicket = async () => {
     try {
@@ -152,6 +160,7 @@ const TicketDetail = () => {
           hoursWorked: updates.hoursWorked
         });
         setTicket(response.data);
+        setHoursInput(response.data.hoursWorked?.toString() || '');
       } else {
         const response = await api.put(`/tickets/${ticket._id}`, updates);
         setTicket(response.data);
@@ -159,6 +168,10 @@ const TicketDetail = () => {
       await fetchTicket();
     } catch (error) {
       alert(error.response?.data?.message || 'Failed to update ticket');
+      // Reset hours input on error
+      if (updates.hoursWorked !== undefined) {
+        setHoursInput(ticket.hoursWorked?.toString() || '');
+      }
     }
   };
 
@@ -455,11 +468,21 @@ const TicketDetail = () => {
                   type="number"
                   step="0.1"
                   min="0"
-                  value={ticket.hoursWorked || ''}
+                  value={hoursInput}
+                  onChange={(e) => setHoursInput(e.target.value)}
                   onBlur={(e) => {
                     const value = parseFloat(e.target.value) || 0;
-                    if (value !== ticket.hoursWorked) {
+                    const currentHours = ticket.hoursWorked || 0;
+                    if (value !== currentHours) {
                       handleTicketUpdate({ hoursWorked: value });
+                    } else {
+                      // Reset to original value if unchanged
+                      setHoursInput(currentHours.toString());
+                    }
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.target.blur();
                     }
                   }}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none"

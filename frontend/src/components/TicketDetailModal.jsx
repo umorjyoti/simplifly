@@ -13,12 +13,14 @@ const TicketDetailModal = ({ ticket, workspace, onClose, onUpdate, workspaceId: 
   const [newSubtaskTitle, setNewSubtaskTitle] = useState('');
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  const [hoursInput, setHoursInput] = useState('');
 
   useEffect(() => {
     if (ticket) {
       fetchComments();
       fetchHistory();
       fetchSubtasks();
+      setHoursInput(ticket.hoursWorked !== undefined ? ticket.hoursWorked.toString() : '');
     }
   }, [ticket]);
 
@@ -451,11 +453,21 @@ const TicketDetailModal = ({ ticket, workspace, onClose, onUpdate, workspaceId: 
                   type="number"
                   step="0.1"
                   min="0"
-                  value={ticket.hoursWorked || ''}
+                  value={hoursInput}
+                  onChange={(e) => setHoursInput(e.target.value)}
                   onBlur={(e) => {
                     const value = parseFloat(e.target.value) || 0;
-                    if (value !== ticket.hoursWorked) {
+                    const currentHours = ticket.hoursWorked || 0;
+                    if (value !== currentHours) {
                       onUpdate({ hoursWorked: value });
+                    } else {
+                      // Reset to original value if unchanged
+                      setHoursInput(currentHours.toString());
+                    }
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.target.blur();
                     }
                   }}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none"
