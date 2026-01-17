@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const auth = require('../middleware/auth');
 const Workspace = require('../models/Workspace');
+const Visit = require('../models/Visit');
 
 // Get all workspaces for the authenticated user
 router.get('/', auth, async (req, res) => {
@@ -25,19 +26,33 @@ router.get('/', auth, async (req, res) => {
 // Get single workspace
 router.get('/:id', auth, async (req, res) => {
   try {
-    const workspace = await Workspace.findOne({
-      _id: req.params.id,
-      $or: [
-        { owner: req.user._id },
-        { members: req.user._id }
-      ]
-    })
-    .populate('owner', 'username name')
-    .populate('members', 'username name');
+    // Superadmin can access any workspace
+    let workspace;
+    if (req.user.role === 'superadmin') {
+      workspace = await Workspace.findById(req.params.id)
+        .populate('owner', 'username name')
+        .populate('members', 'username name');
+    } else {
+      workspace = await Workspace.findOne({
+        _id: req.params.id,
+        $or: [
+          { owner: req.user._id },
+          { members: req.user._id }
+        ]
+      })
+      .populate('owner', 'username name')
+      .populate('members', 'username name');
+    }
 
     if (!workspace) {
       return res.status(404).json({ message: 'Workspace not found' });
     }
+
+    // Track visit (non-blocking)
+    Visit.create({
+      userId: req.user._id,
+      workspaceId: workspace._id
+    }).catch(err => console.error('Error tracking visit:', err));
 
     res.json(workspace);
   } catch (error) {

@@ -34,6 +34,14 @@ const Layout = ({ children }) => {
                 >
                   My Team
                 </Link>
+                {user?.role === 'superadmin' && (
+                  <Link
+                    to="/superadmin"
+                    className="px-3 py-2 text-sm text-red-700 hover:text-red-900 hover:bg-red-50 rounded-lg transition font-semibold"
+                  >
+                    Super Admin
+                  </Link>
+                )}
               </nav>
             </div>
             <div className="flex items-center space-x-4">

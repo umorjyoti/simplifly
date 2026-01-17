@@ -1,6 +1,7 @@
 const express = require('express');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
+const auth = require('../middleware/auth');
 const router = express.Router();
 
 // Signup
@@ -31,7 +32,8 @@ router.post('/signup', async (req, res) => {
         id: user._id,
         username: user.username,
         email: user.email,
-        name: user.name
+        name: user.name,
+        role: user.role
       }
     });
   } catch (error) {
@@ -69,8 +71,24 @@ router.post('/login', async (req, res) => {
         id: user._id,
         username: user.username,
         email: user.email,
-        name: user.name
+        name: user.name,
+        role: user.role
       }
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// Get current user
+router.get('/me', auth, async (req, res) => {
+  try {
+    res.json({
+      id: req.user._id,
+      username: req.user.username,
+      email: req.user.email,
+      name: req.user.name,
+      role: req.user.role
     });
   } catch (error) {
     res.status(500).json({ message: error.message });

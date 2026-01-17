@@ -9,6 +9,7 @@ import TicketDetail from './pages/TicketDetail';
 import Billing from './pages/Billing';
 import MyTeam from './pages/MyTeam';
 import JoinWorkspace from './pages/JoinWorkspace';
+import SuperAdminDashboard from './pages/SuperAdminDashboard';
 
 const PrivateRoute = ({ children }) => {
   const { user, loading } = useAuth();
@@ -51,6 +52,7 @@ function App() {
           <Route path="/workspace/:workspaceId/ticket/:ticketId" element={<PrivateRoute><TicketDetail /></PrivateRoute>} />
           <Route path="/workspace/:id/billing" element={<PrivateRoute><Billing /></PrivateRoute>} />
           <Route path="/join/:token" element={<PrivateRoute><JoinWorkspace /></PrivateRoute>} />
+          <Route path="/superadmin" element={<PrivateRoute><SuperAdminDashboard /></PrivateRoute>} />
           <Route path="/" element={<Navigate to="/dashboard" />} />
         </Routes>
       </Router>
