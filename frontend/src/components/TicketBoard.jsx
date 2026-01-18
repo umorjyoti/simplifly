@@ -35,38 +35,68 @@ const TicketBoard = ({ tickets, onStatusChange, onTicketClick, workspaceId: prop
 
   const getStatusColor = (status) => {
     switch (status) {
-      case 'todo': return 'bg-blue-100 border-blue-300';
-      case 'in-progress': return 'bg-yellow-100 border-yellow-300';
-      case 'completed': return 'bg-green-100 border-green-300';
-      default: return 'bg-gray-100 border-gray-300';
+      case 'todo': 
+        return {
+          header: 'bg-gradient-to-r from-blue-50 to-blue-100 border-blue-200',
+          body: 'bg-blue-50/30',
+          accent: 'text-blue-600',
+          badge: 'bg-blue-100 text-blue-700'
+        };
+      case 'in-progress': 
+        return {
+          header: 'bg-gradient-to-r from-amber-50 to-amber-100 border-amber-200',
+          body: 'bg-amber-50/30',
+          accent: 'text-amber-600',
+          badge: 'bg-amber-100 text-amber-700'
+        };
+      case 'completed': 
+        return {
+          header: 'bg-gradient-to-r from-emerald-50 to-emerald-100 border-emerald-200',
+          body: 'bg-emerald-50/30',
+          accent: 'text-emerald-600',
+          badge: 'bg-emerald-100 text-emerald-700'
+        };
+      default: 
+        return {
+          header: 'bg-gradient-to-r from-gray-50 to-gray-100 border-gray-200',
+          body: 'bg-gray-50/30',
+          accent: 'text-gray-600',
+          badge: 'bg-gray-100 text-gray-700'
+        };
     }
   };
 
   return (
     <DragDropContext onDragEnd={handleDragEnd}>
-      <div className="grid grid-cols-3 gap-2 h-full">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 h-full">
         {columns.map((column) => {
           const columnTickets = getTicketsByStatus(column.status);
+          const colors = getStatusColor(column.status);
           
           return (
-            <div key={column.id} className="flex flex-col h-full">
-              <div className={`${getStatusColor(column.status)} px-3 py-2 rounded-t border-2 flex-shrink-0`}>
-                <h3 className="font-semibold text-gray-800 text-sm">
-                  {column.title} ({columnTickets.length})
+            <div key={column.id} className="flex flex-col h-full min-h-[200px]">
+              <div className={`${colors.header} px-4 py-3 rounded-t-lg border-b-2 flex-shrink-0 shadow-sm`}>
+                <div className="flex items-center justify-between">
+                  <h3 className={`font-bold ${colors.accent} text-sm`}>
+                    {column.title}
                 </h3>
+                  <span className={`${colors.badge} px-2.5 py-0.5 rounded-full text-xs font-semibold`}>
+                    {columnTickets.length}
+                  </span>
+                </div>
               </div>
               <Droppable droppableId={column.id}>
                 {(provided, snapshot) => (
                   <div
                     ref={provided.innerRef}
                     {...provided.droppableProps}
-                    className={`flex-1 p-2 rounded-b border-2 border-t-0 ${
-                      getStatusColor(column.status)
-                    } ${snapshot.isDraggingOver ? 'bg-opacity-80' : ''} overflow-y-auto`}
+                    className={`flex-1 p-3 rounded-b-lg ${colors.body} ${
+                      snapshot.isDraggingOver ? 'ring-2 ring-primary-400 ring-opacity-50' : ''
+                    } overflow-y-auto transition-all`}
                   >
                     {columnTickets.length === 0 ? (
-                      <div className="text-center text-gray-500 py-4 text-xs">
-                        No tickets
+                      <div className="text-center text-gray-400 py-8 text-sm">
+                        <div className="opacity-50">No tickets</div>
                       </div>
                     ) : (
                       columnTickets.map((ticket, index) => (
@@ -84,32 +114,32 @@ const TicketBoard = ({ tickets, onStatusChange, onTicketClick, workspaceId: prop
                                   onTicketClick(ticket);
                                 }
                               }}
-                              className={`bg-white rounded shadow p-2 mb-2 cursor-pointer hover:shadow-md transition ${
-                                snapshot.isDragging ? 'opacity-50' : ''
+                              className={`bg-white rounded-lg shadow-sm border border-gray-200 p-3 mb-3 cursor-pointer hover:shadow-lg hover:border-gray-300 transition-all duration-200 ${
+                                snapshot.isDragging ? 'opacity-60 rotate-2 scale-105 shadow-xl' : ''
                               }`}
                             >
-                              <div className="flex items-start justify-between mb-1">
+                              <div className="flex items-start justify-between mb-2">
                                 <div className="flex-1 min-w-0">
-                                  <div className="flex items-center gap-1 mb-1">
+                                  <div className="flex items-center gap-2 mb-2">
                                     {ticket.ticketNumber && (
-                                      <span className="text-xs font-mono text-gray-500 bg-gray-100 px-1 py-0.5 rounded flex-shrink-0">
+                                      <span className="text-xs font-mono text-gray-600 bg-gray-100 px-2 py-0.5 rounded-md flex-shrink-0 font-semibold">
                                         {ticket.ticketNumber}
                                       </span>
                                     )}
-                                    <div className="font-semibold text-gray-900 line-clamp-1 text-sm flex-1 min-w-0">
+                                    <div className="font-semibold text-gray-900 line-clamp-2 text-sm flex-1 min-w-0 leading-tight">
                                       {ticket.title}
                                     </div>
                                   </div>
-                                  <div className="flex items-center gap-1 flex-wrap">
-                                    <span className={`text-xs px-1.5 py-0.5 rounded ${
+                                  <div className="flex items-center gap-1.5 flex-wrap mb-2">
+                                    <span className={`text-xs px-2 py-0.5 rounded-md font-medium ${
                                       ticket.type === 'story' 
-                                        ? 'bg-blue-100 text-blue-800' 
-                                        : 'bg-purple-100 text-purple-800'
+                                        ? 'bg-blue-100 text-blue-700' 
+                                        : 'bg-purple-100 text-purple-700'
                                     }`}>
                                       {ticket.type === 'story' ? 'Story' : 'Subtask'}
                                     </span>
                                     {ticket.parentTicket && (
-                                      <span className="text-xs text-gray-400 truncate">
+                                      <span className="text-xs text-gray-500 truncate">
                                         of {ticket.parentTicket.title}
                                       </span>
                                     )}
@@ -117,20 +147,32 @@ const TicketBoard = ({ tickets, onStatusChange, onTicketClick, workspaceId: prop
                                 </div>
                               </div>
                               {ticket.description && (
-                                <div className="text-xs text-gray-600 mb-1 line-clamp-1">
+                                <div className="text-xs text-gray-600 mb-2 line-clamp-2 leading-relaxed">
                                   {ticket.description}
                                 </div>
                               )}
-                              <div className="flex items-center justify-between text-xs text-gray-500 mt-1">
-                                <span className="truncate">{ticket.assignee?.name || ticket.assignee?.username}</span>
+                              <div className="flex items-center justify-between pt-2 border-t border-gray-100">
+                                <div className="flex items-center gap-2">
+                                  <div className="w-6 h-6 rounded-full bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center text-white text-xs font-semibold">
+                                    {(ticket.assignee?.name || ticket.assignee?.username || '?').charAt(0).toUpperCase()}
+                                  </div>
+                                  <span className="text-xs text-gray-600 font-medium truncate max-w-[100px]">
+                                    {ticket.assignee?.name || ticket.assignee?.username}
+                                  </span>
+                                </div>
+                                <div className="flex items-center gap-2">
                                 {ticket.hoursWorked > 0 && (
-                                  <span className="bg-gray-200 px-1.5 py-0.5 rounded flex-shrink-0 ml-1">
+                                    <span className="bg-primary-50 text-primary-700 px-2 py-0.5 rounded-md text-xs font-semibold flex-shrink-0">
                                     {ticket.hoursWorked}h
                                   </span>
                                 )}
+                                </div>
                               </div>
                               {ticket.goLiveDate && (
-                                <div className="text-xs text-gray-400 mt-1">
+                                <div className="text-xs text-gray-500 mt-2 flex items-center gap-1">
+                                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                  </svg>
                                   Due: {new Date(ticket.goLiveDate).toLocaleDateString()}
                                 </div>
                               )}

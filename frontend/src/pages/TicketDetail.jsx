@@ -231,41 +231,56 @@ const TicketDetail = () => {
       <div className="min-h-screen bg-gray-50">
         {/* Header */}
         <div className="bg-white border-b border-gray-200 sticky top-0 z-10">
-          <div className="max-w-7xl mx-auto px-6 py-3">
-            <div className="flex items-center justify-between gap-4 flex-wrap">
-              <div className="flex items-center gap-4 flex-1 min-w-0">
+          <div className="max-w-7xl mx-auto px-3 sm:px-6 py-3">
+            <div className="flex flex-col gap-3">
+              <div className="flex items-center justify-between gap-2">
                 <Link 
                   to={`/workspace/${workspaceId}`}
-                  className="text-gray-600 hover:text-gray-900 flex-shrink-0"
+                  className="text-gray-600 hover:text-gray-900 flex-shrink-0 text-sm"
                 >
                   ← Back
                 </Link>
-                <h1 className="text-xl font-bold text-gray-900 flex-shrink-0">{ticket.title}</h1>
+                {ticket.type === 'subtask' && ticket.parentTicket && (
+                  <button
+                    onClick={handleOpenParentTicket}
+                    className="bg-blue-600 text-white px-2 sm:px-3 py-1.5 rounded-lg hover:bg-blue-700 transition text-xs sm:text-sm flex-shrink-0"
+                  >
+                    <span className="hidden sm:inline">View Parent</span>
+                    <span className="sm:hidden">Parent</span>
+                  </button>
+                )}
+              </div>
+              <div className="flex flex-col gap-2">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <h1 className="text-lg sm:text-xl font-bold text-gray-900">{ticket.title}</h1>
                 {ticket.ticketNumber && (
-                  <span className="text-xs text-gray-500 font-mono bg-gray-100 px-2 py-1 rounded flex-shrink-0">
+                    <span className="text-xs text-gray-500 font-mono bg-gray-100 px-2 py-1 rounded">
                     {ticket.ticketNumber}
                   </span>
                 )}
-                <span className={`px-2 py-1 rounded text-xs flex-shrink-0 ${
+                  <span className={`px-2 py-1 rounded text-xs ${
                   ticket.type === 'story' 
                     ? 'bg-blue-100 text-blue-800' 
                     : 'bg-purple-100 text-purple-800'
                 }`}>
                   {ticket.type === 'story' ? 'Story' : 'Subtask'}
                 </span>
-                <span className="text-sm text-gray-600 flex-shrink-0">Go Live: {new Date(ticket.goLiveDate).toLocaleDateString()}</span>
+                </div>
+                <div className="flex flex-wrap items-center gap-2 text-xs sm:text-sm text-gray-600">
+                  <span>Go Live: {new Date(ticket.goLiveDate).toLocaleDateString()}</span>
                 {ticket.type === 'story' && totalSubtasks > 0 && (
-                  <span className="text-sm text-gray-600 flex-shrink-0">Subtasks: {completedSubtasks}/{totalSubtasks}</span>
+                    <span>Subtasks: {completedSubtasks}/{totalSubtasks}</span>
                 )}
                 {ticket.hoursWorked > 0 && (
-                  <span className="text-sm text-gray-600 flex-shrink-0">Hours: {ticket.hoursWorked}</span>
+                    <span>Hours: {ticket.hoursWorked}</span>
                 )}
-                <div className="flex items-center gap-2 flex-shrink-0">
-                  <span className="text-sm text-gray-600">Assignee:</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs sm:text-sm text-gray-600">Assignee:</span>
                   <select
                     value={ticket.assignee?._id || (typeof ticket.assignee === 'string' ? ticket.assignee : '')}
                     onChange={(e) => handleTicketUpdate({ assignee: e.target.value })}
-                    className="text-sm px-2 py-1 border border-gray-300 rounded focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none"
+                    className="text-xs sm:text-sm px-2 py-1 border border-gray-300 rounded focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none"
                     onClick={(e) => e.stopPropagation()}
                   >
                     {workspace?.members?.map((member) => (
@@ -276,23 +291,15 @@ const TicketDetail = () => {
                   </select>
                 </div>
               </div>
-              {ticket.type === 'subtask' && ticket.parentTicket && (
-                <button
-                  onClick={handleOpenParentTicket}
-                  className="bg-blue-600 text-white px-3 py-1.5 rounded-lg hover:bg-blue-700 transition text-sm flex-shrink-0"
-                >
-                  View Parent
-                </button>
-              )}
             </div>
           </div>
         </div>
 
         {/* Content */}
-        <div className="max-w-7xl mx-auto px-6 py-6">
-          <div className="grid grid-cols-3 gap-6">
+        <div className="max-w-7xl mx-auto px-3 sm:px-6 py-4 sm:py-6">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
             {/* Main Content */}
-            <div className="col-span-2 space-y-6">
+            <div className="lg:col-span-2 space-y-4 sm:space-y-6">
               {/* Description */}
               <div className="bg-white rounded-lg shadow p-6">
                 <h3 className="font-semibold text-gray-900 mb-2">Description</h3>
@@ -429,7 +436,7 @@ const TicketDetail = () => {
             </div>
 
             {/* Sidebar */}
-            <div className="space-y-6">
+            <div className="space-y-4 sm:space-y-6">
 
               {/* Status */}
               <div className="bg-white rounded-lg shadow p-6">

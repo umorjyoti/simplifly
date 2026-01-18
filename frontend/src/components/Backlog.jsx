@@ -33,37 +33,39 @@ const Backlog = ({ tickets, onTicketClick, onMoveToPeriod, workspaceId }) => {
 
   const getStatusColor = (status) => {
     switch (status) {
-      case 'todo': return 'bg-blue-100 border-blue-300';
-      case 'in-progress': return 'bg-yellow-100 border-yellow-300';
-      case 'completed': return 'bg-green-100 border-green-300';
-      default: return 'bg-gray-100 border-gray-300';
+      case 'todo': return 'bg-blue-100 text-blue-700';
+      case 'in-progress': return 'bg-amber-100 text-amber-700';
+      case 'completed': return 'bg-emerald-100 text-emerald-700';
+      default: return 'bg-gray-100 text-gray-700';
     }
   };
 
   return (
     <div className="h-full flex flex-col">
       {/* Header */}
-      <div className="bg-gray-800 text-white px-6 py-4 rounded-t-lg">
+      <div className="bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200 px-4 sm:px-6 py-4 rounded-t-lg">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-2xl font-bold">Backlog</h2>
-          <span className="text-sm text-gray-300">
+          <div>
+            <h2 className="text-lg sm:text-xl font-bold text-gray-900">Backlog</h2>
+            <span className="text-xs sm:text-sm text-gray-600 mt-1">
             {filteredTickets.length} {filteredTickets.length === 1 ? 'item' : 'items'}
           </span>
+          </div>
         </div>
         
         {/* Search and Filter */}
-        <div className="flex gap-3">
+        <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
           <input
             type="text"
             placeholder="Search backlog..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="flex-1 px-4 py-2 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary-500"
+            className="flex-1 px-4 py-2.5 rounded-lg border border-gray-300 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent text-sm shadow-sm"
           />
           <select
             value={filterStatus}
             onChange={(e) => setFilterStatus(e.target.value)}
-            className="px-4 py-2 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary-500"
+            className="px-4 py-2.5 rounded-lg border border-gray-300 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent text-sm shadow-sm"
           >
             <option value="all">All Status</option>
             <option value="todo">To Do</option>
@@ -85,7 +87,7 @@ const Backlog = ({ tickets, onTicketClick, onMoveToPeriod, workspaceId }) => {
               }`}
             >
               {filteredTickets.length === 0 ? (
-                <div className="text-center text-gray-500 py-12">
+                <div className="text-center text-gray-400 py-12">
                   {searchTerm || filterStatus !== 'all' 
                     ? 'No tickets match your filters'
                     : 'No items in backlog. Create tickets without a go-live date to add them here.'}
@@ -100,35 +102,35 @@ const Backlog = ({ tickets, onTicketClick, onMoveToPeriod, workspaceId }) => {
                           {...provided.draggableProps}
                           {...provided.dragHandleProps}
                           onClick={() => onTicketClick(ticket)}
-                          className={`bg-white rounded-lg shadow-md p-4 cursor-pointer hover:shadow-lg transition ${
-                            snapshot.isDragging ? 'opacity-50 shadow-xl' : ''
+                          className={`bg-white rounded-lg shadow-sm border border-gray-200 p-4 cursor-pointer hover:shadow-lg hover:border-gray-300 transition-all duration-200 ${
+                            snapshot.isDragging ? 'opacity-60 rotate-2 scale-105 shadow-xl' : ''
                           } border-l-4 ${
                             ticket.status === 'todo' ? 'border-blue-500' :
-                            ticket.status === 'in-progress' ? 'border-yellow-500' :
-                            'border-green-500'
+                            ticket.status === 'in-progress' ? 'border-amber-500' :
+                            'border-emerald-500'
                           }`}
                         >
                           <div className="flex items-start justify-between mb-2">
                             <div className="flex-1">
-                              <div className="flex items-center gap-2 mb-1">
+                              <div className="flex items-center gap-2 mb-2">
                                 {ticket.ticketNumber && (
-                                  <span className="text-xs font-mono text-gray-500 bg-gray-100 px-2 py-0.5 rounded">
+                                  <span className="text-xs font-mono text-gray-600 bg-gray-100 px-2 py-0.5 rounded-md font-semibold">
                                     {ticket.ticketNumber}
                                   </span>
                                 )}
-                                <div className="font-semibold text-gray-900 line-clamp-2 flex-1">
+                                <div className="font-semibold text-gray-900 line-clamp-2 flex-1 text-sm">
                                   {ticket.title}
                                 </div>
                               </div>
-                              <div className="flex items-center gap-2">
-                                <span className={`text-xs px-2 py-0.5 rounded ${
+                              <div className="flex items-center gap-2 mb-2">
+                                <span className={`text-xs px-2 py-0.5 rounded-md font-medium ${
                                   ticket.type === 'story' 
-                                    ? 'bg-blue-100 text-blue-800' 
-                                    : 'bg-purple-100 text-purple-800'
+                                    ? 'bg-blue-100 text-blue-700' 
+                                    : 'bg-purple-100 text-purple-700'
                                 }`}>
                                   {ticket.type === 'story' ? 'Story' : 'Subtask'}
                                 </span>
-                                <span className={`text-xs px-2 py-0.5 rounded ${getStatusColor(ticket.status)}`}>
+                                <span className={`text-xs px-2 py-0.5 rounded-md font-medium ${getStatusColor(ticket.status)}`}>
                                   {ticket.status === 'todo' ? 'To Do' :
                                    ticket.status === 'in-progress' ? 'In Progress' :
                                    'Completed'}
@@ -137,14 +139,21 @@ const Backlog = ({ tickets, onTicketClick, onMoveToPeriod, workspaceId }) => {
                             </div>
                           </div>
                           {ticket.description && (
-                            <div className="text-sm text-gray-600 mb-2 line-clamp-2">
+                            <div className="text-xs text-gray-600 mb-3 line-clamp-2 leading-relaxed">
                               {ticket.description}
                             </div>
                           )}
-                          <div className="flex items-center justify-between text-xs text-gray-500 mt-3">
-                            <span>{ticket.assignee?.name || ticket.assignee?.username}</span>
+                          <div className="flex items-center justify-between pt-2 border-t border-gray-100">
+                            <div className="flex items-center gap-2">
+                              <div className="w-6 h-6 rounded-full bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center text-white text-xs font-semibold">
+                                {(ticket.assignee?.name || ticket.assignee?.username || '?').charAt(0).toUpperCase()}
+                              </div>
+                              <span className="text-xs text-gray-600 font-medium">
+                                {ticket.assignee?.name || ticket.assignee?.username}
+                              </span>
+                            </div>
                             {ticket.hoursWorked > 0 && (
-                              <span className="bg-gray-200 px-2 py-1 rounded">
+                              <span className="bg-primary-50 text-primary-700 px-2 py-0.5 rounded-md text-xs font-semibold">
                                 {ticket.hoursWorked}h
                               </span>
                             )}

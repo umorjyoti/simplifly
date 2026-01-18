@@ -104,16 +104,16 @@ const Landing = () => {
               <Logo showText={true} size="xl" />
             </div>
             
-            <h1 className="text-5xl md:text-6xl lg:text-7xl font-extrabold mb-6 bg-gradient-to-r from-primary-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-extrabold mb-4 sm:mb-6 bg-gradient-to-r from-primary-600 via-purple-600 to-pink-600 bg-clip-text text-transparent px-4">
               Track Time. Bill Clients.
               <span className="block mt-2 animate-pulse">Get Paid Faster.</span>
             </h1>
             
-            <p className="text-xl md:text-2xl text-gray-700 mb-4 max-w-3xl mx-auto font-medium">
+            <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-gray-700 mb-3 sm:mb-4 max-w-3xl mx-auto font-medium px-4">
               The simplest way for freelancers to track tasks, log hours, and generate professional invoices
             </p>
             
-            <p className="text-lg text-gray-600 mb-12 max-w-2xl mx-auto">
+            <p className="text-sm sm:text-base lg:text-lg text-gray-600 mb-8 sm:mb-12 max-w-2xl mx-auto px-4">
               Stop losing billable hours. Start getting paid for every minute you work.
             </p>
 

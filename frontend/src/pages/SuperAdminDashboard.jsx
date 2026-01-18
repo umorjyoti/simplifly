@@ -65,18 +65,18 @@ const SuperAdminDashboard = () => {
 
   return (
     <Layout>
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">Super Admin Dashboard</h1>
-        <p className="text-gray-600">Monitor platform statistics and manage workspaces</p>
+      <div className="mb-4 sm:mb-6">
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">Super Admin Dashboard</h1>
+        <p className="text-gray-600 text-sm sm:text-base">Monitor platform statistics and manage workspaces</p>
       </div>
 
       {/* Period Selector */}
-      <div className="mb-6 flex gap-2">
+      <div className="mb-4 sm:mb-6 flex flex-wrap gap-2">
         {['all', 'today', 'week', 'month', 'year'].map((p) => (
           <button
             key={p}
             onClick={() => setPeriod(p)}
-            className={`px-4 py-2 rounded-lg font-semibold transition ${
+            className={`px-3 sm:px-4 py-2 rounded-lg font-semibold transition text-xs sm:text-sm ${
               period === p
                 ? 'bg-primary-600 text-white'
                 : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
@@ -88,8 +88,8 @@ const SuperAdminDashboard = () => {
       </div>
 
       {/* Statistics Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <div className="bg-white rounded-lg shadow p-6 border border-gray-200">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-6 sm:mb-8">
+        <div className="bg-white rounded-lg shadow p-4 sm:p-6 border border-gray-200">
           <div className="flex items-center justify-between mb-2">
             <h3 className="text-sm font-medium text-gray-600">Total Users</h3>
             <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -149,54 +149,54 @@ const SuperAdminDashboard = () => {
 
       {/* Workspaces List */}
       <div className="bg-white rounded-lg shadow border border-gray-200">
-        <div className="p-6 border-b border-gray-200">
-          <h2 className="text-2xl font-bold text-gray-900">All Workspaces</h2>
-          <p className="text-gray-600 text-sm mt-1">Click on any workspace to open it</p>
+        <div className="p-4 sm:p-6 border-b border-gray-200">
+          <h2 className="text-xl sm:text-2xl font-bold text-gray-900">All Workspaces</h2>
+          <p className="text-gray-600 text-xs sm:text-sm mt-1">Click on any workspace to open it</p>
         </div>
-        <div className="p-6">
+        <div className="p-3 sm:p-6">
           {workspaces.length === 0 ? (
-            <p className="text-gray-500 text-center py-8">No workspaces found</p>
+            <p className="text-gray-500 text-center py-6 sm:py-8 text-sm sm:text-base">No workspaces found</p>
           ) : (
             <div className="overflow-x-auto">
-              <table className="w-full">
+              <table className="w-full min-w-[640px]">
                 <thead>
                   <tr className="border-b border-gray-200">
-                    <th className="text-left py-3 px-4 font-semibold text-gray-700">Name</th>
-                    <th className="text-left py-3 px-4 font-semibold text-gray-700">Owner</th>
-                    <th className="text-left py-3 px-4 font-semibold text-gray-700">Members</th>
-                    <th className="text-left py-3 px-4 font-semibold text-gray-700">Created</th>
-                    <th className="text-left py-3 px-4 font-semibold text-gray-700">Actions</th>
+                    <th className="text-left py-2 sm:py-3 px-2 sm:px-4 font-semibold text-gray-700 text-xs sm:text-sm">Name</th>
+                    <th className="text-left py-2 sm:py-3 px-2 sm:px-4 font-semibold text-gray-700 text-xs sm:text-sm">Owner</th>
+                    <th className="text-left py-2 sm:py-3 px-2 sm:px-4 font-semibold text-gray-700 text-xs sm:text-sm">Members</th>
+                    <th className="text-left py-2 sm:py-3 px-2 sm:px-4 font-semibold text-gray-700 text-xs sm:text-sm">Created</th>
+                    <th className="text-left py-2 sm:py-3 px-2 sm:px-4 font-semibold text-gray-700 text-xs sm:text-sm">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
                   {workspaces.map((workspace) => (
                     <tr key={workspace._id} className="border-b border-gray-100 hover:bg-gray-50">
-                      <td className="py-3 px-4">
-                        <div className="font-medium text-gray-900">{workspace.name}</div>
+                      <td className="py-2 sm:py-3 px-2 sm:px-4">
+                        <div className="font-medium text-gray-900 text-xs sm:text-sm">{workspace.name}</div>
                         {workspace.description && (
-                          <div className="text-sm text-gray-500 mt-1">{workspace.description}</div>
+                          <div className="text-xs sm:text-sm text-gray-500 mt-1">{workspace.description}</div>
                         )}
                       </td>
-                      <td className="py-3 px-4">
-                        <div className="text-sm text-gray-700">
+                      <td className="py-2 sm:py-3 px-2 sm:px-4">
+                        <div className="text-xs sm:text-sm text-gray-700">
                           {workspace.owner?.name || workspace.owner?.username || 'N/A'}
                         </div>
                         <div className="text-xs text-gray-500">{workspace.owner?.email}</div>
                       </td>
-                      <td className="py-3 px-4">
-                        <span className="text-sm text-gray-700">
+                      <td className="py-2 sm:py-3 px-2 sm:px-4">
+                        <span className="text-xs sm:text-sm text-gray-700">
                           {workspace.members?.length || 0} member{workspace.members?.length !== 1 ? 's' : ''}
                         </span>
                       </td>
-                      <td className="py-3 px-4">
-                        <span className="text-sm text-gray-500">
+                      <td className="py-2 sm:py-3 px-2 sm:px-4">
+                        <span className="text-xs sm:text-sm text-gray-500">
                           {new Date(workspace.createdAt).toLocaleDateString()}
                         </span>
                       </td>
-                      <td className="py-3 px-4">
+                      <td className="py-2 sm:py-3 px-2 sm:px-4">
                         <button
                           onClick={() => handleOpenWorkspace(workspace._id)}
-                          className="text-primary-600 hover:text-primary-700 font-semibold text-sm"
+                          className="text-primary-600 hover:text-primary-700 font-semibold text-xs sm:text-sm"
                         >
                           Open →
                         </button>

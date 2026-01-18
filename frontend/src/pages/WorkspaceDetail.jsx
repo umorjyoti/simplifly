@@ -276,66 +276,58 @@ const WorkspaceDetail = () => {
   return (
     <Layout>
       <div className="flex flex-col h-full">
-        <div className="mb-2 flex-shrink-0">
-          <div className="flex justify-between items-center">
-            <div className="flex items-center gap-4">
-              <Link to="/dashboard" className="text-primary-600 hover:text-primary-700 text-sm">
-                ← Back
-              </Link>
-              <div>
-                <h1 className="text-2xl font-bold text-gray-900">{workspace.name}</h1>
-              </div>
-            </div>
-            <div className="flex items-center gap-2">
-              {uniqueUsers.length > 0 && viewMode === 'board' && (
-                <div className="flex items-center gap-2 mr-2">
-                  <span className="text-xs font-medium text-gray-600">Filter:</span>
-                  <button
-                    onClick={() => handleUserFilter(null)}
-                    className={`
-                      px-2 py-1 text-xs rounded transition-all
-                      ${selectedUserId === null
-                        ? 'bg-primary-600 text-white font-semibold'
-                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                      }
-                    `}
-                  >
-                    All
-                  </button>
-                  <div className="flex items-center gap-1">
-                    {uniqueUsers.map((user) => (
-                      <UserAvatar
-                        key={user._id}
-                        user={user}
-                        isActive={selectedUserId === user._id}
-                        onClick={() => handleUserFilter(user._id)}
-                      />
-                    ))}
+        <div className="mb-4 flex-shrink-0">
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6">
+            <div className="flex flex-col gap-4">
+              <div className="flex items-center justify-between gap-2">
+                <div className="flex items-center gap-3 sm:gap-4 min-w-0">
+                  <Link to="/dashboard" className="text-gray-500 hover:text-gray-700 text-sm flex-shrink-0 transition-colors">
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                    </svg>
+                  </Link>
+                  <div className="min-w-0">
+                    <h1 className="text-xl sm:text-2xl font-bold text-gray-900 truncate">{workspace.name}</h1>
+                    {workspace.description && (
+                      <p className="text-xs sm:text-sm text-gray-500 mt-0.5 truncate">{workspace.description}</p>
+                    )}
                   </div>
                 </div>
-              )}
-              {isOwner && (
-                <>
+                <div className="flex items-center gap-2 flex-shrink-0">
+                  {isOwner && (
+                    <>
+                      <button
+                        onClick={() => setShowSettingsModal(true)}
+                        className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-all"
+                        title="Settings"
+                      >
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
+                      </button>
+                      <Link
+                        to={`/workspace/${id}/billing`}
+                        className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-all"
+                        title="Billing"
+                      >
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+              </Link>
+                    </>
+                  )}
                   <button
-                    onClick={() => setShowSettingsModal(true)}
-                    className="bg-gray-600 text-white px-3 py-1.5 rounded text-sm font-medium hover:bg-gray-700 transition"
+                    onClick={() => setShowCreateModal(true)}
+                    className="bg-gradient-to-r from-primary-600 to-primary-700 text-white px-4 sm:px-5 py-2 rounded-lg text-sm font-semibold hover:from-primary-700 hover:to-primary-800 transition-all shadow-md hover:shadow-lg flex items-center gap-2"
                   >
-                    ⚙️ Settings
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                    </svg>
+                    <span className="hidden sm:inline">Create Ticket</span>
                   </button>
-                  <Link
-                    to={`/workspace/${id}/billing`}
-                    className="bg-purple-600 text-white px-3 py-1.5 rounded text-sm font-medium hover:bg-purple-700 transition"
-                  >
-                    Billing
-                  </Link>
-                </>
-              )}
-              <button
-                onClick={() => setShowCreateModal(true)}
-                className="bg-primary-600 text-white px-3 py-1.5 rounded text-sm font-medium hover:bg-primary-700 transition"
-              >
-                + Create Ticket
-              </button>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -344,7 +336,7 @@ const WorkspaceDetail = () => {
         <div className="flex gap-2 flex-1 min-h-0">
         {/* Period Navigation Sidebar */}
         {viewMode === 'board' && (
-          <div className="flex-shrink-0">
+          <div className="hidden md:flex flex-shrink-0">
             <PeriodNavigation
               tickets={allTickets}
               currentPeriod={currentPeriod}
@@ -356,7 +348,7 @@ const WorkspaceDetail = () => {
         )}
 
         {/* Board or Backlog View */}
-        <div className="flex-1 bg-white rounded-lg shadow overflow-hidden flex flex-col">
+        <div className="flex-1 bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden flex flex-col">
           {viewMode === 'backlog' ? (
             <Backlog
               tickets={allTickets}
@@ -367,49 +359,87 @@ const WorkspaceDetail = () => {
           ) : (
             <div className="h-full flex flex-col">
               {/* Period Header */}
-              <div className="bg-gray-800 text-white px-4 py-2 flex items-center justify-between flex-shrink-0">
-                <div>
-                  <h2 className="text-lg font-bold">
+              <div className="bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200 px-4 sm:px-6 py-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 flex-shrink-0">
+                <div className="min-w-0">
+                  <h2 className="text-base sm:text-lg font-bold text-gray-900 truncate">
                     {formatPeriodLabel(currentPeriod, periodType)}
                   </h2>
-                  <p className="text-xs text-gray-300">
+                  <p className="text-xs sm:text-sm text-gray-600 mt-1">
                     {filteredTickets.length} {filteredTickets.length === 1 ? 'ticket' : 'tickets'}
                   </p>
                 </div>
-                <div className="flex items-center gap-1">
-                  <button
-                    onClick={() => navigatePeriod('prev')}
-                    className="px-2 py-1 bg-gray-700 rounded text-xs hover:bg-gray-600 transition"
-                  >
-                    ← Prev
-                  </button>
-                  <button
-                    onClick={() => setCurrentPeriod(new Date())}
-                    className="px-2 py-1 bg-gray-700 rounded text-xs hover:bg-gray-600 transition"
-                  >
-                    Today
-                  </button>
-                  <button
-                    onClick={() => navigatePeriod('next')}
-                    className="px-2 py-1 bg-gray-700 rounded text-xs hover:bg-gray-600 transition"
-                  >
-                    Next →
-                  </button>
-                  <button
-                    onClick={handleBacklogClick}
-                    className={`px-2 py-1 rounded text-xs transition ml-1 ${
-                      viewMode === 'backlog'
-                        ? 'bg-primary-600 hover:bg-primary-700'
-                        : 'bg-gray-700 hover:bg-gray-600'
-                    }`}
-                  >
-                    📋 Backlog
-                  </button>
+                <div className="flex items-center gap-3 flex-wrap">
+                  {/* Filters */}
+                  {uniqueUsers.length > 0 && viewMode === 'board' && (
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="text-xs font-semibold text-gray-600 uppercase tracking-wide hidden sm:inline">Filter:</span>
+                      <button
+                        onClick={() => handleUserFilter(null)}
+                        className={`
+                          px-3 py-1.5 text-xs rounded-lg transition-all font-medium
+                          ${selectedUserId === null
+                            ? 'bg-primary-600 text-white shadow-sm'
+                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                          }
+                        `}
+                      >
+                        All
+                      </button>
+                      <div className="flex items-center gap-2 flex-wrap">
+                        {uniqueUsers.map((user) => (
+                          <UserAvatar
+                            key={user._id}
+                            user={user}
+                            isActive={selectedUserId === user._id}
+                            onClick={() => handleUserFilter(user._id)}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  {/* Navigation Buttons */}
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <button
+                      onClick={() => navigatePeriod('prev')}
+                      className="p-2 text-gray-600 hover:text-gray-900 hover:bg-white rounded-lg transition-all border border-gray-200"
+                      title="Previous period"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                      </svg>
+                    </button>
+                    <button
+                      onClick={() => setCurrentPeriod(new Date())}
+                      className="px-3 py-2 text-xs sm:text-sm text-gray-700 hover:text-gray-900 hover:bg-white rounded-lg transition-all border border-gray-200 font-medium"
+                    >
+                      Today
+                    </button>
+                    <button
+                      onClick={() => navigatePeriod('next')}
+                      className="p-2 text-gray-600 hover:text-gray-900 hover:bg-white rounded-lg transition-all border border-gray-200"
+                      title="Next period"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                      </svg>
+                    </button>
+                    <button
+                      onClick={handleBacklogClick}
+                      className={`px-3 py-2 rounded-lg text-xs sm:text-sm transition-all border font-medium ${
+                        viewMode === 'backlog'
+                          ? 'bg-primary-600 text-white border-primary-600 hover:bg-primary-700'
+                          : 'text-gray-700 border-gray-200 hover:bg-white hover:text-gray-900'
+                      }`}
+                    >
+                      <span className="hidden sm:inline">📋 Backlog</span>
+                      <span className="sm:hidden">📋</span>
+                    </button>
+                  </div>
                 </div>
               </div>
 
               {/* Ticket Board */}
-              <div className="flex-1 p-3 overflow-auto min-h-0">
+              <div className="flex-1 p-4 sm:p-6 overflow-auto min-h-0 bg-gray-50">
                 <TicketBoard
                   tickets={filteredTickets}
                   onStatusChange={handleStatusChange}
@@ -425,8 +455,8 @@ const WorkspaceDetail = () => {
 
       {/* Create Ticket Modal */}
       {showCreateModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg shadow-xl p-4 sm:p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
             <h2 className="text-2xl font-bold text-gray-900 mb-4">Create Ticket</h2>
             <form onSubmit={handleCreateTicket}>
               <div className="mb-4">
@@ -520,8 +550,8 @@ const WorkspaceDetail = () => {
 
       {/* Hours Modal */}
       {showHoursModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-md">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg shadow-xl p-4 sm:p-6 w-full max-w-md">
             <h2 className="text-2xl font-bold text-gray-900 mb-4">Add Hours Worked</h2>
             <p className="text-gray-600 mb-4">
               To mark this ticket as completed, please enter the hours worked.

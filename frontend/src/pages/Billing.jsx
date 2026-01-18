@@ -18,6 +18,7 @@ const Billing = () => {
   const [showAddManualItem, setShowAddManualItem] = useState(false);
   const [editingManualItem, setEditingManualItem] = useState(null);
   const [workspace, setWorkspace] = useState(null);
+  const [activeTab, setActiveTab] = useState('tickets'); // 'tickets' or 'manual'
   const [manualItemForm, setManualItemForm] = useState({
     title: '',
     description: '',
@@ -25,19 +26,16 @@ const Billing = () => {
     userId: ''
   });
 
-  // Helper function to get currency symbol
   const getCurrencySymbol = () => {
     const currency = workspace?.settings?.currency || 'USD';
     return currency === 'INR' ? '₹' : '$';
   };
 
-  // Function to generate and print invoice in a new window
   const handlePrintInvoice = () => {
     if (!bill) return;
 
     const currencySymbol = getCurrencySymbol();
     
-    // Generate HTML for the invoice
     const invoiceHTML = `
       <!DOCTYPE html>
       <html>
@@ -277,7 +275,6 @@ const Billing = () => {
       </html>
     `;
 
-    // Open new window and write HTML
     const printWindow = window.open('', '_blank');
     if (printWindow) {
       printWindow.document.write(invoiceHTML);
@@ -381,6 +378,14 @@ const Billing = () => {
     setSelectedTickets([]);
   };
 
+  const handleSelectAllManualItems = () => {
+    setSelectedManualItems(manualItems.map(item => item._id));
+  };
+
+  const handleDeselectAllManualItems = () => {
+    setSelectedManualItems([]);
+  };
+
   const handleAddManualItem = async () => {
     if (!manualItemForm.title || !manualItemForm.hours || parseFloat(manualItemForm.hours) <= 0) {
       alert('Please enter a title and valid hours');
@@ -479,7 +484,6 @@ const Billing = () => {
           paymentStatus: 'billed'
         });
       }
-      // Note: Manual items don't have a payment status, they're just included in bills
       await fetchBillableData();
       if (isAgencyLevel) {
         await fetchAllTickets();
@@ -518,458 +522,629 @@ const Billing = () => {
 
   const displayTickets = isAgencyLevel ? allTickets : (selectedUser?.tickets || []);
   const hasBillableItems = billableUsers.length > 0 || allTickets.length > 0 || manualItems.length > 0;
+  const totalSelected = selectedTickets.length + selectedManualItems.length;
+  const totalHours = 
+    [...displayTickets.filter(t => selectedTickets.includes(t._id)), ...manualItems.filter(m => selectedManualItems.includes(m._id))]
+      .reduce((sum, item) => sum + (item.hoursWorked || item.hours || 0), 0);
+  const estimatedAmount = totalHours * (parseFloat(hourlyRate) || 0);
 
   return (
     <Layout>
-      <div className="mb-6 no-print">
-        <Link to={`/workspace/${id}`} className="text-primary-600 hover:text-primary-700 mb-4 inline-block">
-          ← Back to Workspace
-        </Link>
-        <h1 className="text-3xl font-bold text-gray-900">Billing</h1>
-        <p className="text-gray-600 mt-2">Generate bills for completed tasks</p>
-      </div>
-
-      {/* Billing Mode Toggle */}
-      <div className="bg-white rounded-lg shadow p-6 mb-6 no-print">
-        <div className="flex items-center justify-between">
-          <div>
-            <h2 className="text-lg font-semibold text-gray-900 mb-2">Billing Mode</h2>
-            <p className="text-sm text-gray-600">
-              {isAgencyLevel 
-                ? 'Agency-level billing: All users\' work hours with a single hourly rate'
-                : 'User-level billing: Individual user billing with separate hourly rates'}
-            </p>
-          </div>
-          <label className="relative inline-flex items-center cursor-pointer">
-            <input
-              type="checkbox"
-              checked={isAgencyLevel}
-              onChange={(e) => handleAgencyLevelToggle(e.target.checked)}
-              className="sr-only peer"
-            />
-            <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-600"></div>
-            <span className="ml-3 text-sm font-medium text-gray-700">
-              {isAgencyLevel ? 'Agency Level' : 'User Level'}
-            </span>
-          </label>
+      <div className="px-4 sm:px-6 lg:px-8">
+        {/* Header */}
+        <div className="mb-8 mt-6">
+          <Link to={`/workspace/${id}`} className="text-primary-600 hover:text-primary-700 mb-4 inline-flex items-center gap-2 text-sm font-medium">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+            Back to Workspace
+          </Link>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">Billing & Invoicing</h1>
+          <p className="text-gray-600">Generate professional invoices for completed work</p>
         </div>
-      </div>
 
-      {!hasBillableItems ? (
-        <div className="bg-white rounded-lg shadow p-8 text-center">
-          <p className="text-gray-500 text-lg">No billable items found</p>
-          <p className="text-gray-400 text-sm mt-2">
-            Completed tickets with hours worked or manual items will appear here
-          </p>
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 no-print">
-          {/* User Selection (only for user-level) */}
-          {!isAgencyLevel && (
-            <div className="lg:col-span-1">
-              <div className="bg-white rounded-lg shadow p-6">
-                <h2 className="text-xl font-semibold text-gray-900 mb-4">Select User</h2>
-                <div className="space-y-3">
-                  {billableUsers.map((userData) => (
-                    <button
-                      key={userData.user._id}
-                      onClick={() => handleUserSelect(userData)}
-                      className={`w-full text-left p-4 rounded-lg border-2 transition ${
-                        selectedUser?.user._id === userData.user._id
-                          ? 'border-primary-500 bg-primary-50'
-                          : 'border-gray-200 hover:border-gray-300'
-                      }`}
-                    >
-                      <div className="font-semibold text-gray-900">
-                        {userData.user.name || userData.user.username}
-                      </div>
-                      <div className="text-sm text-gray-500 mt-1">
-                        {userData.tickets.length} ticket{userData.tickets.length !== 1 ? 's' : ''}
-                      </div>
-                    </button>
-                  ))}
+        {/* Billing Mode Toggle */}
+        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-6 mb-8">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div className="flex-1">
+              <div className="flex items-center gap-3 mb-2">
+                <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                  <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                </div>
+                <div>
+                  <h2 className="text-lg font-bold text-gray-900">Billing Mode</h2>
+                  <p className="text-sm text-gray-600">
+                    {isAgencyLevel 
+                      ? 'Agency-level: All users with a single hourly rate'
+                      : 'User-level: Individual billing with separate rates'}
+                  </p>
                 </div>
               </div>
             </div>
-          )}
+            <label className="relative inline-flex items-center cursor-pointer">
+              <input
+                type="checkbox"
+                checked={isAgencyLevel}
+                onChange={(e) => handleAgencyLevelToggle(e.target.checked)}
+                className="sr-only peer"
+              />
+              <div className="w-14 h-7 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-blue-600"></div>
+              <span className="ml-3 text-sm font-semibold text-gray-700">
+                {isAgencyLevel ? 'Agency' : 'User'}
+              </span>
+            </label>
+          </div>
+        </div>
 
-          {/* Ticket Selection & Bill Generation */}
-          <div className={isAgencyLevel ? 'lg:col-span-3' : 'lg:col-span-2'}>
-            <div className="space-y-6">
-              {/* Ticket Selection */}
-              {(isAgencyLevel || selectedUser) && (
-                <div className="bg-white rounded-lg shadow p-6">
-                  <div className="flex justify-between items-center mb-4">
-                    <h2 className="text-xl font-semibold text-gray-900">
-                      {isAgencyLevel 
-                        ? 'Select Tickets (All Users)'
-                        : `Select Tickets for ${selectedUser.user.name || selectedUser.user.username}`
-                      }
-                    </h2>
-                    {displayTickets.length > 0 && (
-                      <div className="flex space-x-2">
+        {!hasBillableItems ? (
+          <div className="relative">
+            <div className="absolute inset-0 bg-gradient-to-br from-primary-50/50 via-transparent to-purple-50/50 rounded-3xl"></div>
+            <div className="relative bg-white/80 backdrop-blur-sm rounded-3xl border border-gray-200/50 p-16 sm:p-20 text-center">
+              <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-gray-100 mb-6">
+                <svg className="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+              </div>
+              <h2 className="text-2xl font-bold text-gray-900 mb-3">No billable items yet</h2>
+              <p className="text-gray-600 mb-8 max-w-sm mx-auto leading-relaxed">
+                Complete tickets with hours worked or add manual items to start billing.
+              </p>
+            </div>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            {/* Left Sidebar - User Selection (only for user-level) */}
+            {!isAgencyLevel && (
+              <div className="lg:col-span-3">
+                <div className="bg-white rounded-xl border border-gray-200 p-6 sticky top-4">
+                  <h2 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+                    <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                    </svg>
+                    Select User
+                  </h2>
+                  <div className="space-y-2">
+                    {billableUsers.map((userData) => {
+                      const userInitial = (userData.user.name || userData.user.username || 'U')[0].toUpperCase();
+                      const isSelected = selectedUser?.user._id === userData.user._id;
+                      
+                      return (
                         <button
-                          onClick={handleSelectAllTickets}
-                          className="text-sm text-primary-600 hover:text-primary-700 font-medium"
+                          key={userData.user._id}
+                          onClick={() => handleUserSelect(userData)}
+                          className={`w-full text-left p-4 rounded-xl border-2 transition-all ${
+                            isSelected
+                              ? 'border-primary-500 bg-primary-50 shadow-md'
+                              : 'border-gray-200 hover:border-gray-300 hover:shadow-sm'
+                          }`}
                         >
-                          Select All
-                        </button>
-                        <span className="text-gray-300">|</span>
-                        <button
-                          onClick={handleDeselectAllTickets}
-                          className="text-sm text-gray-600 hover:text-gray-700 font-medium"
-                        >
-                          Deselect All
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                  <div className="space-y-3 max-h-96 overflow-y-auto">
-                    {displayTickets.length === 0 ? (
-                      <p className="text-gray-500 text-center py-4">No billable tickets available</p>
-                    ) : (
-                      displayTickets.map((ticket) => (
-                        <label
-                          key={ticket._id}
-                          className="flex items-start p-4 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer"
-                        >
-                          <input
-                            type="checkbox"
-                            checked={selectedTickets.includes(ticket._id)}
-                            onChange={() => handleTicketToggle(ticket._id)}
-                            className="mt-1 mr-3 h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
-                          />
-                          <div className="flex-1">
-                            <div className="font-medium text-gray-900">{ticket.title}</div>
-                            {ticket.description && (
-                              <div className="text-sm text-gray-500 mt-1 line-clamp-2">
-                                {ticket.description}
+                          <div className="flex items-center gap-3">
+                            <div className={`w-10 h-10 rounded-lg flex items-center justify-center font-bold text-sm ${
+                              isSelected ? 'bg-primary-600 text-white' : 'bg-gray-200 text-gray-600'
+                            }`}>
+                              {userInitial}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <div className="font-semibold text-gray-900 truncate">
+                                {userData.user.name || userData.user.username}
                               </div>
-                            )}
-                            <div className="flex items-center space-x-4 mt-2 text-sm text-gray-500">
-                              <span>Hours: {ticket.hoursWorked}</span>
-                              {isAgencyLevel && ticket.assignee && (
-                                <span>User: {ticket.assignee.name || ticket.assignee.username}</span>
-                              )}
-                              <span>
-                                Completed: {new Date(ticket.completedAt).toLocaleDateString()}
-                              </span>
+                              <div className="text-sm text-gray-500">
+                                {userData.tickets.length} ticket{userData.tickets.length !== 1 ? 's' : ''}
+                              </div>
                             </div>
                           </div>
-                        </label>
-                      ))
-                    )}
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
-              )}
+              </div>
+            )}
 
-              {/* Manual Items Section */}
-              <div className="bg-white rounded-lg shadow p-6">
-                <div className="flex justify-between items-center mb-4">
-                  <h2 className="text-xl font-semibold text-gray-900">Manual Bill Items</h2>
-                  <button
-                    onClick={() => {
-                      setShowAddManualItem(true);
-                      setEditingManualItem(null);
-                      setManualItemForm({ title: '', description: '', hours: '', userId: '' });
-                    }}
-                    className="bg-primary-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-primary-700 transition text-sm"
-                  >
-                    + Add Manual Item
-                  </button>
-                </div>
+            {/* Main Content */}
+            <div className={isAgencyLevel ? 'lg:col-span-12' : 'lg:col-span-9'}>
+              {(isAgencyLevel || selectedUser) && (
+                <div className="space-y-6">
+                  {/* Tabs */}
+                  <div className="bg-white rounded-xl border border-gray-200 p-2">
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => setActiveTab('tickets')}
+                        className={`flex-1 px-4 py-3 rounded-lg font-semibold transition-all ${
+                          activeTab === 'tickets'
+                            ? 'bg-gray-900 text-white shadow-sm'
+                            : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                        }`}
+                      >
+                        Tickets ({displayTickets.length})
+                      </button>
+                      <button
+                        onClick={() => setActiveTab('manual')}
+                        className={`flex-1 px-4 py-3 rounded-lg font-semibold transition-all ${
+                          activeTab === 'manual'
+                            ? 'bg-gray-900 text-white shadow-sm'
+                            : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                        }`}
+                      >
+                        Manual Items ({manualItems.length})
+                      </button>
+                    </div>
+                  </div>
 
-                {/* Add/Edit Manual Item Form */}
-                {showAddManualItem && (
-                  <div className="mb-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
-                    <h3 className="font-semibold text-gray-900 mb-3">
-                      {editingManualItem ? 'Edit Manual Item' : 'Add Manual Item'}
-                    </h3>
-                    <div className="space-y-3">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                          Title *
-                        </label>
-                        <input
-                          type="text"
-                          value={manualItemForm.title}
-                          onChange={(e) => setManualItemForm({ ...manualItemForm, title: e.target.value })}
-                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none"
-                          placeholder="Enter work item title"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                          Description
-                        </label>
-                        <textarea
-                          value={manualItemForm.description}
-                          onChange={(e) => setManualItemForm({ ...manualItemForm, description: e.target.value })}
-                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none"
-                          placeholder="Enter description (optional)"
-                          rows="2"
-                        />
-                      </div>
-                      <div className="grid grid-cols-2 gap-3">
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Hours *
-                          </label>
-                          <input
-                            type="number"
-                            step="0.1"
-                            min="0"
-                            value={manualItemForm.hours}
-                            onChange={(e) => setManualItemForm({ ...manualItemForm, hours: e.target.value })}
-                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none"
-                            placeholder="0.0"
-                          />
-                        </div>
-                        {isAgencyLevel && (
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                              User (Optional)
-                            </label>
-                            <select
-                              value={manualItemForm.userId}
-                              onChange={(e) => setManualItemForm({ ...manualItemForm, userId: e.target.value })}
-                              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none"
+                  {/* Tickets Tab */}
+                  {activeTab === 'tickets' && (
+                    <div className="bg-white rounded-xl border border-gray-200 p-6">
+                      <div className="flex items-center justify-between mb-6">
+                        <h2 className="text-xl font-bold text-gray-900">
+                          {isAgencyLevel ? 'All Billable Tickets' : `Tickets for ${selectedUser.user.name || selectedUser.user.username}`}
+                        </h2>
+                        {displayTickets.length > 0 && (
+                          <div className="flex items-center gap-3">
+                            <button
+                              onClick={handleSelectAllTickets}
+                              className="text-sm text-primary-600 hover:text-primary-700 font-medium"
                             >
-                              <option value="">All Users (Agency)</option>
-                              {billableUsers.map((userData) => (
-                                <option key={userData.user._id} value={userData.user._id}>
-                                  {userData.user.name || userData.user.username}
-                                </option>
-                              ))}
-                            </select>
+                              Select All
+                            </button>
+                            <span className="text-gray-300">|</span>
+                            <button
+                              onClick={handleDeselectAllTickets}
+                              className="text-sm text-gray-600 hover:text-gray-700 font-medium"
+                            >
+                              Clear
+                            </button>
                           </div>
                         )}
                       </div>
-                      <div className="flex space-x-2">
+                      <div className="space-y-3 max-h-96 overflow-y-auto">
+                        {displayTickets.length === 0 ? (
+                          <div className="text-center py-12">
+                            <p className="text-gray-500">No billable tickets available</p>
+                          </div>
+                        ) : (
+                          displayTickets.map((ticket) => {
+                            const isSelected = selectedTickets.includes(ticket._id);
+                            return (
+                              <label
+                                key={ticket._id}
+                                className={`flex items-start p-4 border-2 rounded-xl cursor-pointer transition-all ${
+                                  isSelected
+                                    ? 'border-primary-500 bg-primary-50'
+                                    : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                                }`}
+                              >
+                                <input
+                                  type="checkbox"
+                                  checked={isSelected}
+                                  onChange={() => handleTicketToggle(ticket._id)}
+                                  className="mt-1 mr-4 h-5 w-5 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
+                                />
+                                <div className="flex-1 min-w-0">
+                                  <div className="font-semibold text-gray-900 mb-1">{ticket.title}</div>
+                                  {ticket.description && (
+                                    <div className="text-sm text-gray-600 mb-3 line-clamp-2">
+                                      {ticket.description}
+                                    </div>
+                                  )}
+                                  <div className="flex items-center gap-4 text-sm">
+                                    <div className="flex items-center gap-1.5 text-gray-600">
+                                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                      </svg>
+                                      <span className="font-medium">{ticket.hoursWorked}h</span>
+                                    </div>
+                                    {isAgencyLevel && ticket.assignee && (
+                                      <div className="flex items-center gap-1.5 text-gray-600">
+                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                        </svg>
+                                        <span>{ticket.assignee.name || ticket.assignee.username}</span>
+                                      </div>
+                                    )}
+                                    <div className="text-gray-500">
+                                      {new Date(ticket.completedAt).toLocaleDateString()}
+                                    </div>
+                                  </div>
+                                </div>
+                              </label>
+                            );
+                          })
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Manual Items Tab */}
+                  {activeTab === 'manual' && (
+                    <div className="bg-white rounded-xl border border-gray-200 p-6">
+                      <div className="flex items-center justify-between mb-6">
+                        <h2 className="text-xl font-bold text-gray-900">Manual Bill Items</h2>
+                        <div className="flex items-center gap-3">
+                          {manualItems.length > 0 && (
+                            <>
+                              <button
+                                onClick={handleSelectAllManualItems}
+                                className="text-sm text-primary-600 hover:text-primary-700 font-medium"
+                              >
+                                Select All
+                              </button>
+                              <span className="text-gray-300">|</span>
+                              <button
+                                onClick={handleDeselectAllManualItems}
+                                className="text-sm text-gray-600 hover:text-gray-700 font-medium"
+                              >
+                                Clear
+                              </button>
+                              <span className="text-gray-300">|</span>
+                            </>
+                          )}
+                          <button
+                            onClick={() => {
+                              setShowAddManualItem(true);
+                              setEditingManualItem(null);
+                              setManualItemForm({ title: '', description: '', hours: '', userId: '' });
+                            }}
+                            className="px-4 py-2 bg-gray-900 hover:bg-gray-800 text-white rounded-lg font-semibold transition flex items-center gap-2"
+                          >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                            </svg>
+                            Add Item
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Add/Edit Form */}
+                      {showAddManualItem && (
+                        <div className="mb-6 p-6 bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl border border-gray-200">
+                          <h3 className="font-bold text-gray-900 mb-4">
+                            {editingManualItem ? 'Edit Manual Item' : 'Add Manual Item'}
+                          </h3>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="md:col-span-2">
+                              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                                Title *
+                              </label>
+                              <input
+                                type="text"
+                                value={manualItemForm.title}
+                                onChange={(e) => setManualItemForm({ ...manualItemForm, title: e.target.value })}
+                                className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none"
+                                placeholder="Enter work item title"
+                              />
+                            </div>
+                            <div className="md:col-span-2">
+                              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                                Description
+                              </label>
+                              <textarea
+                                value={manualItemForm.description}
+                                onChange={(e) => setManualItemForm({ ...manualItemForm, description: e.target.value })}
+                                className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none resize-none"
+                                placeholder="Enter description (optional)"
+                                rows="3"
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                                Hours *
+                              </label>
+                              <input
+                                type="number"
+                                step="0.1"
+                                min="0"
+                                value={manualItemForm.hours}
+                                onChange={(e) => setManualItemForm({ ...manualItemForm, hours: e.target.value })}
+                                className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none"
+                                placeholder="0.0"
+                              />
+                            </div>
+                            {isAgencyLevel && (
+                              <div>
+                                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                                  User (Optional)
+                                </label>
+                                <select
+                                  value={manualItemForm.userId}
+                                  onChange={(e) => setManualItemForm({ ...manualItemForm, userId: e.target.value })}
+                                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none"
+                                >
+                                  <option value="">All Users (Agency)</option>
+                                  {billableUsers.map((userData) => (
+                                    <option key={userData.user._id} value={userData.user._id}>
+                                      {userData.user.name || userData.user.username}
+                                    </option>
+                                  ))}
+                                </select>
+                              </div>
+                            )}
+                          </div>
+                          <div className="flex gap-3 mt-4">
+                            <button
+                              onClick={editingManualItem ? handleEditManualItem : handleAddManualItem}
+                              className="flex-1 px-6 py-3 bg-gray-900 hover:bg-gray-800 text-white rounded-lg font-semibold transition"
+                            >
+                              {editingManualItem ? 'Update' : 'Add'} Item
+                            </button>
+                            <button
+                              onClick={() => {
+                                setShowAddManualItem(false);
+                                setEditingManualItem(null);
+                                setManualItemForm({ title: '', description: '', hours: '', userId: '' });
+                              }}
+                              className="px-6 py-3 border-2 border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition font-semibold"
+                            >
+                              Cancel
+                            </button>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Manual Items List */}
+                      <div className="space-y-3 max-h-96 overflow-y-auto">
+                        {manualItems.length === 0 ? (
+                          <div className="text-center py-12">
+                            <p className="text-gray-500">No manual items added yet</p>
+                          </div>
+                        ) : (
+                          manualItems.map((item) => {
+                            const isSelected = selectedManualItems.includes(item._id);
+                            return (
+                              <label
+                                key={item._id}
+                                className={`flex items-start p-4 border-2 rounded-xl cursor-pointer transition-all ${
+                                  isSelected
+                                    ? 'border-primary-500 bg-primary-50'
+                                    : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                                }`}
+                              >
+                                <input
+                                  type="checkbox"
+                                  checked={isSelected}
+                                  onChange={() => handleManualItemToggle(item._id)}
+                                  className="mt-1 mr-4 h-5 w-5 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
+                                />
+                                <div className="flex-1 min-w-0">
+                                  <div className="font-semibold text-gray-900 mb-1">{item.title}</div>
+                                  {item.description && (
+                                    <div className="text-sm text-gray-600 mb-3 line-clamp-2">
+                                      {item.description}
+                                    </div>
+                                  )}
+                                  <div className="flex items-center gap-4 text-sm">
+                                    <div className="flex items-center gap-1.5 text-gray-600">
+                                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                      </svg>
+                                      <span className="font-medium">{item.hours}h</span>
+                                    </div>
+                                    {item.user && (
+                                      <div className="flex items-center gap-1.5 text-gray-600">
+                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                        </svg>
+                                        <span>{item.user.name || item.user.username}</span>
+                                      </div>
+                                    )}
+                                    {!item.user && isAgencyLevel && (
+                                      <span className="text-primary-600 font-medium">Agency Level</span>
+                                    )}
+                                  </div>
+                                </div>
+                                <div className="flex gap-2 ml-4">
+                                  <button
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      openEditManualItem(item);
+                                    }}
+                                    className="p-2 text-primary-600 hover:text-primary-700 hover:bg-primary-50 rounded-lg transition"
+                                  >
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                    </svg>
+                                  </button>
+                                  <button
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handleDeleteManualItem(item._id);
+                                    }}
+                                    className="p-2 text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition"
+                                  >
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                    </svg>
+                                  </button>
+                                </div>
+                              </label>
+                            );
+                          })
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Bill Generation Panel */}
+                  {totalSelected > 0 && (
+                    <div className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-xl border border-gray-700 p-6 text-white">
+                      <div className="flex items-center justify-between mb-6">
+                        <div>
+                          <h2 className="text-xl font-bold mb-1">Generate Invoice</h2>
+                          <p className="text-gray-300 text-sm">
+                            {totalSelected} item{totalSelected !== 1 ? 's' : ''} selected • {totalHours.toFixed(1)}h total
+                          </p>
+                        </div>
+                        {estimatedAmount > 0 && (
+                          <div className="text-right">
+                            <div className="text-sm text-gray-300 mb-1">Estimated Amount</div>
+                            <div className="text-2xl font-bold">{getCurrencySymbol()}{estimatedAmount.toFixed(2)}</div>
+                          </div>
+                        )}
+                      </div>
+                      <div className="mb-6">
+                        <label className="block text-sm font-semibold text-gray-200 mb-2">
+                          Hourly Rate ({getCurrencySymbol()})
+                        </label>
+                        <input
+                          type="number"
+                          step="0.01"
+                          min="0"
+                          value={hourlyRate}
+                          onChange={(e) => setHourlyRate(e.target.value)}
+                          className="w-full px-4 py-3 bg-white/10 border-2 border-white/20 rounded-lg focus:ring-2 focus:ring-white/50 focus:border-white/50 outline-none text-white placeholder-gray-400"
+                          placeholder="Enter hourly rate"
+                        />
+                      </div>
+                      <div className="flex gap-3">
                         <button
-                          onClick={editingManualItem ? handleEditManualItem : handleAddManualItem}
-                          className="flex-1 bg-primary-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-primary-700 transition"
+                          onClick={handleGenerateBill}
+                          className="flex-1 px-6 py-3 bg-white text-gray-900 rounded-lg font-bold hover:bg-gray-100 transition flex items-center justify-center gap-2"
                         >
-                          {editingManualItem ? 'Update' : 'Add'} Item
+                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                          </svg>
+                          Generate Invoice
                         </button>
                         <button
-                          onClick={() => {
-                            setShowAddManualItem(false);
-                            setEditingManualItem(null);
-                            setManualItemForm({ title: '', description: '', hours: '', userId: '' });
-                          }}
-                          className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition"
+                          onClick={handleMarkAsBilled}
+                          className="px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-semibold transition"
                         >
-                          Cancel
+                          Mark as Billed
                         </button>
                       </div>
                     </div>
-                  </div>
-                )}
+                  )}
 
-                {/* Manual Items List */}
-                <div className="space-y-3 max-h-96 overflow-y-auto">
-                  {manualItems.length === 0 ? (
-                    <p className="text-gray-500 text-center py-4">No manual items added yet</p>
-                  ) : (
-                    manualItems.map((item) => (
-                      <label
-                        key={item._id}
-                        className="flex items-start p-4 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer"
-                      >
-                        <input
-                          type="checkbox"
-                          checked={selectedManualItems.includes(item._id)}
-                          onChange={() => handleManualItemToggle(item._id)}
-                          className="mt-1 mr-3 h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
-                        />
-                        <div className="flex-1">
-                          <div className="font-medium text-gray-900">{item.title}</div>
-                          {item.description && (
-                            <div className="text-sm text-gray-500 mt-1 line-clamp-2">
-                              {item.description}
+                  {/* Invoice Display */}
+                  {bill && (
+                    <div className="bg-white rounded-xl border-2 border-primary-200 shadow-xl p-8">
+                      <div className="flex flex-col sm:flex-row justify-between items-start gap-4 mb-8">
+                        <div>
+                          <h2 className="text-3xl font-bold text-gray-900 mb-2">Invoice</h2>
+                          <p className="text-gray-500 text-sm">
+                            Generated: {new Date(bill.generatedAt).toLocaleString()}
+                          </p>
+                        </div>
+                        <button
+                          onClick={handlePrintInvoice}
+                          className="px-6 py-3 bg-gray-900 hover:bg-gray-800 text-white rounded-lg font-semibold transition flex items-center gap-2"
+                        >
+                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                          </svg>
+                          Print / Save PDF
+                        </button>
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8 pb-8 border-b border-gray-200">
+                        <div>
+                          <h3 className="text-sm font-semibold text-gray-500 mb-2 uppercase tracking-wide">Workspace</h3>
+                          <p className="text-lg font-bold text-gray-900">{bill.workspace.name}</p>
+                        </div>
+                        <div>
+                          <h3 className="text-sm font-semibold text-gray-500 mb-2 uppercase tracking-wide">
+                            {bill.isAgencyLevel ? 'Billing Type' : 'User'}
+                          </h3>
+                          <p className="text-lg font-bold text-gray-900">
+                            {bill.isAgencyLevel ? 'Agency Level' : (bill.user?.name || bill.user?.username || 'N/A')}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="mb-8">
+                        <h3 className="text-xl font-bold text-gray-900 mb-4">Work Items</h3>
+                        <div className="border border-gray-200 rounded-xl overflow-hidden">
+                          <table className="min-w-full divide-y divide-gray-200">
+                            <thead className="bg-gray-50">
+                              <tr>
+                                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wide">
+                                  Work Item
+                                </th>
+                                {bill.isAgencyLevel && (
+                                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wide">
+                                    User
+                                  </th>
+                                )}
+                                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wide">
+                                  Hours
+                                </th>
+                                <th className="px-6 py-4 text-right text-xs font-semibold text-gray-600 uppercase tracking-wide">
+                                  Amount
+                                </th>
+                              </tr>
+                            </thead>
+                            <tbody className="bg-white divide-y divide-gray-200">
+                              {bill.workItems.map((item) => (
+                                <tr key={item.id} className="hover:bg-gray-50">
+                                  <td className="px-6 py-4">
+                                    <div className="font-semibold text-gray-900">{item.title}</div>
+                                    {item.description && (
+                                      <div className="text-sm text-gray-500 mt-1">{item.description}</div>
+                                    )}
+                                    <div className="text-xs text-gray-400 mt-1">
+                                      {item.type === 'manual' ? 'Manual Item' : 'Ticket'}
+                                    </div>
+                                  </td>
+                                  {bill.isAgencyLevel && (
+                                    <td className="px-6 py-4 text-gray-700">
+                                      {item.user ? (item.user.name || item.user.username) : 'Agency'}
+                                    </td>
+                                  )}
+                                  <td className="px-6 py-4 text-gray-700 font-medium">
+                                    {item.hours}
+                                  </td>
+                                  <td className="px-6 py-4 text-right text-gray-900 font-bold">
+                                    {getCurrencySymbol()}{(item.hours * bill.hourlyRate).toFixed(2)}
+                                  </td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+
+                      <div className="bg-gray-50 rounded-xl p-6 border border-gray-200">
+                        <div className="space-y-3">
+                          <div className="flex justify-between items-center">
+                            <span className="text-gray-600 font-medium">Hourly Rate:</span>
+                            <span className="text-gray-900 font-bold">{getCurrencySymbol()}{bill.hourlyRate.toFixed(2)}</span>
+                          </div>
+                          <div className="flex justify-between items-center">
+                            <span className="text-gray-600 font-medium">Total Items:</span>
+                            <span className="text-gray-900 font-bold">{bill.summary.totalItems}</span>
+                          </div>
+                          <div className="flex justify-between items-center">
+                            <span className="text-gray-600 font-medium">Total Hours:</span>
+                            <span className="text-gray-900 font-bold">{bill.summary.totalHours}</span>
+                          </div>
+                          <div className="pt-3 border-t-2 border-gray-300">
+                            <div className="flex justify-between items-center">
+                              <span className="text-xl font-bold text-gray-900">Total Amount:</span>
+                              <span className="text-2xl font-bold text-gray-900">{getCurrencySymbol()}{bill.summary.totalAmount.toFixed(2)}</span>
                             </div>
-                          )}
-                          <div className="flex items-center space-x-4 mt-2 text-sm text-gray-500">
-                            <span>Hours: {item.hours}</span>
-                            {item.user && (
-                              <span>User: {item.user.name || item.user.username}</span>
-                            )}
-                            {!item.user && isAgencyLevel && (
-                              <span className="text-primary-600">Agency Level</span>
-                            )}
                           </div>
                         </div>
-                        <div className="flex space-x-2 ml-2">
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              openEditManualItem(item);
-                            }}
-                            className="text-primary-600 hover:text-primary-700 text-sm font-medium"
-                          >
-                            Edit
-                          </button>
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleDeleteManualItem(item._id);
-                            }}
-                            className="text-red-600 hover:text-red-700 text-sm font-medium"
-                          >
-                            Delete
-                          </button>
-                        </div>
-                      </label>
-                    ))
+                      </div>
+                    </div>
                   )}
-                </div>
-              </div>
-
-              {/* Bill Generation */}
-              {(selectedTickets.length > 0 || selectedManualItems.length > 0) && (
-                <div className="bg-white rounded-lg shadow p-6 no-print">
-                  <h2 className="text-xl font-semibold text-gray-900 mb-4">Generate Bill</h2>
-                  <div className="mb-4">
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      {isAgencyLevel ? `Agency Hourly Rate (${getCurrencySymbol()})` : `Hourly Rate (${getCurrencySymbol()})`}
-                    </label>
-                    <input
-                      type="number"
-                      step="0.01"
-                      min="0"
-                      value={hourlyRate}
-                      onChange={(e) => setHourlyRate(e.target.value)}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none"
-                      placeholder="Enter hourly rate"
-                    />
-                  </div>
-                  <div className="flex space-x-3">
-                    <button
-                      onClick={handleGenerateBill}
-                      className="flex-1 bg-primary-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-primary-700 transition"
-                    >
-                      Generate Bill
-                    </button>
-                    <button
-                      onClick={handleMarkAsBilled}
-                      className="flex-1 bg-purple-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-purple-700 transition"
-                    >
-                      Mark as Billed
-                    </button>
-                  </div>
                 </div>
               )}
 
-              {/* Bill Display */}
-              {bill && (
-                <div className="bg-white rounded-lg shadow-lg p-6 border-2 border-primary-200 print-bill">
-                  <div className="flex justify-between items-start mb-6">
-                    <div>
-                      <h2 className="text-2xl font-bold text-gray-900">Invoice</h2>
-                      <p className="text-gray-500 text-sm mt-1">
-                        Generated: {new Date(bill.generatedAt).toLocaleString()}
-                      </p>
-                    </div>
-                    <button
-                      onClick={handlePrintInvoice}
-                      className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition"
-                    >
-                      Print / Save as PDF
-                    </button>
+              {(!isAgencyLevel && !selectedUser) && (
+                <div className="bg-white rounded-xl border border-gray-200 p-12 text-center">
+                  <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gray-100 mb-4">
+                    <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                    </svg>
                   </div>
-
-                  <div className="grid grid-cols-2 gap-6 mb-6">
-                    <div>
-                      <h3 className="text-sm font-medium text-gray-500 mb-1">Workspace</h3>
-                      <p className="text-gray-900 font-semibold">{bill.workspace.name}</p>
-                    </div>
-                    <div>
-                      <h3 className="text-sm font-medium text-gray-500 mb-1">
-                        {bill.isAgencyLevel ? 'Billing Type' : 'User'}
-                      </h3>
-                      <p className="text-gray-900 font-semibold">
-                        {bill.isAgencyLevel ? 'Agency Level' : (bill.user?.name || bill.user?.username || 'N/A')}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="mb-6">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-3">Work Items</h3>
-                    <div className="border border-gray-200 rounded-lg overflow-hidden">
-                      <table className="min-w-full divide-y divide-gray-200">
-                        <thead className="bg-gray-50">
-                          <tr>
-                            <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                              Work Item
-                            </th>
-                            {bill.isAgencyLevel && (
-                              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                                User
-                              </th>
-                            )}
-                            <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                              Hours
-                            </th>
-                            <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">
-                              Amount
-                            </th>
-                          </tr>
-                        </thead>
-                        <tbody className="bg-white divide-y divide-gray-200">
-                          {bill.workItems.map((item) => (
-                            <tr key={item.id}>
-                              <td className="px-4 py-3">
-                                <div className="font-medium text-gray-900">{item.title}</div>
-                                {item.description && (
-                                  <div className="text-sm text-gray-500">{item.description}</div>
-                                )}
-                                <div className="text-xs text-gray-400 mt-1">
-                                  {item.type === 'manual' ? 'Manual Item' : 'Ticket'}
-                                </div>
-                              </td>
-                              {bill.isAgencyLevel && (
-                                <td className="px-4 py-3 text-gray-700">
-                                  {item.user ? (item.user.name || item.user.username) : 'Agency'}
-                                </td>
-                              )}
-                              <td className="px-4 py-3 text-gray-700">
-                                {item.hours}
-                              </td>
-                              <td className="px-4 py-3 text-right text-gray-900 font-semibold">
-                                {getCurrencySymbol()}{(item.hours * bill.hourlyRate).toFixed(2)}
-                              </td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-
-                  <div className="border-t border-gray-200 pt-4">
-                    <div className="flex justify-between items-center mb-2">
-                      <span className="text-gray-600">Hourly Rate:</span>
-                      <span className="text-gray-900 font-semibold">{getCurrencySymbol()}{bill.hourlyRate.toFixed(2)}</span>
-                    </div>
-                    <div className="flex justify-between items-center mb-2">
-                      <span className="text-gray-600">Total Items:</span>
-                      <span className="text-gray-900 font-semibold">{bill.summary.totalItems}</span>
-                    </div>
-                    <div className="flex justify-between items-center mb-2">
-                      <span className="text-gray-600">Total Hours:</span>
-                      <span className="text-gray-900 font-semibold">{bill.summary.totalHours}</span>
-                    </div>
-                    <div className="flex justify-between items-center text-lg font-bold text-gray-900 pt-2 border-t border-gray-200">
-                      <span>Total Amount:</span>
-                      <span>{getCurrencySymbol()}{bill.summary.totalAmount.toFixed(2)}</span>
-                    </div>
-                  </div>
+                  <p className="text-gray-600 font-medium">Select a user to view their billable items</p>
                 </div>
               )}
             </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </Layout>
   );
 };

@@ -180,20 +180,20 @@ const TicketDetailModal = ({ ticket, workspace, onClose, onUpdate, workspaceId: 
   const totalSubtasks = subtasks.length;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-2 sm:p-4">
+      <div className="bg-white rounded-lg shadow-xl w-full max-w-4xl max-h-[95vh] sm:max-h-[90vh] overflow-hidden flex flex-col">
         {/* Header */}
-        <div className="px-6 py-4 border-b border-gray-200 flex justify-between items-start">
-          <div className="flex-1">
-            <div className="flex items-center gap-3 mb-2">
-              <h2 className="text-2xl font-bold text-gray-900">{ticket.title}</h2>
+        <div className="px-3 sm:px-6 py-3 sm:py-4 border-b border-gray-200 flex flex-col sm:flex-row justify-between items-start gap-3">
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 sm:gap-3 mb-2 flex-wrap">
+              <h2 className="text-lg sm:text-2xl font-bold text-gray-900 truncate">{ticket.title}</h2>
               {ticket.ticketNumber && (
-                <span className="text-sm text-gray-500 font-mono bg-gray-100 px-2 py-1 rounded">
+                <span className="text-xs sm:text-sm text-gray-500 font-mono bg-gray-100 px-2 py-1 rounded flex-shrink-0">
                   {ticket.ticketNumber}
                 </span>
               )}
             </div>
-            <div className="flex items-center space-x-4 text-sm text-gray-600">
+            <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-xs sm:text-sm text-gray-600">
               <span className={`px-2 py-1 rounded text-xs ${
                 ticket.type === 'story' 
                   ? 'bg-blue-100 text-blue-800' 
@@ -211,22 +211,23 @@ const TicketDetailModal = ({ ticket, workspace, onClose, onUpdate, workspaceId: 
                 <span>Subtasks: {completedSubtasks}/{totalSubtasks}</span>
               )}
               {ticket.type === 'subtask' && ticket.parentTicket && (
-                <span>Parent: {ticket.parentTicket.title}</span>
+                <span className="truncate">Parent: {ticket.parentTicket.title}</span>
               )}
             </div>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-shrink-0">
             <button
               onClick={handleOpenFullScreen}
-              className="text-sm text-primary-600 hover:text-primary-700 px-3 py-1 rounded hover:bg-primary-50"
+              className="text-xs sm:text-sm text-primary-600 hover:text-primary-700 px-2 sm:px-3 py-1 rounded hover:bg-primary-50"
               title="Open in full screen"
             >
-              Full Screen
+              <span className="hidden sm:inline">Full Screen</span>
+              <span className="sm:hidden">Full</span>
             </button>
             {ticket.type === 'subtask' && ticket.parentTicket && (
               <button
                 onClick={handleOpenParentTicket}
-                className="text-sm text-blue-600 hover:text-blue-700 px-3 py-1 rounded hover:bg-blue-50"
+                className="text-xs sm:text-sm text-blue-600 hover:text-blue-700 px-2 sm:px-3 py-1 rounded hover:bg-blue-50"
                 title="View parent ticket"
               >
                 Parent
@@ -234,7 +235,8 @@ const TicketDetailModal = ({ ticket, workspace, onClose, onUpdate, workspaceId: 
             )}
             <button
               onClick={onClose}
-              className="text-gray-400 hover:text-gray-600 text-2xl"
+              className="text-gray-400 hover:text-gray-600 text-xl sm:text-2xl"
+              aria-label="Close"
             >
               ×
             </button>
@@ -242,10 +244,10 @@ const TicketDetailModal = ({ ticket, workspace, onClose, onUpdate, workspaceId: 
         </div>
 
         {/* Content */}
-        <div className="flex-1 overflow-y-auto px-6 py-4">
-          <div className="grid grid-cols-3 gap-6">
+        <div className="flex-1 overflow-y-auto px-3 sm:px-6 py-3 sm:py-4">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
             {/* Main Content */}
-            <div className="col-span-2 space-y-6">
+            <div className="lg:col-span-2 space-y-4 sm:space-y-6">
               {/* Description */}
               <div>
                 <h3 className="font-semibold text-gray-900 mb-2">Description</h3>
@@ -379,7 +381,7 @@ const TicketDetailModal = ({ ticket, workspace, onClose, onUpdate, workspaceId: 
             </div>
 
             {/* Sidebar */}
-            <div className="space-y-6">
+            <div className="space-y-4 sm:space-y-6">
               {/* Assignee */}
               <div>
                 <h3 className="font-semibold text-gray-900 mb-2">Assignee</h3>
