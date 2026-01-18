@@ -6,17 +6,31 @@ const Workspace = require('../models/Workspace');
 const TicketHistory = require('../models/TicketHistory');
 const { getPeriodRange, isDateInPeriod } = require('../utils/periodUtils');
 
+// Helper function to check if user has access to workspace (including superadmin)
+function hasWorkspaceAccess(user, workspace) {
+  if (user.role === 'superadmin') {
+    return true;
+  }
+  return workspace.owner.toString() === user._id.toString() ||
+    workspace.members.some(member => member.toString() === user._id.toString());
+}
+
 // Get all tickets for a workspace
 router.get('/workspace/:workspaceId', auth, async (req, res) => {
   try {
-    // Verify user has access to workspace
-    const workspace = await Workspace.findOne({
-      _id: req.params.workspaceId,
-      $or: [
-        { owner: req.user._id },
-        { members: req.user._id }
-      ]
-    });
+    // Verify user has access to workspace (superadmin can access any workspace)
+    let workspace;
+    if (req.user.role === 'superadmin') {
+      workspace = await Workspace.findById(req.params.workspaceId);
+    } else {
+      workspace = await Workspace.findOne({
+        _id: req.params.workspaceId,
+        $or: [
+          { owner: req.user._id },
+          { members: req.user._id }
+        ]
+      });
+    }
 
     if (!workspace) {
       return res.status(404).json({ message: 'Workspace not found or access denied' });
@@ -66,10 +80,7 @@ router.get('/:id', auth, async (req, res) => {
 
     // Verify user has access to workspace
     const workspace = ticket.workspace;
-    const hasAccess = workspace.owner.toString() === req.user._id.toString() ||
-      workspace.members.some(member => member.toString() === req.user._id.toString());
-
-    if (!hasAccess) {
+    if (!hasWorkspaceAccess(req.user, workspace)) {
       return res.status(403).json({ message: 'Access denied' });
     }
 
@@ -91,10 +102,7 @@ router.get('/:id/subtasks', auth, async (req, res) => {
 
     // Verify user has access to workspace
     const workspace = ticket.workspace;
-    const hasAccess = workspace.owner.toString() === req.user._id.toString() ||
-      workspace.members.some(member => member.toString() === req.user._id.toString());
-
-    if (!hasAccess) {
+    if (!hasWorkspaceAccess(req.user, workspace)) {
       return res.status(403).json({ message: 'Access denied' });
     }
 
@@ -124,10 +132,7 @@ router.get('/:id/history', auth, async (req, res) => {
 
     // Verify user has access to workspace
     const workspace = ticket.workspace;
-    const hasAccess = workspace.owner.toString() === req.user._id.toString() ||
-      workspace.members.some(member => member.toString() === req.user._id.toString());
-
-    if (!hasAccess) {
+    if (!hasWorkspaceAccess(req.user, workspace)) {
       return res.status(403).json({ message: 'Access denied' });
     }
 
@@ -203,14 +208,19 @@ router.post('/', auth, async (req, res) => {
     
     // goLiveDate is optional (for backlog items)
 
-    // Verify user has access to workspace
-    const workspaceDoc = await Workspace.findOne({
-      _id: workspace,
-      $or: [
-        { owner: req.user._id },
-        { members: req.user._id }
-      ]
-    });
+    // Verify user has access to workspace (superadmin can access any workspace)
+    let workspaceDoc;
+    if (req.user.role === 'superadmin') {
+      workspaceDoc = await Workspace.findById(workspace);
+    } else {
+      workspaceDoc = await Workspace.findOne({
+        _id: workspace,
+        $or: [
+          { owner: req.user._id },
+          { members: req.user._id }
+        ]
+      });
+    }
 
     if (!workspaceDoc) {
       return res.status(404).json({ message: 'Workspace not found or access denied' });
@@ -248,10 +258,7 @@ router.post('/', auth, async (req, res) => {
       }
 
       // Verify user has access to parent ticket's workspace
-      const hasAccess = parent.workspace.owner.toString() === req.user._id.toString() ||
-        parent.workspace.members.some(member => member.toString() === req.user._id.toString());
-
-      if (!hasAccess) {
+      if (!hasWorkspaceAccess(req.user, parent.workspace)) {
         return res.status(403).json({ message: 'Access denied to parent ticket' });
       }
     }
@@ -306,10 +313,7 @@ router.put('/:id', auth, async (req, res) => {
 
     // Verify user has access to workspace
     const workspace = ticket.workspace;
-    const hasAccess = workspace.owner.toString() === req.user._id.toString() ||
-      workspace.members.some(member => member.toString() === req.user._id.toString());
-
-    if (!hasAccess) {
+    if (!hasWorkspaceAccess(req.user, workspace)) {
       return res.status(403).json({ message: 'Access denied' });
     }
 
@@ -414,10 +418,7 @@ router.patch('/:id/status', auth, async (req, res) => {
 
     // Verify user has access
     const workspace = ticket.workspace;
-    const hasAccess = workspace.owner.toString() === req.user._id.toString() ||
-      workspace.members.some(member => member.toString() === req.user._id.toString());
-
-    if (!hasAccess) {
+    if (!hasWorkspaceAccess(req.user, workspace)) {
       return res.status(403).json({ message: 'Access denied' });
     }
 
@@ -474,10 +475,7 @@ router.patch('/:id/hours', auth, async (req, res) => {
 
     // Verify user has access
     const workspace = ticket.workspace;
-    const hasAccess = workspace.owner.toString() === req.user._id.toString() ||
-      workspace.members.some(member => member.toString() === req.user._id.toString());
-
-    if (!hasAccess) {
+    if (!hasWorkspaceAccess(req.user, workspace)) {
       return res.status(403).json({ message: 'Access denied' });
     }
 
@@ -545,8 +543,8 @@ router.delete('/:id', auth, async (req, res) => {
       return res.status(404).json({ message: 'Ticket not found' });
     }
 
-    // Only workspace owner can delete
-    if (ticket.workspace.owner.toString() !== req.user._id.toString()) {
+    // Only workspace owner or superadmin can delete
+    if (req.user.role !== 'superadmin' && ticket.workspace.owner.toString() !== req.user._id.toString()) {
       return res.status(403).json({ message: 'Only workspace owner can delete tickets' });
     }
 

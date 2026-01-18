@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
+import { formatHoursDisplay } from '../utils/timeUtils';
 
 const TicketBoard = ({ tickets, onStatusChange, onTicketClick, workspaceId: propWorkspaceId }) => {
   const navigate = useNavigate();
@@ -68,13 +69,13 @@ const TicketBoard = ({ tickets, onStatusChange, onTicketClick, workspaceId: prop
 
   return (
     <DragDropContext onDragEnd={handleDragEnd}>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 h-full">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {columns.map((column) => {
           const columnTickets = getTicketsByStatus(column.status);
           const colors = getStatusColor(column.status);
           
           return (
-            <div key={column.id} className="flex flex-col h-full min-h-[200px]">
+            <div key={column.id} className="flex flex-col min-h-[200px]">
               <div className={`${colors.header} px-4 py-3 rounded-t-lg border-b-2 flex-shrink-0 shadow-sm`}>
                 <div className="flex items-center justify-between">
                   <h3 className={`font-bold ${colors.accent} text-sm`}>
@@ -90,9 +91,9 @@ const TicketBoard = ({ tickets, onStatusChange, onTicketClick, workspaceId: prop
                   <div
                     ref={provided.innerRef}
                     {...provided.droppableProps}
-                    className={`flex-1 p-3 rounded-b-lg ${colors.body} ${
+                    className={`p-3 rounded-b-lg ${colors.body} ${
                       snapshot.isDraggingOver ? 'ring-2 ring-primary-400 ring-opacity-50' : ''
-                    } overflow-y-auto transition-all`}
+                    } transition-all`}
                   >
                     {columnTickets.length === 0 ? (
                       <div className="text-center text-gray-400 py-8 text-sm">
@@ -163,7 +164,7 @@ const TicketBoard = ({ tickets, onStatusChange, onTicketClick, workspaceId: prop
                                 <div className="flex items-center gap-2">
                                 {ticket.hoursWorked > 0 && (
                                     <span className="bg-primary-50 text-primary-700 px-2 py-0.5 rounded-md text-xs font-semibold flex-shrink-0">
-                                    {ticket.hoursWorked}h
+                                    {formatHoursDisplay(ticket.hoursWorked)}
                                   </span>
                                 )}
                                 </div>

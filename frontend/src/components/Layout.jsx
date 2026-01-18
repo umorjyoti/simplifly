@@ -15,7 +15,7 @@ const Layout = ({ children }) => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <nav className="bg-white shadow-sm border-b border-gray-200 no-print backdrop-blur-sm bg-white/95 relative">
+      <nav className="sticky top-0 z-50 bg-white shadow-sm border-b border-gray-200 no-print backdrop-blur-sm bg-white/95">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <Link to="/dashboard" className="flex items-center">
@@ -109,7 +109,7 @@ const Layout = ({ children }) => {
           </div>
         </div>
       </nav>
-      <main className="max-w-full mx-auto px-2 sm:px-4 lg:px-4 py-2 flex flex-col" style={{ height: 'calc(100vh - 64px)' }}>
+      <main className="max-w-full mx-auto px-2 sm:px-4 lg:px-4 py-2 flex flex-col">
         {children}
       </main>
     </div>

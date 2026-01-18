@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import Layout from '../components/Layout';
 import api from '../utils/api';
+import { hoursMinutesToDecimal, decimalToHoursMinutes, formatHoursDisplay } from '../utils/timeUtils';
 
 const Billing = () => {
   const { id } = useParams();
@@ -35,6 +36,22 @@ const Billing = () => {
     if (!bill) return;
 
     const currencySymbol = getCurrencySymbol();
+    
+    // Helper function to format hours for print
+    const formatHoursForPrint = (decimalHours) => {
+      if (!decimalHours || isNaN(decimalHours) || decimalHours === 0) {
+        return '0h';
+      }
+      const hours = Math.floor(decimalHours);
+      const minutes = Math.round((decimalHours - hours) * 60);
+      if (hours === 0) {
+        return `${minutes}m`;
+      } else if (minutes === 0) {
+        return `${hours}h`;
+      } else {
+        return `${hours}h ${minutes}m`;
+      }
+    };
     
     const invoiceHTML = `
       <!DOCTYPE html>
@@ -238,7 +255,7 @@ const Billing = () => {
                       ${item.description ? `<div class="item-description">${item.description}</div>` : ''}
                       <div class="item-type">${item.type === 'manual' ? 'Manual Item' : 'Ticket'}</div>
                     </td>
-                    <td>${item.hours}</td>
+                    <td>${formatHoursForPrint(item.hours)}</td>
                     <td class="text-right">${currencySymbol}${(item.hours * bill.hourlyRate).toFixed(2)}</td>
                   </tr>
                 `).join('')}
@@ -387,42 +404,52 @@ const Billing = () => {
   };
 
   const handleAddManualItem = async () => {
-    if (!manualItemForm.title || !manualItemForm.hours || parseFloat(manualItemForm.hours) <= 0) {
-      alert('Please enter a title and valid hours');
+    const hours = parseInt(manualItemForm.hours) || 0;
+    const minutes = parseInt(manualItemForm.minutes) || 0;
+    
+    if (!manualItemForm.title || (hours === 0 && minutes === 0)) {
+      alert('Please enter a title and valid hours and/or minutes');
       return;
     }
+
+    const decimalHours = hoursMinutesToDecimal(hours, minutes);
 
     try {
       await api.post(`/billing/workspace/${id}/manual-item`, {
         title: manualItemForm.title,
         description: manualItemForm.description || '',
-        hours: parseFloat(manualItemForm.hours),
+        hours: decimalHours,
         userId: manualItemForm.userId || null
       });
       await fetchManualItems();
       setShowAddManualItem(false);
-      setManualItemForm({ title: '', description: '', hours: '', userId: '' });
+      setManualItemForm({ title: '', description: '', hours: '', minutes: '', userId: '' });
     } catch (error) {
       alert(error.response?.data?.message || 'Failed to add manual item');
     }
   };
 
   const handleEditManualItem = async () => {
-    if (!editingManualItem || !manualItemForm.title || !manualItemForm.hours || parseFloat(manualItemForm.hours) <= 0) {
-      alert('Please enter a title and valid hours');
+    const hours = parseInt(manualItemForm.hours) || 0;
+    const minutes = parseInt(manualItemForm.minutes) || 0;
+    
+    if (!editingManualItem || !manualItemForm.title || (hours === 0 && minutes === 0)) {
+      alert('Please enter a title and valid hours and/or minutes');
       return;
     }
+
+    const decimalHours = hoursMinutesToDecimal(hours, minutes);
 
     try {
       await api.put(`/billing/manual-item/${editingManualItem._id}`, {
         title: manualItemForm.title,
         description: manualItemForm.description || '',
-        hours: parseFloat(manualItemForm.hours),
+        hours: decimalHours,
         userId: manualItemForm.userId || null
       });
       await fetchManualItems();
       setEditingManualItem(null);
-      setManualItemForm({ title: '', description: '', hours: '', userId: '' });
+      setManualItemForm({ title: '', description: '', hours: '', minutes: '', userId: '' });
     } catch (error) {
       alert(error.response?.data?.message || 'Failed to update manual item');
     }
@@ -733,7 +760,7 @@ const Billing = () => {
                                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                                       </svg>
-                                      <span className="font-medium">{ticket.hoursWorked}h</span>
+                                      <span className="font-medium">{formatHoursDisplay(ticket.hoursWorked)}</span>
                                     </div>
                                     {isAgencyLevel && ticket.assignee && (
                                       <div className="flex items-center gap-1.5 text-gray-600">
@@ -784,7 +811,7 @@ const Billing = () => {
                             onClick={() => {
                               setShowAddManualItem(true);
                               setEditingManualItem(null);
-                              setManualItemForm({ title: '', description: '', hours: '', userId: '' });
+                              setManualItemForm({ title: '', description: '', hours: '', minutes: '', userId: '' });
                             }}
                             className="px-4 py-2 bg-gray-900 hover:bg-gray-800 text-white rounded-lg font-semibold transition flex items-center gap-2"
                           >
@@ -827,19 +854,39 @@ const Billing = () => {
                                 rows="3"
                               />
                             </div>
-                            <div>
-                              <label className="block text-sm font-semibold text-gray-700 mb-2">
-                                Hours *
-                              </label>
-                              <input
-                                type="number"
-                                step="0.1"
-                                min="0"
-                                value={manualItemForm.hours}
-                                onChange={(e) => setManualItemForm({ ...manualItemForm, hours: e.target.value })}
-                                className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none"
-                                placeholder="0.0"
-                              />
+                            <div className="grid grid-cols-2 gap-4">
+                              <div>
+                                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                                  Hours *
+                                </label>
+                                <input
+                                  type="number"
+                                  min="0"
+                                  step="1"
+                                  value={manualItemForm.hours}
+                                  onChange={(e) => setManualItemForm({ ...manualItemForm, hours: e.target.value })}
+                                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none"
+                                  placeholder="0"
+                                />
+                              </div>
+                              <div>
+                                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                                  Minutes *
+                                </label>
+                                <input
+                                  type="number"
+                                  min="0"
+                                  max="59"
+                                  step="1"
+                                  value={manualItemForm.minutes}
+                                  onChange={(e) => {
+                                    const val = parseInt(e.target.value) || 0;
+                                    setManualItemForm({ ...manualItemForm, minutes: val > 59 ? 59 : val });
+                                  }}
+                                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none"
+                                  placeholder="0"
+                                />
+                              </div>
                             </div>
                             {isAgencyLevel && (
                               <div>
@@ -872,7 +919,7 @@ const Billing = () => {
                               onClick={() => {
                                 setShowAddManualItem(false);
                                 setEditingManualItem(null);
-                                setManualItemForm({ title: '', description: '', hours: '', userId: '' });
+                                setManualItemForm({ title: '', description: '', hours: '', minutes: '', userId: '' });
                               }}
                               className="px-6 py-3 border-2 border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition font-semibold"
                             >
@@ -918,7 +965,7 @@ const Billing = () => {
                                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                                       </svg>
-                                      <span className="font-medium">{item.hours}h</span>
+                                      <span className="font-medium">{formatHoursDisplay(item.hours)}</span>
                                     </div>
                                     {item.user && (
                                       <div className="flex items-center gap-1.5 text-gray-600">
@@ -1092,7 +1139,7 @@ const Billing = () => {
                                     </td>
                                   )}
                                   <td className="px-6 py-4 text-gray-700 font-medium">
-                                    {item.hours}
+                                    {formatHoursDisplay(item.hours)}
                                   </td>
                                   <td className="px-6 py-4 text-right text-gray-900 font-bold">
                                     {getCurrencySymbol()}{(item.hours * bill.hourlyRate).toFixed(2)}

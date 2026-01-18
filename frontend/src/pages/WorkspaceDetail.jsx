@@ -10,6 +10,7 @@ import UserAvatar from '../components/UserAvatar';
 import api from '../utils/api';
 import { useAuth } from '../context/AuthContext';
 import { getPeriodRange, formatPeriodLabel, getPreviousPeriod, getNextPeriod } from '../utils/periodUtils';
+import { hoursMinutesToDecimal, decimalToHoursMinutes } from '../utils/timeUtils';
 
 const WorkspaceDetail = () => {
   const { id } = useParams();
@@ -21,7 +22,8 @@ const WorkspaceDetail = () => {
   const [showSettingsModal, setShowSettingsModal] = useState(false);
   const [selectedTicket, setSelectedTicket] = useState(null);
   const [showHoursModal, setShowHoursModal] = useState(null);
-  const [hoursWorked, setHoursWorked] = useState('');
+  const [hoursInput, setHoursInput] = useState('');
+  const [minutesInput, setMinutesInput] = useState('');
   const [selectedUserId, setSelectedUserId] = useState(null);
   const [viewMode, setViewMode] = useState('board'); // 'board' or 'backlog'
   const [currentPeriod, setCurrentPeriod] = useState(new Date()); // Current period date
@@ -127,28 +129,34 @@ const WorkspaceDetail = () => {
   };
 
   const handleHoursSubmit = async () => {
-    if (!hoursWorked || parseFloat(hoursWorked) <= 0) {
-      alert('Please enter valid hours worked');
+    const hours = parseInt(hoursInput) || 0;
+    const minutes = parseInt(minutesInput) || 0;
+    
+    if (hours === 0 && minutes === 0) {
+      alert('Please enter valid hours and/or minutes worked');
       return;
     }
+
+    const decimalHours = hoursMinutesToDecimal(hours, minutes);
 
     try {
       const { ticketId, newStatus } = showHoursModal;
       
       await api.patch(`/tickets/${ticketId}/hours`, {
-        hoursWorked: parseFloat(hoursWorked)
+        hoursWorked: decimalHours
       });
       
       await api.patch(`/tickets/${ticketId}/status`, { status: newStatus });
       
       await fetchTickets();
       setShowHoursModal(null);
-      setHoursWorked('');
+      setHoursInput('');
+      setMinutesInput('');
       
       if (selectedTicket && selectedTicket._id === ticketId) {
         const updatedTicket = tickets.find(t => t._id === ticketId);
         if (updatedTicket) {
-          setSelectedTicket({ ...updatedTicket, status: newStatus, hoursWorked: parseFloat(hoursWorked) });
+          setSelectedTicket({ ...updatedTicket, status: newStatus, hoursWorked: decimalHours });
         }
       }
     } catch (error) {
@@ -275,7 +283,7 @@ const WorkspaceDetail = () => {
 
   return (
     <Layout>
-      <div className="flex flex-col h-full">
+      <div className="flex flex-col">
         <div className="mb-4 flex-shrink-0">
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6">
             <div className="flex flex-col gap-4">
@@ -333,7 +341,7 @@ const WorkspaceDetail = () => {
         </div>
 
         {/* Main Content Area */}
-        <div className="flex gap-2 flex-1 min-h-0">
+        <div className="flex gap-2">
         {/* Period Navigation Sidebar */}
         {viewMode === 'board' && (
           <div className="hidden md:flex flex-shrink-0">
@@ -348,7 +356,7 @@ const WorkspaceDetail = () => {
         )}
 
         {/* Board or Backlog View */}
-        <div className="flex-1 bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden flex flex-col">
+        <div className="flex-1 bg-white rounded-xl shadow-sm border border-gray-200 flex flex-col">
           {viewMode === 'backlog' ? (
             <Backlog
               tickets={allTickets}
@@ -357,7 +365,7 @@ const WorkspaceDetail = () => {
               workspaceId={id}
             />
           ) : (
-            <div className="h-full flex flex-col">
+            <div className="flex flex-col">
               {/* Period Header */}
               <div className="bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200 px-4 sm:px-6 py-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 flex-shrink-0">
                 <div className="min-w-0">
@@ -439,7 +447,7 @@ const WorkspaceDetail = () => {
               </div>
 
               {/* Ticket Board */}
-              <div className="flex-1 p-4 sm:p-6 overflow-auto min-h-0 bg-gray-50">
+              <div className="p-4 sm:p-6 bg-gray-50">
                 <TicketBoard
                   tickets={filteredTickets}
                   onStatusChange={handleStatusChange}
@@ -554,30 +562,52 @@ const WorkspaceDetail = () => {
           <div className="bg-white rounded-lg shadow-xl p-4 sm:p-6 w-full max-w-md">
             <h2 className="text-2xl font-bold text-gray-900 mb-4">Add Hours Worked</h2>
             <p className="text-gray-600 mb-4">
-              To mark this ticket as completed, please enter the hours worked.
+              To mark this ticket as completed, please enter the hours and minutes worked.
             </p>
             <div className="mb-6">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Hours Worked *
-              </label>
-              <input
-                type="number"
-                step="0.1"
-                min="0"
-                value={hoursWorked}
-                onChange={(e) => setHoursWorked(e.target.value)}
-                required
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none"
-                placeholder="Enter hours worked"
-                autoFocus
-              />
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Hours *
+                  </label>
+                  <input
+                    type="number"
+                    min="0"
+                    step="1"
+                    value={hoursInput}
+                    onChange={(e) => setHoursInput(e.target.value)}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none"
+                    placeholder="0"
+                    autoFocus
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Minutes *
+                  </label>
+                  <input
+                    type="number"
+                    min="0"
+                    max="59"
+                    step="1"
+                    value={minutesInput}
+                    onChange={(e) => {
+                      const val = parseInt(e.target.value) || 0;
+                      setMinutesInput(val > 59 ? 59 : val);
+                    }}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none"
+                    placeholder="0"
+                  />
+                </div>
+              </div>
             </div>
             <div className="flex space-x-3">
               <button
                 type="button"
                 onClick={() => {
                   setShowHoursModal(null);
-                  setHoursWorked('');
+                  setHoursInput('');
+                  setMinutesInput('');
                 }}
                 className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition"
               >

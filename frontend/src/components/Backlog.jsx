@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
+import { formatHoursDisplay } from '../utils/timeUtils';
 
 const Backlog = ({ tickets, onTicketClick, onMoveToPeriod, workspaceId }) => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -154,7 +155,7 @@ const Backlog = ({ tickets, onTicketClick, onMoveToPeriod, workspaceId }) => {
                             </div>
                             {ticket.hoursWorked > 0 && (
                               <span className="bg-primary-50 text-primary-700 px-2 py-0.5 rounded-md text-xs font-semibold">
-                                {ticket.hoursWorked}h
+                                {formatHoursDisplay(ticket.hoursWorked)}
                               </span>
                             )}
                           </div>
