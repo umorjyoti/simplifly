@@ -47,8 +47,8 @@ const Backlog = ({ tickets, onTicketClick, onMoveToPeriod, workspaceId }) => {
       <div className="bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200 px-4 sm:px-6 py-4 rounded-t-lg">
         <div className="flex items-center justify-between mb-4">
           <div>
-            <h2 className="text-lg sm:text-xl font-bold text-gray-900">Backlog</h2>
-            <span className="text-xs sm:text-sm text-gray-600 mt-1">
+            <h2 className="text-lg sm:text-xl font-bold text-brand-dark">Backlog</h2>
+            <span className="text-xs sm:text-sm text-brand-dark/60 mt-1">
             {filteredTickets.length} {filteredTickets.length === 1 ? 'item' : 'items'}
           </span>
           </div>
@@ -61,12 +61,12 @@ const Backlog = ({ tickets, onTicketClick, onMoveToPeriod, workspaceId }) => {
             placeholder="Search backlog..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="flex-1 px-4 py-2.5 rounded-lg border border-gray-300 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent text-sm shadow-sm"
+            className="flex-1 px-4 py-2.5 rounded-none border border-gray-300 bg-transparent text-brand-dark focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent text-sm shadow-none"
           />
           <select
             value={filterStatus}
             onChange={(e) => setFilterStatus(e.target.value)}
-            className="px-4 py-2.5 rounded-lg border border-gray-300 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent text-sm shadow-sm"
+            className="px-4 py-2.5 rounded-none border border-gray-300 bg-transparent text-brand-dark focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent text-sm shadow-none"
           >
             <option value="all">All Status</option>
             <option value="todo">To Do</option>
@@ -103,7 +103,7 @@ const Backlog = ({ tickets, onTicketClick, onMoveToPeriod, workspaceId }) => {
                           {...provided.draggableProps}
                           {...provided.dragHandleProps}
                           onClick={() => onTicketClick(ticket)}
-                          className={`bg-white rounded-lg shadow-sm border border-gray-200 p-4 cursor-pointer hover:shadow-lg hover:border-gray-300 transition-all duration-200 ${
+                          className={`bg-transparent rounded-none shadow-none border border-gray-200 p-4 cursor-pointer hover:shadow-none hover:border-gray-300 transition-all duration-200 ${
                             snapshot.isDragging ? 'opacity-60 rotate-2 scale-105 shadow-xl' : ''
                           } border-l-4 ${
                             ticket.status === 'todo' ? 'border-blue-500' :
@@ -115,23 +115,23 @@ const Backlog = ({ tickets, onTicketClick, onMoveToPeriod, workspaceId }) => {
                             <div className="flex-1">
                               <div className="flex items-center gap-2 mb-2">
                                 {ticket.ticketNumber && (
-                                  <span className="text-xs font-mono text-gray-600 bg-gray-100 px-2 py-0.5 rounded-md font-semibold">
+                                  <span className="text-xs font-mono text-brand-dark/60 bg-gray-100 px-2 py-0.5 rounded-none font-semibold">
                                     {ticket.ticketNumber}
                                   </span>
                                 )}
-                                <div className="font-semibold text-gray-900 line-clamp-2 flex-1 text-sm">
+                                <div className="font-semibold text-brand-dark line-clamp-2 flex-1 text-sm">
                                   {ticket.title}
                                 </div>
                               </div>
                               <div className="flex items-center gap-2 mb-2">
-                                <span className={`text-xs px-2 py-0.5 rounded-md font-medium ${
+                                <span className={`text-xs px-2 py-0.5 rounded-none font-medium ${
                                   ticket.type === 'story' 
                                     ? 'bg-blue-100 text-blue-700' 
                                     : 'bg-purple-100 text-purple-700'
                                 }`}>
                                   {ticket.type === 'story' ? 'Story' : 'Subtask'}
                                 </span>
-                                <span className={`text-xs px-2 py-0.5 rounded-md font-medium ${getStatusColor(ticket.status)}`}>
+                                <span className={`text-xs px-2 py-0.5 rounded-none font-medium ${getStatusColor(ticket.status)}`}>
                                   {ticket.status === 'todo' ? 'To Do' :
                                    ticket.status === 'in-progress' ? 'In Progress' :
                                    'Completed'}
@@ -140,21 +140,21 @@ const Backlog = ({ tickets, onTicketClick, onMoveToPeriod, workspaceId }) => {
                             </div>
                           </div>
                           {ticket.description && (
-                            <div className="text-xs text-gray-600 mb-3 line-clamp-2 leading-relaxed">
+                            <div className="text-xs text-brand-dark/60 mb-3 line-clamp-2 leading-relaxed">
                               {ticket.description}
                             </div>
                           )}
                           <div className="flex items-center justify-between pt-2 border-t border-gray-100">
                             <div className="flex items-center gap-2">
-                              <div className="w-6 h-6 rounded-full bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center text-white text-xs font-semibold">
+                              <div className="w-6 h-6 rounded-full bg-brand-dark flex items-center justify-center text-white text-xs font-semibold">
                                 {(ticket.assignee?.name || ticket.assignee?.username || '?').charAt(0).toUpperCase()}
                               </div>
-                              <span className="text-xs text-gray-600 font-medium">
+                              <span className="text-xs text-brand-dark/60 font-medium">
                                 {ticket.assignee?.name || ticket.assignee?.username}
                               </span>
                             </div>
                             {ticket.hoursWorked > 0 && (
-                              <span className="bg-primary-50 text-primary-700 px-2 py-0.5 rounded-md text-xs font-semibold">
+                              <span className="bg-primary-50 text-primary-700 px-2 py-0.5 rounded-none text-xs font-semibold">
                                 {formatHoursDisplay(ticket.hoursWorked)}
                               </span>
                             )}

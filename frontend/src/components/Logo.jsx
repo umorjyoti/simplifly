@@ -1,21 +1,19 @@
 import React from 'react';
 
-const Logo = ({ className = '', showText = true, size = 'md' }) => {
+const Logo = ({ className = '', showText = false, size = 'md' }) => {
   const sizeClasses = {
-    sm: 'h-6 w-6',
-    md: 'h-8 w-8',
-    lg: 'h-10 w-10',
+    sm: 'w-4 h-4',
+    md: 'w-6 h-6',
+    lg: 'w-10 h-10',
   };
 
   return (
-    <div className={`flex items-center space-x-2 ${className}`}>
-      <img 
-        src="/logo.svg" 
-        alt="Simplifly Logo" 
-        className={sizeClasses[size]}
-      />
+    <div className={`flex items-center gap-4 ${className}`}>
+      <div className={`${sizeClasses[size]} bg-current flex items-center justify-center`}>
+        <div className="w-[60%] h-[60%] border-2 border-white rotate-45"></div>
+      </div>
       {showText && (
-        <span className="text-2xl font-bold text-primary-600">
+        <span className="text-2xl font-black uppercase tracking-tighter">
           Simplifly
         </span>
       )}

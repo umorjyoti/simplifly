@@ -25,7 +25,7 @@ const MyTeam = () => {
         ws => ws.owner._id === user?.id || ws.owner === user?.id
       );
       setWorkspaces(ownedWorkspaces);
-      
+
       for (const workspace of ownedWorkspaces) {
         fetchInviteLink(workspace._id);
       }
@@ -74,7 +74,6 @@ const MyTeam = () => {
       await api.post(`/invites/requests/${requestId}/approve`);
       await fetchAllRequests();
       await fetchWorkspaces();
-      alert('Join request approved!');
     } catch (error) {
       alert(error.response?.data?.message || 'Failed to approve request');
     }
@@ -84,23 +83,20 @@ const MyTeam = () => {
     try {
       await api.post(`/invites/requests/${requestId}/reject`);
       await fetchAllRequests();
-      alert('Join request rejected');
     } catch (error) {
       alert(error.response?.data?.message || 'Failed to reject request');
     }
   };
 
   const handleRemoveMember = async (workspaceId, userId, memberName) => {
-    if (!window.confirm(`Are you sure you want to remove ${memberName} from this workspace?`)) {
+    if (!window.confirm(`INITIALIZE DE-PROVISIONING: Confirm removal of ${memberName}?`)) {
       return;
     }
 
     try {
-      // Ensure userId is a string
       const memberId = userId?._id || userId;
       await api.delete(`/workspaces/${workspaceId}/members/${memberId}`);
-      await fetchWorkspaces(); // Refresh to update member list
-      alert('Member removed successfully');
+      await fetchWorkspaces();
     } catch (error) {
       alert(error.response?.data?.message || 'Failed to remove member');
     }
@@ -110,24 +106,18 @@ const MyTeam = () => {
     navigator.clipboard.writeText(text).then(() => {
       setCopiedLink(workspaceId);
       setTimeout(() => setCopiedLink(null), 2000);
-    }).catch(() => {
-      alert('Failed to copy to clipboard');
     });
   };
 
   const handleToggleWorkspace = (workspaceId) => {
-    if (expandedWorkspace === workspaceId) {
-      setExpandedWorkspace(null);
-    } else {
-      setExpandedWorkspace(workspaceId);
-    }
+    setExpandedWorkspace(expandedWorkspace === workspaceId ? null : workspaceId);
   };
 
   if (loading) {
     return (
       <Layout>
         <div className="flex items-center justify-center h-64">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
+          <div className="animate-spin h-12 w-12 border-b-2 border-brand-accent"></div>
         </div>
       </Layout>
     );
@@ -135,9 +125,7 @@ const MyTeam = () => {
 
   const requestsByWorkspace = requests.reduce((acc, request) => {
     const wsId = request.workspace._id || request.workspace;
-    if (!acc[wsId]) {
-      acc[wsId] = [];
-    }
+    if (!acc[wsId]) acc[wsId] = [];
     acc[wsId].push(request);
     return acc;
   }, {});
@@ -146,30 +134,41 @@ const MyTeam = () => {
 
   return (
     <Layout>
-      <div className="px-4 sm:px-6 lg:px-8">
-        {/* Header */}
-        <div className="mb-8 mt-6">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Workspace Management</h1>
-          <p className="text-gray-600">Manage invites and team access to your workspaces</p>
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 mb-32">
+        {/* Massive Typographic Header */}
+        <div className="mb-24 flex flex-col md:flex-row md:items-end justify-between gap-12 border-b border-brand-dark/10 pb-16">
+          <div className="reveal">
+            <h1 className="text-7xl sm:text-[8vw] font-black uppercase tracking-tighter leading-[0.8]">
+              Node <br />
+              <span className="text-brand-accent">Capability</span>.
+            </h1>
+            <p className="mt-8 text-xl font-bold tracking-tight text-brand-dark/40 max-w-md uppercase">
+              Operational Management / Team Architecture Control System
+            </p>
+          </div>
+          <div className="reveal stagger-1">
+            <div className="flex items-center gap-4 text-xs font-black uppercase tracking-[0.4em] text-brand-dark/30">
+              <span className="w-12 h-px bg-brand-dark/20"></span>
+              V1.0.0 Stable Deployment
+            </div>
+          </div>
         </div>
 
-        {/* Pending Requests Banner */}
+        {/* Pending Requests Banner - Industrial Style */}
         {totalPendingRequests > 0 && (
-          <div className="mb-8 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-6">
-            <div className="flex items-start justify-between">
-              <div className="flex items-start gap-4">
-                <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center flex-shrink-0">
-                  <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+          <div className="mb-16 bg-brand-accent text-white p-8 sharp-card border-none reveal">
+            <div className="flex items-start justify-between gap-8">
+              <div className="flex items-center gap-6">
+                <div className="w-16 h-16 bg-white flex items-center justify-center flex-shrink-0 animate-pulse">
+                  <svg className="w-8 h-8 text-brand-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
                   </svg>
                 </div>
                 <div>
-                  <h2 className="text-lg font-bold text-gray-900 mb-1">
-                    {totalPendingRequests} Pending Join Request{totalPendingRequests !== 1 ? 's' : ''}
+                  <h2 className="text-3xl font-black uppercase tracking-tighter mb-1">
+                    {totalPendingRequests} UNAUTHORIZED REQUESTS
                   </h2>
-                  <p className="text-sm text-gray-600">
-                    Review and approve requests to join your workspaces
-                  </p>
+                  <p className="text-white/70 font-bold tracking-wide text-sm uppercase"> Action Required: Interface Authentication Queue Pending</p>
                 </div>
               </div>
             </div>
@@ -177,37 +176,27 @@ const MyTeam = () => {
         )}
 
         {workspaces.length === 0 ? (
-          <div className="relative">
-            <div className="absolute inset-0 bg-gradient-to-br from-primary-50/50 via-transparent to-purple-50/50 rounded-3xl"></div>
-            <div className="relative bg-white/80 backdrop-blur-sm rounded-3xl border border-gray-200/50 p-16 sm:p-20 text-center">
-              <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-gray-100 mb-6">
-                <svg className="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                </svg>
-              </div>
-              <h2 className="text-2xl font-bold text-gray-900 mb-3">No workspaces yet</h2>
-              <p className="text-gray-600 mb-8 max-w-sm mx-auto leading-relaxed">
-                Create a workspace to start managing team access and invites.
-              </p>
-              <Link
-                to="/dashboard"
-                className="inline-flex items-center gap-3 bg-gray-900 hover:bg-gray-800 text-white px-8 py-4 rounded-xl font-semibold transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105"
-              >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" />
-                </svg>
-                Create Your First Workspace
-              </Link>
-            </div>
+          <div className="py-40 text-center border-8 border-brand-dark/5 reveal">
+            <h2 className="text-4xl sm:text-6xl font-black uppercase tracking-tighter text-brand-dark/10 mb-8">
+              Core Registry Empty
+            </h2>
+            <p className="max-w-md mx-auto text-xl font-bold text-brand-dark/40 mb-12">
+              No managed containers detected. Initialize a workspace to begin capability provisioning.
+            </p>
+            <Link
+              to="/dashboard"
+              className="btn-primary inline-flex scale-125"
+            >
+              INITIALIZE WORKSPACE —&gt;
+            </Link>
           </div>
         ) : (
-          <div className="space-y-6">
-            {workspaces.map((workspace) => {
+          <div className="space-y-12">
+            {workspaces.map((workspace, workspaceIdx) => {
               const workspaceId = workspace._id;
               const workspaceRequests = requestsByWorkspace[workspaceId] || [];
               const isExpanded = expandedWorkspace === workspaceId;
               const inviteLink = inviteLinks[workspaceId];
-              const hasPendingRequests = workspaceRequests.length > 0;
 
               const workspaceInitials = workspace.name
                 .split(' ')
@@ -216,312 +205,226 @@ const MyTeam = () => {
                 .toUpperCase()
                 .substring(0, 2);
 
-              const colorSchemes = [
-                { icon: 'bg-blue-100 text-blue-600', badge: 'bg-blue-50 text-blue-700', border: 'border-blue-200' },
-                { icon: 'bg-purple-100 text-purple-600', badge: 'bg-purple-50 text-purple-700', border: 'border-purple-200' },
-                { icon: 'bg-emerald-100 text-emerald-600', badge: 'bg-emerald-50 text-emerald-700', border: 'border-emerald-200' },
-                { icon: 'bg-amber-100 text-amber-600', badge: 'bg-amber-50 text-amber-700', border: 'border-amber-200' },
-                { icon: 'bg-rose-100 text-rose-600', badge: 'bg-rose-50 text-rose-700', border: 'border-rose-200' },
-                { icon: 'bg-indigo-100 text-indigo-600', badge: 'bg-indigo-50 text-indigo-700', border: 'border-indigo-200' },
-              ];
-              const colorIndex = workspaceId.charCodeAt(workspaceId.length - 1) % colorSchemes.length;
-              const scheme = colorSchemes[colorIndex];
-
               return (
-                <div key={workspaceId} className="bg-white rounded-xl border-2 border-gray-100 hover:border-gray-200 transition-all duration-300 overflow-hidden">
-                  {/* Workspace Header */}
-                  <div className="p-6">
-                    <div className="flex items-start justify-between gap-4 mb-4">
-                      <div className="flex items-start gap-4 flex-1 min-w-0">
-                        <div className={`w-14 h-14 rounded-xl ${scheme.icon} flex items-center justify-center font-bold text-lg flex-shrink-0`}>
-                          {workspaceInitials}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-3 mb-2 flex-wrap">
-                            <h2 className="text-xl font-bold text-gray-900 truncate">{workspace.name}</h2>
-                            <span className={`${scheme.badge} text-xs font-semibold px-3 py-1 rounded-lg flex-shrink-0`}>
-                              Owner
+                <div key={workspaceId} className={`reveal stagger-${(workspaceIdx % 3) + 1}`}>
+                  <div className={`sharp-card overflow-hidden transition-all duration-500 bg-white ${isExpanded ? 'border-brand-accent' : 'border-brand-dark hover:border-brand-accent'}`}>
+                    {/* Header Strip */}
+                    <div className="flex flex-col lg:flex-row divide-y lg:divide-y-0 lg:divide-x divide-brand-dark/10">
+
+                      {/* Industrial Initial Box */}
+                      <div className={`w-32 h-32 lg:w-48 lg:h-auto flex items-center justify-center font-black text-5xl lg:text-7xl transition-colors ${isExpanded ? 'bg-brand-accent text-white' : 'bg-brand-dark text-white'}`}>
+                        {workspaceInitials}
+                      </div>
+
+                      {/* Info Metadata */}
+                      <div className="flex-1 p-8 lg:p-10 flex flex-col justify-center">
+                        <div className="flex flex-wrap items-center gap-4 mb-4">
+                          <h2 className="text-3xl lg:text-4xl font-black uppercase tracking-tighter">{workspace.name}</h2>
+                          <span className="text-[10px] font-black tracking-[0.2em] border-2 border-brand-accent px-3 py-1 text-brand-accent uppercase">
+                            Root Owner
+                          </span>
+                          {workspaceRequests.length > 0 && (
+                            <span className="bg-brand-accent text-white text-[10px] font-black tracking-[0.2em] px-3 py-1 uppercase">
+                              {workspaceRequests.length} QUEUEING
                             </span>
-                            {hasPendingRequests && (
-                              <span className="bg-red-100 text-red-700 text-xs font-semibold px-3 py-1 rounded-lg flex items-center gap-1.5 flex-shrink-0">
-                                <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
-                                  <path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z" />
-                                </svg>
-                                {workspaceRequests.length} request{workspaceRequests.length !== 1 ? 's' : ''}
-                              </span>
-                            )}
-                          </div>
-                          {workspace.description && (
-                            <p className="text-sm text-gray-600 mb-3 line-clamp-2">{workspace.description}</p>
                           )}
-                          <div className="flex items-center gap-4 text-sm text-gray-600">
-                            <div className="flex items-center gap-1.5">
-                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                              </svg>
-                              <span className="font-medium">{workspace.members?.length || 0}</span>
-                              <span className="text-gray-500">member{workspace.members?.length !== 1 ? 's' : ''}</span>
-                            </div>
-                            <Link
-                              to={`/workspace/${workspaceId}`}
-                              className="text-primary-600 hover:text-primary-700 font-medium flex items-center gap-1"
-                            >
-                              View workspace
-                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                              </svg>
-                            </Link>
+                        </div>
+                        {workspace.description && (
+                          <p className="text-brand-dark/60 font-bold uppercase text-xs tracking-widest leading-loose mb-6">{workspace.description}</p>
+                        )}
+                        <div className="flex flex-wrap items-center gap-8">
+                          <div className="flex items-center gap-3">
+                            <span className="text-3xl font-black">{workspace.members?.length || 0}</span>
+                            <span className="text-[10px] font-black uppercase tracking-[0.3em] text-brand-dark/30">Node Members</span>
                           </div>
+                          <Link
+                            to={`/workspace/${workspaceId}`}
+                            className="group flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.3em] text-brand-accent hover:text-brand-dark transition-colors"
+                          >
+                            Access Module
+                            <svg className="w-4 h-4 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                            </svg>
+                          </Link>
                         </div>
                       </div>
-                      <button
-                        onClick={() => handleToggleWorkspace(workspaceId)}
-                        className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition flex items-center gap-2 flex-shrink-0"
-                      >
-                        {isExpanded ? (
-                          <>
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
-                            </svg>
-                            Hide
-                          </>
-                        ) : (
-                          <>
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                            </svg>
-                            Manage
-                          </>
-                        )}
-                      </button>
+
+                      {/* Control Panel */}
+                      <div className="p-8 flex items-center justify-center lg:w-48 bg-gray-50/50">
+                        <button
+                          onClick={() => handleToggleWorkspace(workspaceId)}
+                          className={`w-full h-full min-h-[60px] lg:min-h-0 text-xs font-black uppercase tracking-[0.3em] transition-all flex items-center justify-center gap-3 ${isExpanded ? 'bg-brand-accent text-white' : 'bg-brand-dark text-white hover:bg-brand-accent'}`}
+                        >
+                          {isExpanded ? 'CLOSE' : 'MANAGE'}
+                        </button>
+                      </div>
                     </div>
 
-                    {/* Expanded Content */}
-                    {isExpanded && (
-                      <div className="mt-6 pt-6 border-t border-gray-200 space-y-6">
-                        {/* Invite Link Section */}
-                        <div>
-                          <div className="flex items-center gap-2 mb-3">
-                            <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
-                            </svg>
-                            <h3 className="font-semibold text-gray-900">Invite Link</h3>
-                          </div>
-                          <div className="flex items-center gap-3">
-                            {inviteLink ? (
-                              <>
-                                <div className="flex-1 relative">
-                                  <input
-                                    type="text"
-                                    value={inviteLink}
-                                    readOnly
-                                    className="w-full px-4 py-3 pr-24 border-2 border-gray-200 rounded-lg bg-gray-50 text-sm font-mono focus:outline-none focus:border-primary-500"
-                                  />
-                                  <button
-                                    onClick={() => copyToClipboard(inviteLink, workspaceId)}
-                                    className="absolute right-2 top-1/2 -translate-y-1/2 px-4 py-1.5 bg-gray-900 hover:bg-gray-800 text-white text-sm font-medium rounded-lg transition"
-                                  >
-                                    {copiedLink === workspaceId ? (
-                                      <span className="flex items-center gap-1.5">
-                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                                        </svg>
-                                        Copied!
-                                      </span>
-                                    ) : (
-                                      'Copy'
-                                    )}
-                                  </button>
-                                </div>
-                              </>
-                            ) : (
-                              <button
-                                onClick={() => generateInviteLink(workspaceId)}
-                                className="px-6 py-3 bg-gray-900 hover:bg-gray-800 text-white rounded-lg font-medium transition flex items-center gap-2"
-                              >
-                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                                </svg>
-                                Generate Invite Link
-                              </button>
-                            )}
-                          </div>
-                          <p className="text-xs text-gray-500 mt-2">
-                            Share this link to allow others to request access to your workspace
-                          </p>
-                        </div>
+                    {/* Detailed Management Panel */}
+                    <div className={`transition-all duration-700 ease-in-out overflow-hidden ${isExpanded ? 'max-h-[2000px] opacity-100' : 'max-h-0 opacity-0'}`}>
+                      <div className="p-10 border-t-4 border-brand-dark bg-gray-50">
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
 
-                        {/* Members Section */}
-                        <div>
-                          <div className="flex items-center gap-2 mb-3">
-                            <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                            </svg>
-                            <h3 className="font-semibold text-gray-900">
-                              Team Members
-                              <span className="ml-2 text-sm font-normal text-gray-500">
-                                ({workspace.members?.length || 0})
-                              </span>
-                            </h3>
-                          </div>
-                          {workspace.members && workspace.members.length > 0 ? (
-                            <div className="space-y-2">
-                              {/* Owner */}
-                              <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-200">
-                                <div className="flex items-center gap-3 flex-1 min-w-0">
-                                  <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-primary-500 to-primary-600 flex items-center justify-center flex-shrink-0">
-                                    <span className="text-sm font-semibold text-white">
-                                      {workspace.owner?.name?.[0] || workspace.owner?.username?.[0] || 'O'}
-                                    </span>
-                                  </div>
-                                  <div className="flex-1 min-w-0">
-                                    <div className="font-medium text-gray-900 truncate">
-                                      {workspace.owner?.name || workspace.owner?.username || 'Owner'}
-                                    </div>
-                                    {workspace.owner?.email && (
-                                      <div className="text-sm text-gray-500 truncate">{workspace.owner.email}</div>
-                                    )}
-                                  </div>
-                                  <span className={`${scheme.badge} text-xs font-semibold px-2.5 py-1 rounded-md flex-shrink-0`}>
-                                    Owner
-                                  </span>
-                                </div>
+                          {/* Left: Invites and Access */}
+                          <div className="space-y-12">
+                            <section>
+                              <div className="flex items-center gap-4 mb-8">
+                                <span className="text-[10px] font-black text-brand-accent px-2 py-0.5 border border-brand-accent">01</span>
+                                <h3 className="text-2xl font-black uppercase tracking-tighter">Identity Uplink</h3>
                               </div>
-                              {/* Members */}
-                              {workspace.members
-                                .filter(member => {
-                                  const memberId = member?._id || member;
-                                  const ownerId = workspace.owner?._id || workspace.owner;
-                                  if (!memberId || !ownerId) return true;
-                                  return memberId.toString() !== ownerId.toString();
-                                })
-                                .map((member) => {
-                                  const memberId = member?._id || member;
-                                  const memberName = member?.name || member?.username || 'Unknown User';
-                                  const memberEmail = member?.email;
-                                  const memberInitial = (memberName && memberName[0]) ? memberName[0].toUpperCase() : 'U';
-                                  
-                                  return (
-                                    <div
-                                      key={memberId?.toString() || Math.random()}
-                                      className="flex items-center justify-between p-3 bg-white rounded-lg border border-gray-200 hover:border-gray-300 transition"
-                                    >
-                                      <div className="flex items-center gap-3 flex-1 min-w-0">
-                                        <div className="w-10 h-10 rounded-lg bg-gray-200 flex items-center justify-center flex-shrink-0">
-                                          <span className="text-sm font-semibold text-gray-600">
-                                            {memberInitial}
-                                          </span>
-                                        </div>
-                                        <div className="flex-1 min-w-0">
-                                          <div className="font-medium text-gray-900 truncate">{memberName}</div>
-                                          {memberEmail && (
-                                            <div className="text-sm text-gray-500 truncate">{memberEmail}</div>
-                                          )}
-                                          {!memberEmail && member?.username && (
-                                            <div className="text-sm text-gray-500 truncate">@{member.username}</div>
-                                          )}
-                                        </div>
-                                      </div>
+
+                              <div className="space-y-4">
+                                {inviteLink ? (
+                                  <div className="space-y-4">
+                                    <div className="relative">
+                                      <input
+                                        type="text"
+                                        value={inviteLink}
+                                        readOnly
+                                        className="w-full p-5 pr-32 bg-white border-2 border-brand-dark font-mono text-sm focus:outline-none"
+                                      />
                                       <button
-                                        onClick={() => handleRemoveMember(workspaceId, memberId, memberName)}
-                                        className="px-3 py-1.5 text-sm text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition font-medium flex items-center gap-1.5 flex-shrink-0"
+                                        onClick={() => copyToClipboard(inviteLink, workspaceId)}
+                                        className={`absolute right-2 top-2 bottom-2 px-6 font-black uppercase text-[10px] tracking-widest transition-all ${copiedLink === workspaceId ? 'bg-green-600 text-white' : 'bg-brand-dark text-white hover:bg-brand-accent'}`}
                                       >
-                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                        </svg>
-                                        Remove
+                                        {copiedLink === workspaceId ? 'COPIED' : 'COPY'}
                                       </button>
                                     </div>
-                                  );
-                                })}
-                            </div>
-                          ) : (
-                            <div className="text-center py-6 bg-gray-50 rounded-lg border border-gray-200">
-                              <p className="text-sm text-gray-500">No members yet</p>
-                            </div>
-                          )}
-                        </div>
-
-                        {/* Join Requests Section */}
-                        <div>
-                          <div className="flex items-center justify-between mb-3">
-                            <div className="flex items-center gap-2">
-                              <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-                              </svg>
-                              <h3 className="font-semibold text-gray-900">
-                                Join Requests
-                                {workspaceRequests.length > 0 && (
-                                  <span className="ml-2 text-sm font-normal text-gray-500">({workspaceRequests.length})</span>
+                                    <p className="text-[10px] font-black uppercase tracking-widest text-brand-dark/40 italic">
+                                      Share this temporary endpoint for capability requests.
+                                    </p>
+                                  </div>
+                                ) : (
+                                  <button
+                                    onClick={() => generateInviteLink(workspaceId)}
+                                    className="w-full p-6 bg-white border-4 border-dashed border-brand-dark/20 text-brand-dark/40 font-black uppercase tracking-widest hover:border-brand-accent hover:text-brand-accent transition-all"
+                                  >
+                                    GENERATE ACCESS UPLINK —&gt;
+                                  </button>
                                 )}
-                              </h3>
-                            </div>
-                          </div>
-                          {workspaceRequests.length === 0 ? (
-                            <div className="text-center py-8 bg-gray-50 rounded-lg border border-gray-200">
-                              <svg className="w-12 h-12 text-gray-300 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-                              </svg>
-                              <p className="text-sm text-gray-500">No pending requests</p>
-                            </div>
-                          ) : (
-                            <div className="space-y-3">
-                              {workspaceRequests.map((request) => (
-                                <div
-                                  key={request._id}
-                                  className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border border-gray-200 hover:border-gray-300 transition"
-                                >
-                                  <div className="flex items-center gap-4 flex-1 min-w-0">
-                                    <div className="w-10 h-10 rounded-lg bg-gray-200 flex items-center justify-center flex-shrink-0">
-                                      <span className="text-sm font-semibold text-gray-600">
-                                        {(request.requestedBy?.name || request.requestedBy?.username || 'U')[0].toUpperCase()}
-                                      </span>
-                                    </div>
-                                    <div className="flex-1 min-w-0">
-                                      <div className="font-medium text-gray-900 truncate">
-                                        {request.requestedBy?.name || request.requestedBy?.username || 'Unknown User'}
-                                      </div>
-                                      {request.requestedBy?.email && (
-                                        <div className="text-sm text-gray-500 truncate">{request.requestedBy.email}</div>
-                                      )}
-                                      <div className="text-xs text-gray-400 mt-0.5">
-                                        {new Date(request.createdAt).toLocaleDateString('en-US', { 
-                                          month: 'short', 
-                                          day: 'numeric',
-                                          year: 'numeric',
-                                          hour: '2-digit',
-                                          minute: '2-digit'
-                                        })}
-                                      </div>
-                                    </div>
-                                  </div>
-                                  <div className="flex items-center gap-2 flex-shrink-0">
-                                    <button
-                                      onClick={() => handleApprove(request._id, workspaceId)}
-                                      className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition font-medium text-sm flex items-center gap-1.5"
-                                    >
-                                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                                      </svg>
-                                      Approve
-                                    </button>
-                                    <button
-                                      onClick={() => handleReject(request._id)}
-                                      className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition font-medium text-sm flex items-center gap-1.5"
-                                    >
-                                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                                      </svg>
-                                      Reject
-                                    </button>
-                                  </div>
+                              </div>
+                            </section>
+
+                            {/* Join Requests */}
+                            <section>
+                              <div className="flex items-center justify-between mb-8">
+                                <div className="flex items-center gap-4">
+                                  <span className="text-[10px] font-black text-brand-accent px-2 py-0.5 border border-brand-accent">02</span>
+                                  <h3 className="text-2xl font-black uppercase tracking-tighter">Registry Queue</h3>
                                 </div>
-                              ))}
-                            </div>
-                          )}
+                                <span className="text-[10px] font-black uppercase tracking-widest text-brand-dark/30">
+                                  {workspaceRequests.length} Pending Approval
+                                </span>
+                              </div>
+
+                              {workspaceRequests.length === 0 ? (
+                                <div className="p-10 bg-white border-2 border-brand-dark/5 text-center">
+                                  <p className="text-xs font-black uppercase tracking-widest text-brand-dark/20 italic">No external identities in queue</p>
+                                </div>
+                              ) : (
+                                <div className="divide-y divide-brand-dark/10 bg-white border-2 border-brand-dark">
+                                  {workspaceRequests.map((request) => (
+                                    <div key={request._id} className="p-6 flex flex-col md:flex-row items-center justify-between gap-6">
+                                      <div className="flex items-center gap-5">
+                                        <div className="w-12 h-12 bg-gray-100 flex items-center justify-center font-black text-brand-dark/40">
+                                          {(request.requestedBy?.name || request.requestedBy?.username || 'U')[0].toUpperCase()}
+                                        </div>
+                                        <div>
+                                          <div className="font-black uppercase tracking-tighter text-lg">{request.requestedBy?.name || request.requestedBy?.username}</div>
+                                          <div className="text-[10px] font-bold text-brand-dark/40 uppercase tracking-widest">{request.requestedBy?.email || 'System ID'}</div>
+                                        </div>
+                                      </div>
+                                      <div className="flex gap-2">
+                                        <button
+                                          onClick={() => handleApprove(request._id, workspaceId)}
+                                          className="px-6 py-3 bg-brand-dark text-white font-black uppercase text-[10px] tracking-widest hover:bg-green-600 transition-colors"
+                                        >
+                                          APPROVE
+                                        </button>
+                                        <button
+                                          onClick={() => handleReject(request._id)}
+                                          className="px-6 py-3 bg-white border-2 border-brand-dark/10 font-black uppercase text-[10px] tracking-widest hover:bg-brand-accent lg:hover:text-white transition-all shadow-none"
+                                        >
+                                          REJECT
+                                        </button>
+                                      </div>
+                                    </div>
+                                  ))}
+                                </div>
+                              )}
+                            </section>
+                          </div>
+
+                          {/* Right: Member Management */}
+                          <div className="space-y-12">
+                            <section>
+                              <div className="flex items-center justify-between mb-8">
+                                <div className="flex items-center gap-4">
+                                  <span className="text-[10px] font-black text-brand-accent px-2 py-0.5 border border-brand-accent">03</span>
+                                  <h3 className="text-2xl font-black uppercase tracking-tighter">Active Manifest</h3>
+                                </div>
+                                <span className="text-[10px] font-black uppercase tracking-widest text-brand-dark/30">
+                                  {workspace.members?.length || 0} Registered Nodes
+                                </span>
+                              </div>
+
+                              <div className="space-y-3">
+                                {/* Owner Display */}
+                                <div className="p-6 bg-brand-dark text-white flex items-center justify-between">
+                                  <div className="flex items-center gap-5">
+                                    <div className="w-12 h-12 bg-white flex items-center justify-center font-black text-brand-dark">
+                                      {workspace.owner?.name?.[0] || workspace.owner?.username?.[0] || 'O'}
+                                    </div>
+                                    <div>
+                                      <div className="font-black uppercase tracking-tighter text-lg">{workspace.owner?.name || workspace.owner?.username}</div>
+                                      <div className="text-[10px] font-bold text-white/40 uppercase tracking-widest">Main Orchestrator (Owner)</div>
+                                    </div>
+                                  </div>
+                                  <div className="text-[10px] font-black uppercase opacity-20 hidden sm:block">ROOT_ADMIN</div>
+                                </div>
+
+                                {/* List Members */}
+                                {workspace.members
+                                  .filter(member => (member?._id || member).toString() !== (workspace.owner?._id || workspace.owner).toString())
+                                  .map((member) => {
+                                    const memberId = member?._id || member;
+                                    const memberName = member?.name || member?.username || 'Unknown Operator';
+
+                                    return (
+                                      <div key={memberId?.toString()} className="p-6 bg-white border-2 border-brand-dark/10 flex items-center justify-between group hover:border-brand-accent transition-colors">
+                                        <div className="flex items-center gap-5">
+                                          <div className="w-12 h-12 bg-gray-100 flex items-center justify-center font-black text-brand-dark/40 group-hover:bg-brand-accent/10 group-hover:text-brand-accent transition-colors">
+                                            {memberName[0].toUpperCase()}
+                                          </div>
+                                          <div>
+                                            <div className="font-black uppercase tracking-tighter text-lg">{memberName}</div>
+                                            <div className="text-[10px] font-bold text-brand-dark/40 uppercase tracking-widest">{member.email || '@' + member.username}</div>
+                                          </div>
+                                        </div>
+                                        <button
+                                          onClick={() => handleRemoveMember(workspaceId, memberId, memberName)}
+                                          className="p-3 text-brand-dark/20 hover:text-brand-accent transition-colors"
+                                          title="De-provision Access"
+                                        >
+                                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                          </svg>
+                                        </button>
+                                      </div>
+                                    );
+                                  })}
+
+                                {workspace.members?.length === 1 && (
+                                  <div className="py-8 text-center border-2 border-dashed border-brand-dark/10">
+                                    <p className="text-[10px] font-black uppercase tracking-widest text-brand-dark/20">Operational Solo State</p>
+                                  </div>
+                                )}
+                              </div>
+                            </section>
+                          </div>
                         </div>
                       </div>
-                    )}
+                    </div>
                   </div>
                 </div>
               );

@@ -541,7 +541,7 @@ const Billing = () => {
     return (
       <Layout>
         <div className="flex items-center justify-center h-64">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-accent"></div>
         </div>
       </Layout>
     );
@@ -560,7 +560,7 @@ const Billing = () => {
       <div className="px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="mb-8 mt-6">
-          <Link to={`/workspace/${id}`} className="text-primary-600 hover:text-primary-700 mb-4 inline-flex items-center gap-2 text-sm font-medium">
+          <Link to={`/workspace/${id}`} className="text-brand-accent hover:text-primary-700 mb-4 inline-flex items-center gap-2 text-sm font-medium">
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
             </svg>
@@ -571,11 +571,11 @@ const Billing = () => {
         </div>
 
         {/* Billing Mode Toggle */}
-        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-6 mb-8">
+        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-none p-6 mb-8">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div className="flex-1">
               <div className="flex items-center gap-3 mb-2">
-                <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                <div className="w-10 h-10 bg-blue-100 rounded-none flex items-center justify-center">
                   <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                   </svg>
@@ -597,7 +597,7 @@ const Billing = () => {
                 onChange={(e) => handleAgencyLevelToggle(e.target.checked)}
                 className="sr-only peer"
               />
-              <div className="w-14 h-7 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-blue-600"></div>
+              <div className="w-14 h-7 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-transparent after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-blue-600"></div>
               <span className="ml-3 text-sm font-semibold text-gray-700">
                 {isAgencyLevel ? 'Agency' : 'User'}
               </span>
@@ -607,8 +607,8 @@ const Billing = () => {
 
         {!hasBillableItems ? (
           <div className="relative">
-            <div className="absolute inset-0 bg-gradient-to-br from-primary-50/50 via-transparent to-purple-50/50 rounded-3xl"></div>
-            <div className="relative bg-white/80 backdrop-blur-sm rounded-3xl border border-gray-200/50 p-16 sm:p-20 text-center">
+            <div className="absolute inset-0 bg-gradient-to-br from-gray-50/50 via-transparent to-purple-50/50 rounded-3xl"></div>
+            <div className="relative bg-transparent/80 backdrop-blur-sm rounded-3xl border border-gray-200/50 p-16 sm:p-20 text-center">
               <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-gray-100 mb-6">
                 <svg className="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -625,7 +625,7 @@ const Billing = () => {
             {/* Left Sidebar - User Selection (only for user-level) */}
             {!isAgencyLevel && (
               <div className="lg:col-span-3">
-                <div className="bg-white rounded-xl border border-gray-200 p-6 sticky top-4">
+                <div className="bg-transparent rounded-none border border-gray-200 p-6 sticky top-4">
                   <h2 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
                     <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
@@ -641,15 +641,15 @@ const Billing = () => {
                         <button
                           key={userData.user._id}
                           onClick={() => handleUserSelect(userData)}
-                          className={`w-full text-left p-4 rounded-xl border-2 transition-all ${
+                          className={`w-full text-left p-4 rounded-none border-2 transition-all ${
                             isSelected
-                              ? 'border-primary-500 bg-primary-50 shadow-md'
-                              : 'border-gray-200 hover:border-gray-300 hover:shadow-sm'
+                              ? 'border-brand-accent bg-gray-50 shadow-none'
+                              : 'border-gray-200 hover:border-gray-300 hover:shadow-none'
                           }`}
                         >
                           <div className="flex items-center gap-3">
-                            <div className={`w-10 h-10 rounded-lg flex items-center justify-center font-bold text-sm ${
-                              isSelected ? 'bg-primary-600 text-white' : 'bg-gray-200 text-gray-600'
+                            <div className={`w-10 h-10 rounded-none flex items-center justify-center font-bold text-sm ${
+                              isSelected ? 'bg-brand-accent text-white' : 'bg-gray-200 text-gray-600'
                             }`}>
                               {userInitial}
                             </div>
@@ -675,13 +675,13 @@ const Billing = () => {
               {(isAgencyLevel || selectedUser) && (
                 <div className="space-y-6">
                   {/* Tabs */}
-                  <div className="bg-white rounded-xl border border-gray-200 p-2">
+                  <div className="bg-transparent rounded-none border border-gray-200 p-2">
                     <div className="flex gap-2">
                       <button
                         onClick={() => setActiveTab('tickets')}
-                        className={`flex-1 px-4 py-3 rounded-lg font-semibold transition-all ${
+                        className={`flex-1 px-4 py-3 rounded-none font-semibold transition-all ${
                           activeTab === 'tickets'
-                            ? 'bg-gray-900 text-white shadow-sm'
+                            ? 'bg-gray-900 text-white shadow-none'
                             : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
                         }`}
                       >
@@ -689,9 +689,9 @@ const Billing = () => {
                       </button>
                       <button
                         onClick={() => setActiveTab('manual')}
-                        className={`flex-1 px-4 py-3 rounded-lg font-semibold transition-all ${
+                        className={`flex-1 px-4 py-3 rounded-none font-semibold transition-all ${
                           activeTab === 'manual'
-                            ? 'bg-gray-900 text-white shadow-sm'
+                            ? 'bg-gray-900 text-white shadow-none'
                             : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
                         }`}
                       >
@@ -702,7 +702,7 @@ const Billing = () => {
 
                   {/* Tickets Tab */}
                   {activeTab === 'tickets' && (
-                    <div className="bg-white rounded-xl border border-gray-200 p-6">
+                    <div className="bg-transparent rounded-none border border-gray-200 p-6">
                       <div className="flex items-center justify-between mb-6">
                         <h2 className="text-xl font-bold text-gray-900">
                           {isAgencyLevel ? 'All Billable Tickets' : `Tickets for ${selectedUser.user.name || selectedUser.user.username}`}
@@ -711,7 +711,7 @@ const Billing = () => {
                           <div className="flex items-center gap-3">
                             <button
                               onClick={handleSelectAllTickets}
-                              className="text-sm text-primary-600 hover:text-primary-700 font-medium"
+                              className="text-sm text-brand-accent hover:text-primary-700 font-medium"
                             >
                               Select All
                             </button>
@@ -736,9 +736,9 @@ const Billing = () => {
                             return (
                               <label
                                 key={ticket._id}
-                                className={`flex items-start p-4 border-2 rounded-xl cursor-pointer transition-all ${
+                                className={`flex items-start p-4 border-2 rounded-none cursor-pointer transition-all ${
                                   isSelected
-                                    ? 'border-primary-500 bg-primary-50'
+                                    ? 'border-brand-accent bg-gray-50'
                                     : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
                                 }`}
                               >
@@ -746,7 +746,7 @@ const Billing = () => {
                                   type="checkbox"
                                   checked={isSelected}
                                   onChange={() => handleTicketToggle(ticket._id)}
-                                  className="mt-1 mr-4 h-5 w-5 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
+                                  className="mt-1 mr-4 h-5 w-5 text-brand-accent focus:ring-brand-accent border-gray-300 rounded"
                                 />
                                 <div className="flex-1 min-w-0">
                                   <div className="font-semibold text-gray-900 mb-1">{ticket.title}</div>
@@ -785,7 +785,7 @@ const Billing = () => {
 
                   {/* Manual Items Tab */}
                   {activeTab === 'manual' && (
-                    <div className="bg-white rounded-xl border border-gray-200 p-6">
+                    <div className="bg-transparent rounded-none border border-gray-200 p-6">
                       <div className="flex items-center justify-between mb-6">
                         <h2 className="text-xl font-bold text-gray-900">Manual Bill Items</h2>
                         <div className="flex items-center gap-3">
@@ -793,7 +793,7 @@ const Billing = () => {
                             <>
                               <button
                                 onClick={handleSelectAllManualItems}
-                                className="text-sm text-primary-600 hover:text-primary-700 font-medium"
+                                className="text-sm text-brand-accent hover:text-primary-700 font-medium"
                               >
                                 Select All
                               </button>
@@ -813,7 +813,7 @@ const Billing = () => {
                               setEditingManualItem(null);
                               setManualItemForm({ title: '', description: '', hours: '', minutes: '', userId: '' });
                             }}
-                            className="px-4 py-2 bg-gray-900 hover:bg-gray-800 text-white rounded-lg font-semibold transition flex items-center gap-2"
+                            className="px-4 py-2 bg-gray-900 hover:bg-gray-800 text-white rounded-none font-semibold transition flex items-center gap-2"
                           >
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -825,7 +825,7 @@ const Billing = () => {
 
                       {/* Add/Edit Form */}
                       {showAddManualItem && (
-                        <div className="mb-6 p-6 bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl border border-gray-200">
+                        <div className="mb-6 p-6 bg-gradient-to-br from-gray-50 to-gray-100 rounded-none border border-gray-200">
                           <h3 className="font-bold text-gray-900 mb-4">
                             {editingManualItem ? 'Edit Manual Item' : 'Add Manual Item'}
                           </h3>
@@ -838,7 +838,7 @@ const Billing = () => {
                                 type="text"
                                 value={manualItemForm.title}
                                 onChange={(e) => setManualItemForm({ ...manualItemForm, title: e.target.value })}
-                                className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none"
+                                className="w-full px-4 py-3 border-2 border-gray-200 rounded-none focus:ring-2 focus:ring-brand-accent focus:border-brand-accent outline-none"
                                 placeholder="Enter work item title"
                               />
                             </div>
@@ -849,7 +849,7 @@ const Billing = () => {
                               <textarea
                                 value={manualItemForm.description}
                                 onChange={(e) => setManualItemForm({ ...manualItemForm, description: e.target.value })}
-                                className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none resize-none"
+                                className="w-full px-4 py-3 border-2 border-gray-200 rounded-none focus:ring-2 focus:ring-brand-accent focus:border-brand-accent outline-none resize-none"
                                 placeholder="Enter description (optional)"
                                 rows="3"
                               />
@@ -865,7 +865,7 @@ const Billing = () => {
                                   step="1"
                                   value={manualItemForm.hours}
                                   onChange={(e) => setManualItemForm({ ...manualItemForm, hours: e.target.value })}
-                                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none"
+                                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-none focus:ring-2 focus:ring-brand-accent focus:border-brand-accent outline-none"
                                   placeholder="0"
                                 />
                               </div>
@@ -883,7 +883,7 @@ const Billing = () => {
                                     const val = parseInt(e.target.value) || 0;
                                     setManualItemForm({ ...manualItemForm, minutes: val > 59 ? 59 : val });
                                   }}
-                                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none"
+                                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-none focus:ring-2 focus:ring-brand-accent focus:border-brand-accent outline-none"
                                   placeholder="0"
                                 />
                               </div>
@@ -896,7 +896,7 @@ const Billing = () => {
                                 <select
                                   value={manualItemForm.userId}
                                   onChange={(e) => setManualItemForm({ ...manualItemForm, userId: e.target.value })}
-                                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none"
+                                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-none focus:ring-2 focus:ring-brand-accent focus:border-brand-accent outline-none"
                                 >
                                   <option value="">All Users (Agency)</option>
                                   {billableUsers.map((userData) => (
@@ -911,7 +911,7 @@ const Billing = () => {
                           <div className="flex gap-3 mt-4">
                             <button
                               onClick={editingManualItem ? handleEditManualItem : handleAddManualItem}
-                              className="flex-1 px-6 py-3 bg-gray-900 hover:bg-gray-800 text-white rounded-lg font-semibold transition"
+                              className="flex-1 px-6 py-3 bg-gray-900 hover:bg-gray-800 text-white rounded-none font-semibold transition"
                             >
                               {editingManualItem ? 'Update' : 'Add'} Item
                             </button>
@@ -921,7 +921,7 @@ const Billing = () => {
                                 setEditingManualItem(null);
                                 setManualItemForm({ title: '', description: '', hours: '', minutes: '', userId: '' });
                               }}
-                              className="px-6 py-3 border-2 border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition font-semibold"
+                              className="px-6 py-3 border-2 border-gray-300 text-gray-700 rounded-none hover:bg-gray-50 transition font-semibold"
                             >
                               Cancel
                             </button>
@@ -941,9 +941,9 @@ const Billing = () => {
                             return (
                               <label
                                 key={item._id}
-                                className={`flex items-start p-4 border-2 rounded-xl cursor-pointer transition-all ${
+                                className={`flex items-start p-4 border-2 rounded-none cursor-pointer transition-all ${
                                   isSelected
-                                    ? 'border-primary-500 bg-primary-50'
+                                    ? 'border-brand-accent bg-gray-50'
                                     : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
                                 }`}
                               >
@@ -951,7 +951,7 @@ const Billing = () => {
                                   type="checkbox"
                                   checked={isSelected}
                                   onChange={() => handleManualItemToggle(item._id)}
-                                  className="mt-1 mr-4 h-5 w-5 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
+                                  className="mt-1 mr-4 h-5 w-5 text-brand-accent focus:ring-brand-accent border-gray-300 rounded"
                                 />
                                 <div className="flex-1 min-w-0">
                                   <div className="font-semibold text-gray-900 mb-1">{item.title}</div>
@@ -976,7 +976,7 @@ const Billing = () => {
                                       </div>
                                     )}
                                     {!item.user && isAgencyLevel && (
-                                      <span className="text-primary-600 font-medium">Agency Level</span>
+                                      <span className="text-brand-accent font-medium">Agency Level</span>
                                     )}
                                   </div>
                                 </div>
@@ -986,7 +986,7 @@ const Billing = () => {
                                       e.stopPropagation();
                                       openEditManualItem(item);
                                     }}
-                                    className="p-2 text-primary-600 hover:text-primary-700 hover:bg-primary-50 rounded-lg transition"
+                                    className="p-2 text-brand-accent hover:text-primary-700 hover:bg-gray-50 rounded-none transition"
                                   >
                                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
@@ -997,7 +997,7 @@ const Billing = () => {
                                       e.stopPropagation();
                                       handleDeleteManualItem(item._id);
                                     }}
-                                    className="p-2 text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition"
+                                    className="p-2 text-red-600 hover:text-red-700 hover:bg-red-50 rounded-none transition"
                                   >
                                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -1014,7 +1014,7 @@ const Billing = () => {
 
                   {/* Bill Generation Panel */}
                   {totalSelected > 0 && (
-                    <div className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-xl border border-gray-700 p-6 text-white">
+                    <div className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-none border border-gray-700 p-6 text-white">
                       <div className="flex items-center justify-between mb-6">
                         <div>
                           <h2 className="text-xl font-bold mb-1">Generate Invoice</h2>
@@ -1039,14 +1039,14 @@ const Billing = () => {
                           min="0"
                           value={hourlyRate}
                           onChange={(e) => setHourlyRate(e.target.value)}
-                          className="w-full px-4 py-3 bg-white/10 border-2 border-white/20 rounded-lg focus:ring-2 focus:ring-white/50 focus:border-white/50 outline-none text-white placeholder-gray-400"
+                          className="w-full px-4 py-3 bg-transparent/10 border-2 border-white/20 rounded-none focus:ring-2 focus:ring-white/50 focus:border-white/50 outline-none text-white placeholder-gray-400"
                           placeholder="Enter hourly rate"
                         />
                       </div>
                       <div className="flex gap-3">
                         <button
                           onClick={handleGenerateBill}
-                          className="flex-1 px-6 py-3 bg-white text-gray-900 rounded-lg font-bold hover:bg-gray-100 transition flex items-center justify-center gap-2"
+                          className="flex-1 px-6 py-3 bg-transparent text-gray-900 rounded-none font-bold hover:bg-gray-100 transition flex items-center justify-center gap-2"
                         >
                           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -1055,7 +1055,7 @@ const Billing = () => {
                         </button>
                         <button
                           onClick={handleMarkAsBilled}
-                          className="px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-semibold transition"
+                          className="px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-none font-semibold transition"
                         >
                           Mark as Billed
                         </button>
@@ -1065,7 +1065,7 @@ const Billing = () => {
 
                   {/* Invoice Display */}
                   {bill && (
-                    <div className="bg-white rounded-xl border-2 border-primary-200 shadow-xl p-8">
+                    <div className="bg-transparent rounded-none border-2 border-gray-200 shadow-none p-8">
                       <div className="flex flex-col sm:flex-row justify-between items-start gap-4 mb-8">
                         <div>
                           <h2 className="text-3xl font-bold text-gray-900 mb-2">Invoice</h2>
@@ -1075,7 +1075,7 @@ const Billing = () => {
                         </div>
                         <button
                           onClick={handlePrintInvoice}
-                          className="px-6 py-3 bg-gray-900 hover:bg-gray-800 text-white rounded-lg font-semibold transition flex items-center gap-2"
+                          className="px-6 py-3 bg-gray-900 hover:bg-gray-800 text-white rounded-none font-semibold transition flex items-center gap-2"
                         >
                           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
@@ -1101,7 +1101,7 @@ const Billing = () => {
 
                       <div className="mb-8">
                         <h3 className="text-xl font-bold text-gray-900 mb-4">Work Items</h3>
-                        <div className="border border-gray-200 rounded-xl overflow-hidden">
+                        <div className="border border-gray-200 rounded-none overflow-hidden">
                           <table className="min-w-full divide-y divide-gray-200">
                             <thead className="bg-gray-50">
                               <tr>
@@ -1121,7 +1121,7 @@ const Billing = () => {
                                 </th>
                               </tr>
                             </thead>
-                            <tbody className="bg-white divide-y divide-gray-200">
+                            <tbody className="bg-transparent divide-y divide-gray-200">
                               {bill.workItems.map((item) => (
                                 <tr key={item.id} className="hover:bg-gray-50">
                                   <td className="px-6 py-4">
@@ -1151,7 +1151,7 @@ const Billing = () => {
                         </div>
                       </div>
 
-                      <div className="bg-gray-50 rounded-xl p-6 border border-gray-200">
+                      <div className="bg-gray-50 rounded-none p-6 border border-gray-200">
                         <div className="space-y-3">
                           <div className="flex justify-between items-center">
                             <span className="text-gray-600 font-medium">Hourly Rate:</span>
@@ -1179,7 +1179,7 @@ const Billing = () => {
               )}
 
               {(!isAgencyLevel && !selectedUser) && (
-                <div className="bg-white rounded-xl border border-gray-200 p-12 text-center">
+                <div className="bg-transparent rounded-none border border-gray-200 p-12 text-center">
                   <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gray-100 mb-4">
                     <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />

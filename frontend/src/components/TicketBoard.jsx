@@ -38,24 +38,24 @@ const TicketBoard = ({ tickets, onStatusChange, onTicketClick, workspaceId: prop
     switch (status) {
       case 'todo': 
         return {
-          header: 'bg-gradient-to-r from-blue-50 to-blue-100 border-blue-200',
+          header: 'bg-white border-2 border-brand-dark',
           body: 'bg-blue-50/30',
-          accent: 'text-blue-600',
-          badge: 'bg-blue-100 text-blue-700'
+          accent: 'text-brand-dark',
+          badge: 'bg-brand-dark text-white'
         };
       case 'in-progress': 
         return {
-          header: 'bg-gradient-to-r from-amber-50 to-amber-100 border-amber-200',
+          header: 'bg-brand-accent border-2 border-brand-accent',
           body: 'bg-amber-50/30',
-          accent: 'text-amber-600',
-          badge: 'bg-amber-100 text-amber-700'
+          accent: 'text-white',
+          badge: 'bg-white text-brand-accent'
         };
       case 'completed': 
         return {
-          header: 'bg-gradient-to-r from-emerald-50 to-emerald-100 border-emerald-200',
+          header: 'bg-brand-dark border-2 border-brand-dark',
           body: 'bg-emerald-50/30',
-          accent: 'text-emerald-600',
-          badge: 'bg-emerald-100 text-emerald-700'
+          accent: 'text-white',
+          badge: 'bg-white text-brand-dark'
         };
       default: 
         return {
@@ -76,12 +76,12 @@ const TicketBoard = ({ tickets, onStatusChange, onTicketClick, workspaceId: prop
           
           return (
             <div key={column.id} className="flex flex-col min-h-[200px]">
-              <div className={`${colors.header} px-4 py-3 rounded-t-lg border-b-2 flex-shrink-0 shadow-sm`}>
+              <div className={`${colors.header} px-6 py-4 rounded-none border-b-4 flex-shrink-0 shadow-none`}>
                 <div className="flex items-center justify-between">
-                  <h3 className={`font-bold ${colors.accent} text-sm`}>
+                  <h3 className={`font-black ${colors.accent} text-xs uppercase tracking-[0.3em]`}>
                     {column.title}
                 </h3>
-                  <span className={`${colors.badge} px-2.5 py-0.5 rounded-full text-xs font-semibold`}>
+                  <span className={`${colors.badge} px-2.5 py-0.5 rounded-none text-xs font-semibold`}>
                     {columnTickets.length}
                   </span>
                 </div>
@@ -91,12 +91,12 @@ const TicketBoard = ({ tickets, onStatusChange, onTicketClick, workspaceId: prop
                   <div
                     ref={provided.innerRef}
                     {...provided.droppableProps}
-                    className={`p-3 rounded-b-lg ${colors.body} ${
+                    className={`p-3 rounded-none ${colors.body} ${
                       snapshot.isDraggingOver ? 'ring-2 ring-primary-400 ring-opacity-50' : ''
                     } transition-all`}
                   >
                     {columnTickets.length === 0 ? (
-                      <div className="text-center text-gray-400 py-8 text-sm">
+                      <div className="text-center text-gray-400 py-8 text-xs uppercase tracking-[0.3em]">
                         <div className="opacity-50">No tickets</div>
                       </div>
                     ) : (
@@ -115,7 +115,7 @@ const TicketBoard = ({ tickets, onStatusChange, onTicketClick, workspaceId: prop
                                   onTicketClick(ticket);
                                 }
                               }}
-                              className={`bg-white rounded-lg shadow-sm border border-gray-200 p-3 mb-3 cursor-pointer hover:shadow-lg hover:border-gray-300 transition-all duration-200 ${
+                              className={`bg-white rounded-none shadow-none border border-gray-200 p-3 mb-3 cursor-pointer hover:shadow-none hover:border-gray-300 transition-all duration-200 ${
                                 snapshot.isDragging ? 'opacity-60 rotate-2 scale-105 shadow-xl' : ''
                               }`}
                             >
@@ -123,18 +123,18 @@ const TicketBoard = ({ tickets, onStatusChange, onTicketClick, workspaceId: prop
                                 <div className="flex-1 min-w-0">
                                   <div className="flex items-center gap-2 mb-2">
                                     {ticket.ticketNumber && (
-                                      <span className="text-xs font-mono text-gray-600 bg-gray-100 px-2 py-0.5 rounded-md flex-shrink-0 font-semibold">
+                                      <span className="text-xs font-mono text-gray-600 bg-gray-100 px-2 py-0.5 rounded-none flex-shrink-0 font-semibold">
                                         {ticket.ticketNumber}
                                       </span>
                                     )}
-                                    <div className="font-semibold text-gray-900 line-clamp-2 text-sm flex-1 min-w-0 leading-tight">
+                                    <div className="font-semibold text-gray-900 line-clamp-2 text-xs uppercase tracking-[0.3em] flex-1 min-w-0 leading-tight">
                                       {ticket.title}
                                     </div>
                                   </div>
                                   <div className="flex items-center gap-1.5 flex-wrap mb-2">
-                                    <span className={`text-xs px-2 py-0.5 rounded-md font-medium ${
+                                    <span className={`text-xs px-2 py-0.5 rounded-none font-medium ${
                                       ticket.type === 'story' 
-                                        ? 'bg-blue-100 text-blue-700' 
+                                        ? 'bg-brand-dark text-white' 
                                         : 'bg-purple-100 text-purple-700'
                                     }`}>
                                       {ticket.type === 'story' ? 'Story' : 'Subtask'}
@@ -154,7 +154,7 @@ const TicketBoard = ({ tickets, onStatusChange, onTicketClick, workspaceId: prop
                               )}
                               <div className="flex items-center justify-between pt-2 border-t border-gray-100">
                                 <div className="flex items-center gap-2">
-                                  <div className="w-6 h-6 rounded-full bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center text-white text-xs font-semibold">
+                                  <div className="w-6 h-6 rounded-none bg-brand-dark flex items-center justify-center text-white text-xs font-semibold">
                                     {(ticket.assignee?.name || ticket.assignee?.username || '?').charAt(0).toUpperCase()}
                                   </div>
                                   <span className="text-xs text-gray-600 font-medium truncate max-w-[100px]">
@@ -163,7 +163,7 @@ const TicketBoard = ({ tickets, onStatusChange, onTicketClick, workspaceId: prop
                                 </div>
                                 <div className="flex items-center gap-2">
                                 {ticket.hoursWorked > 0 && (
-                                    <span className="bg-primary-50 text-primary-700 px-2 py-0.5 rounded-md text-xs font-semibold flex-shrink-0">
+                                    <span className="bg-brand-accent/10 text-brand-accent px-2 py-0.5 rounded-none text-xs font-semibold flex-shrink-0">
                                     {formatHoursDisplay(ticket.hoursWorked)}
                                   </span>
                                 )}

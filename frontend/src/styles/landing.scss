@@ -1,0 +1,220 @@
+// Neo-Retro Swiss Design System
+// Simplifly Landing Page
+
+$color-bg: #fdfcf9; // Off-white/Cream
+$color-text: #111827; // Deep Black/Slate
+$color-accent: #ef4444; // Signal Red
+$color-border: #111827;
+
+:root {
+  --swiss-red: #ef4444;
+  --swiss-black: #111827;
+  --swiss-white: #fdfcf9;
+}
+
+.landing-page {
+  background-color: var(--swiss-white);
+  color: var(--swiss-black);
+  font-family: 'Inter', sans-serif;
+  overflow-x: hidden;
+
+  // Custom Typography
+  h1,
+  h2,
+  h3 {
+    text-transform: uppercase;
+    font-weight: 900;
+    line-height: 0.9;
+    letter-spacing: -0.05em;
+  }
+
+  // Hero Section - Extreme Asymmetry
+  .hero {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 2rem;
+    position: relative;
+    z-index: 10;
+
+    .hero-title {
+      font-size: clamp(4rem, 15vw, 12rem);
+      margin-bottom: 2rem;
+      border-left: 20px solid var(--swiss-red);
+      padding-left: 1rem;
+      transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+
+      &:hover {
+        transform: translateX(20px);
+      }
+    }
+
+    .hero-subtitle {
+      max-width: 600px;
+      margin-left: auto; // Push to right for asymmetry
+      font-size: 1.5rem;
+      font-weight: 500;
+      line-height: 1.4;
+      border-bottom: 2px solid var(--swiss-black);
+      padding-bottom: 2rem;
+    }
+  }
+
+  // Experimental Grid-Breaking Layer
+  .feature-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0;
+    border-top: 2px solid var(--swiss-black);
+
+    .feature-card {
+      flex: 1 1 300px;
+      padding: 4rem 2rem;
+      border-right: 2px solid var(--swiss-black);
+      border-bottom: 2px solid var(--swiss-black);
+      transition: background 0.3s ease;
+
+      &:hover {
+        background: var(--swiss-red);
+        color: white;
+      }
+
+      .card-index {
+        font-size: 1rem;
+        font-weight: 900;
+        margin-bottom: 2rem;
+        display: block;
+      }
+
+      h3 {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+      }
+    }
+  }
+
+  // Buttons - Sharp Geometry
+  .btn-swiss {
+    background: var(--swiss-black);
+    color: white;
+    padding: 1.5rem 3rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    border: none;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    border-radius: 0; // Absolute sharpness
+
+    &:hover {
+      background: var(--swiss-red);
+      transform: translateY(-5px);
+      box-shadow: 10px 10px 0px rgba(0, 0, 0, 0.1);
+    }
+  }
+
+  // Reveal Animations
+  .reveal {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: all 0.8s cubic-bezier(0.23, 1, 0.32, 1);
+
+    &.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  // Growth Metrics - Big Stats
+  .metrics-section {
+    padding: 10rem 2rem;
+    border-top: 2px solid var(--swiss-black);
+    display: flex;
+    flex-direction: column;
+    gap: 4rem;
+
+    .metric-item {
+      .metric-value {
+        font-size: clamp(6rem, 20vw, 15rem);
+        display: block;
+        margin-bottom: -1rem;
+      }
+
+      .metric-label {
+        font-size: 1.5rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        border-top: 10px solid var(--swiss-red);
+        display: inline-block;
+        padding-top: 0.5rem;
+      }
+    }
+  }
+
+  // The System - Detailed Workflow
+  .system-section {
+    padding: 10rem 2rem;
+    background: var(--swiss-black);
+    color: white;
+
+    h2 {
+      font-size: clamp(3rem, 10vw, 8rem);
+      margin-bottom: 6rem;
+    }
+
+    .step-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 4rem;
+
+      .step-item {
+        border-left: 1px solid rgba(255, 255, 255, 0.3);
+        padding-left: 2rem;
+
+        .step-num {
+          font-weight: 900;
+          color: var(--swiss-red);
+          margin-bottom: 1rem;
+          display: block;
+        }
+
+        h4 {
+          text-transform: uppercase;
+          font-size: 1.5rem;
+          margin-bottom: 1rem;
+        }
+      }
+    }
+  }
+
+  // Comparison Matrix - Swiss Table
+  .comparison-section {
+    padding: 10rem 2rem;
+    border-top: 2px solid var(--swiss-black);
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+
+      th,
+      td {
+        padding: 2rem;
+        border: 2px solid var(--swiss-black);
+        text-align: left;
+        font-weight: 700;
+        text-transform: uppercase;
+      }
+
+      th {
+        background: var(--swiss-black);
+        color: white;
+      }
+
+      .check {
+        color: var(--swiss-red);
+      }
+    }
+  }
+}

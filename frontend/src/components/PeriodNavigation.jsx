@@ -104,7 +104,7 @@ const PeriodNavigation = ({
                             className={`w-full text-left px-2 py-1 rounded hover:bg-gray-100 transition text-xs ${
                               isCurrent 
                                 ? 'bg-primary-100 text-primary-700 font-medium' 
-                                : 'text-gray-600'
+                                : 'text-gray-900/60'
                             }`}
                           >
                             {month.name}
@@ -153,7 +153,7 @@ const PeriodNavigation = ({
                             className={`w-full text-left px-2 py-1 rounded hover:bg-gray-100 transition text-xs ${
                               isCurrent 
                                 ? 'bg-primary-100 text-primary-700 font-medium' 
-                                : 'text-gray-600'
+                                : 'text-gray-900/60'
                             }`}
                           >
                             Q{quarter.num}

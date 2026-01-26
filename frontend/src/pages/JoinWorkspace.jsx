@@ -52,7 +52,7 @@ const JoinWorkspace = () => {
     return (
       <Layout>
         <div className="flex items-center justify-center h-64">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-accent"></div>
         </div>
       </Layout>
     );
@@ -68,7 +68,7 @@ const JoinWorkspace = () => {
             <p className="text-gray-600 mb-6 text-sm sm:text-base">{error}</p>
             <Link
               to="/dashboard"
-              className="inline-block px-4 sm:px-6 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition text-sm sm:text-base"
+              className="inline-block px-4 sm:px-6 py-2 bg-brand-accent text-white rounded-lg hover:bg-primary-700 transition text-sm sm:text-base"
             >
               Go to Dashboard
             </Link>
@@ -92,7 +92,7 @@ const JoinWorkspace = () => {
               </p>
               <Link
                 to="/dashboard"
-                className="inline-block px-4 sm:px-6 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition text-sm sm:text-base"
+                className="inline-block px-4 sm:px-6 py-2 bg-brand-accent text-white rounded-lg hover:bg-primary-700 transition text-sm sm:text-base"
               >
                 Go to Dashboard
               </Link>
@@ -107,7 +107,7 @@ const JoinWorkspace = () => {
               </p>
               <Link
                 to="/dashboard"
-                className="inline-block px-4 sm:px-6 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition text-sm sm:text-base"
+                className="inline-block px-4 sm:px-6 py-2 bg-brand-accent text-white rounded-lg hover:bg-primary-700 transition text-sm sm:text-base"
               >
                 Go to Dashboard
               </Link>
@@ -121,7 +121,7 @@ const JoinWorkspace = () => {
               </p>
               <Link
                 to="/dashboard"
-                className="inline-block px-4 sm:px-6 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition text-sm sm:text-base"
+                className="inline-block px-4 sm:px-6 py-2 bg-brand-accent text-white rounded-lg hover:bg-primary-700 transition text-sm sm:text-base"
               >
                 Go to Dashboard
               </Link>
@@ -129,7 +129,7 @@ const JoinWorkspace = () => {
           ) : (
             <>
               <div className="text-center mb-6 sm:mb-8">
-                <div className="text-primary-600 text-4xl sm:text-6xl mb-4">👥</div>
+                <div className="text-brand-accent text-4xl sm:text-6xl mb-4">👥</div>
                 <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">Join Workspace</h2>
                 <p className="text-gray-600 text-sm sm:text-base">You've been invited to join a workspace</p>
               </div>
@@ -156,7 +156,7 @@ const JoinWorkspace = () => {
                 <button
                   onClick={handleJoinRequest}
                   disabled={requesting}
-                  className="flex-1 px-4 sm:px-6 py-2 sm:py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition disabled:opacity-50 disabled:cursor-not-allowed font-semibold text-sm sm:text-base"
+                  className="flex-1 px-4 sm:px-6 py-2 sm:py-3 bg-brand-accent text-white rounded-lg hover:bg-primary-700 transition disabled:opacity-50 disabled:cursor-not-allowed font-semibold text-sm sm:text-base"
                 >
                   {requesting ? 'Sending Request...' : 'Request to Join'}
                 </button>

@@ -19,6 +19,20 @@ export default {
           800: '#075985',
           900: '#0c4a6e',
         },
+        accent: {
+          DEFAULT: '#FF5733',
+        },
+        dark: {
+          DEFAULT: '#1A1A1A',
+        },
+        'brand-accent': '#FF5733',
+        'brand-dark': '#1A1A1A',
+      },
+      fontFamily: {
+        sans: ['Outfit', 'sans-serif'],
+      },
+      borderRadius: {
+        'sharp': '2px',
       },
     },
   },

@@ -199,24 +199,24 @@ const TicketDetailModal = ({ ticket, workspace, onClose, onUpdate, workspaceId: 
       className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-2 sm:p-4 animate-in fade-in duration-200"
       onClick={(e) => e.target === e.currentTarget && onClose()}
     >
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-6xl max-h-[98vh] sm:max-h-[95vh] overflow-hidden flex flex-col transform transition-all animate-in zoom-in-95 duration-300">
+      <div className="bg-white rounded-none shadow-2xl w-full max-w-6xl max-h-[98vh] sm:max-h-[95vh] overflow-hidden flex flex-col transform transition-all animate-in zoom-in-95 duration-300">
         {/* Modern Header with Gradient */}
         <div className="relative bg-gradient-to-r from-primary-600 via-primary-500 to-primary-600 px-4 sm:px-6 py-4 sm:py-5">
           <div className="absolute inset-0 bg-white/5 backdrop-blur-sm"></div>
           <div className="relative flex flex-col sm:flex-row justify-between items-start gap-3">
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 sm:gap-3 mb-2 flex-wrap">
-                <h2 className="text-xl sm:text-2xl font-bold text-white drop-shadow-sm truncate">
+                <h2 className="text-xl sm:text-2xl font-bold text-white drop-shadow-none truncate">
                   {ticket.title}
                 </h2>
                 {ticket.ticketNumber && (
-                  <span className="text-xs sm:text-sm text-primary-100 font-mono bg-white/20 backdrop-blur-sm px-2.5 py-1 rounded-lg border border-white/30 flex-shrink-0">
+                  <span className="text-xs sm:text-sm text-primary-100 font-mono bg-white/20 backdrop-blur-sm px-2.5 py-1 rounded-none border border-white/30 flex-shrink-0">
                     {ticket.ticketNumber}
                   </span>
                 )}
               </div>
               <div className="flex flex-wrap items-center gap-2 sm:gap-3 text-xs sm:text-sm text-primary-50">
-                <span className={`px-2.5 py-1 rounded-lg text-xs font-medium backdrop-blur-sm border ${
+                <span className={`px-2.5 py-1 rounded-none text-xs font-medium backdrop-blur-sm border ${
                   ticket.type === 'story' 
                     ? 'bg-white/20 text-white border-white/30' 
                     : 'bg-purple-500/80 text-white border-purple-400/50'
@@ -224,21 +224,21 @@ const TicketDetailModal = ({ ticket, workspace, onClose, onUpdate, workspaceId: 
                   {ticket.type === 'story' ? '📖 Story' : '📋 Subtask'}
                 </span>
                 {ticket.goLiveDate ? (
-                  <span className="bg-white/20 backdrop-blur-sm px-2.5 py-1 rounded-lg border border-white/30">
+                  <span className="bg-white/20 backdrop-blur-sm px-2.5 py-1 rounded-none border border-white/30">
                     📅 {new Date(ticket.goLiveDate).toLocaleDateString()}
                   </span>
                 ) : (
-                  <span className="bg-amber-500/80 backdrop-blur-sm px-2.5 py-1 rounded-lg border border-amber-400/50">
+                  <span className="bg-amber-500/80 backdrop-blur-sm px-2.5 py-1 rounded-none border border-amber-400/50">
                     📦 Backlog
                   </span>
                 )}
                 {ticket.hoursWorked > 0 && (
-                  <span className="bg-white/20 backdrop-blur-sm px-2.5 py-1 rounded-lg border border-white/30">
+                  <span className="bg-white/20 backdrop-blur-sm px-2.5 py-1 rounded-none border border-white/30">
                     ⏱️ {formatHoursDisplay(ticket.hoursWorked)}
                   </span>
                 )}
                 {ticket.type === 'story' && totalSubtasks > 0 && (
-                  <span className="bg-white/20 backdrop-blur-sm px-2.5 py-1 rounded-lg border border-white/30">
+                  <span className="bg-white/20 backdrop-blur-sm px-2.5 py-1 rounded-none border border-white/30">
                     ✅ {completedSubtasks}/{totalSubtasks}
                   </span>
                 )}
@@ -247,7 +247,7 @@ const TicketDetailModal = ({ ticket, workspace, onClose, onUpdate, workspaceId: 
             <div className="flex items-center gap-2 flex-shrink-0">
               <button
                 onClick={handleOpenFullScreen}
-                className="text-xs sm:text-sm text-white hover:text-primary-50 px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg hover:bg-white/20 backdrop-blur-sm border border-white/30 transition-all duration-200 font-medium"
+                className="text-xs sm:text-sm text-white hover:text-primary-50 px-3 sm:px-4 py-1.5 sm:py-2 rounded-none hover:bg-white/20 backdrop-blur-sm border border-white/30 transition-all duration-200 font-medium"
                 title="Open in full screen"
               >
                 <span className="hidden sm:inline">🔍 Full Screen</span>
@@ -256,7 +256,7 @@ const TicketDetailModal = ({ ticket, workspace, onClose, onUpdate, workspaceId: 
               {ticket.type === 'subtask' && ticket.parentTicket && (
                 <button
                   onClick={handleOpenParentTicket}
-                  className="text-xs sm:text-sm text-white hover:text-primary-50 px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg hover:bg-white/20 backdrop-blur-sm border border-white/30 transition-all duration-200 font-medium"
+                  className="text-xs sm:text-sm text-white hover:text-primary-50 px-3 sm:px-4 py-1.5 sm:py-2 rounded-none hover:bg-white/20 backdrop-blur-sm border border-white/30 transition-all duration-200 font-medium"
                   title="View parent ticket"
                 >
                   <span className="hidden sm:inline">👆 Parent</span>
@@ -265,7 +265,7 @@ const TicketDetailModal = ({ ticket, workspace, onClose, onUpdate, workspaceId: 
               )}
               <button
                 onClick={onClose}
-                className="text-white hover:text-primary-50 text-2xl sm:text-3xl w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center rounded-lg hover:bg-white/20 backdrop-blur-sm border border-white/30 transition-all duration-200"
+                className="text-white hover:text-primary-50 text-2xl sm:text-3xl w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center rounded-none hover:bg-white/20 backdrop-blur-sm border border-white/30 transition-all duration-200"
                 aria-label="Close"
               >
                 ×
@@ -281,12 +281,12 @@ const TicketDetailModal = ({ ticket, workspace, onClose, onUpdate, workspaceId: 
               {/* Main Content */}
               <div className="lg:col-span-2 space-y-4 sm:space-y-6">
                 {/* Description Card */}
-                <div className="bg-white rounded-xl shadow-sm border border-gray-200/60 p-5 sm:p-6 hover:shadow-md transition-shadow duration-200">
+                <div className="bg-white rounded-none shadow-none border border-gray-200/60 p-5 sm:p-6 hover:shadow-none transition-shadow duration-200">
                   <div className="flex items-center gap-2 mb-4">
-                    <div className="w-1 h-6 bg-gradient-to-b from-primary-500 to-primary-600 rounded-full"></div>
+                    <div className="w-1 h-6 bg-gradient-to-b from-primary-500 to-primary-600 rounded-none"></div>
                     <h3 className="font-semibold text-gray-900 text-lg">Description</h3>
                   </div>
-                  <div className="text-gray-700 bg-gradient-to-br from-gray-50 to-white p-4 sm:p-5 rounded-lg border border-gray-100 leading-relaxed whitespace-pre-wrap">
+                  <div className="text-gray-700 bg-gradient-to-br from-gray-50 to-white p-4 sm:p-5 rounded-none border border-gray-100 leading-relaxed whitespace-pre-wrap">
                     {ticket.description || (
                       <span className="text-gray-400 italic">No description provided</span>
                     )}
@@ -295,13 +295,13 @@ const TicketDetailModal = ({ ticket, workspace, onClose, onUpdate, workspaceId: 
 
                 {/* Subtasks Card */}
                 {ticket.type === 'story' && (
-                  <div className="bg-white rounded-xl shadow-sm border border-gray-200/60 p-5 sm:p-6 hover:shadow-md transition-shadow duration-200">
+                  <div className="bg-white rounded-none shadow-none border border-gray-200/60 p-5 sm:p-6 hover:shadow-none transition-shadow duration-200">
                     <div className="flex items-center justify-between mb-4">
                       <div className="flex items-center gap-2">
-                        <div className="w-1 h-6 bg-gradient-to-b from-purple-500 to-purple-600 rounded-full"></div>
+                        <div className="w-1 h-6 bg-gradient-to-b from-purple-500 to-purple-600 rounded-none"></div>
                         <h3 className="font-semibold text-gray-900 text-lg">Subtasks</h3>
                         {totalSubtasks > 0 && (
-                          <span className="text-xs font-medium text-gray-500 bg-gray-100 px-2.5 py-1 rounded-full">
+                          <span className="text-xs font-medium text-gray-500 bg-gray-100 px-2.5 py-1 rounded-none">
                             {completedSubtasks}/{totalSubtasks} completed
                           </span>
                         )}
@@ -317,7 +317,7 @@ const TicketDetailModal = ({ ticket, workspace, onClose, onUpdate, workspaceId: 
                         subtasks.map((subtask) => (
                           <div
                             key={subtask._id}
-                            className="group bg-gradient-to-br from-gray-50 to-white p-4 rounded-lg border border-gray-200 hover:border-primary-300 hover:shadow-md transition-all duration-200 cursor-pointer relative overflow-hidden"
+                            className="group bg-gradient-to-br from-gray-50 to-white p-4 rounded-none border border-gray-200 hover:border-primary-300 hover:shadow-none transition-all duration-200 cursor-pointer relative overflow-hidden"
                             onClick={() => handleSubtaskClick(subtask)}
                           >
                             <div className="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-primary-500 to-primary-600 opacity-0 group-hover:opacity-100 transition-opacity"></div>
@@ -329,10 +329,10 @@ const TicketDetailModal = ({ ticket, workspace, onClose, onUpdate, workspaceId: 
                                       {subtask.ticketNumber}
                                     </span>
                                   )}
-                                  <span className="text-xs px-2 py-0.5 rounded-full bg-purple-100 text-purple-800 font-medium border border-purple-200">
+                                  <span className="text-xs px-2 py-0.5 rounded-none bg-purple-100 text-purple-800 font-medium border border-purple-200">
                                     Subtask
                                   </span>
-                                  <span className={`text-xs px-2 py-0.5 rounded-full font-medium border ${getStatusColor(subtask.status)}`}>
+                                  <span className={`text-xs px-2 py-0.5 rounded-none font-medium border ${getStatusColor(subtask.status)}`}>
                                     {getStatusIcon(subtask.status)} {subtask.status}
                                   </span>
                                 </div>
@@ -346,7 +346,7 @@ const TicketDetailModal = ({ ticket, workspace, onClose, onUpdate, workspaceId: 
                                   e.stopPropagation();
                                   handleDeleteSubtask(subtask._id);
                                 }}
-                                className="text-red-500 hover:text-red-700 hover:bg-red-50 p-1.5 rounded-lg transition-all duration-200 ml-2 flex-shrink-0"
+                                className="text-red-500 hover:text-red-700 hover:bg-red-50 p-1.5 rounded-none transition-all duration-200 ml-2 flex-shrink-0"
                                 title="Delete subtask"
                               >
                                 🗑️
@@ -361,7 +361,7 @@ const TicketDetailModal = ({ ticket, workspace, onClose, onUpdate, workspaceId: 
                                   </div>
                                 )}
                                 {subtask.hoursWorked > 0 && (
-                                  <span className="bg-gray-100 px-2 py-1 rounded-full font-medium">
+                                  <span className="bg-gray-100 px-2 py-1 rounded-none font-medium">
                                     ⏱️ {formatHoursDisplay(subtask.hoursWorked)}
                                   </span>
                                 )}
@@ -380,12 +380,12 @@ const TicketDetailModal = ({ ticket, workspace, onClose, onUpdate, workspaceId: 
                         value={newSubtaskTitle}
                         onChange={(e) => setNewSubtaskTitle(e.target.value)}
                         placeholder="Add a new subtask..."
-                        className="flex-1 px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none transition-all duration-200 bg-white"
+                        className="flex-1 px-4 py-2.5 border border-gray-300 rounded-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none transition-all duration-200 bg-white"
                       />
                       <button
                         type="submit"
                         disabled={submitting || !newSubtaskTitle.trim()}
-                        className="bg-gradient-to-r from-primary-600 to-primary-500 text-white px-5 py-2.5 rounded-lg hover:from-primary-700 hover:to-primary-600 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed font-medium shadow-sm hover:shadow-md"
+                        className="bg-gradient-to-r from-primary-600 to-primary-500 text-white px-5 py-2.5 rounded-none hover:from-primary-700 hover:to-primary-600 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed font-medium shadow-none hover:shadow-none"
                       >
                         {submitting ? '...' : 'Add'}
                       </button>
@@ -394,12 +394,12 @@ const TicketDetailModal = ({ ticket, workspace, onClose, onUpdate, workspaceId: 
                 )}
 
                 {/* Comments Card */}
-                <div className="bg-white rounded-xl shadow-sm border border-gray-200/60 p-5 sm:p-6 hover:shadow-md transition-shadow duration-200">
+                <div className="bg-white rounded-none shadow-none border border-gray-200/60 p-5 sm:p-6 hover:shadow-none transition-shadow duration-200">
                   <div className="flex items-center gap-2 mb-4">
-                    <div className="w-1 h-6 bg-gradient-to-b from-blue-500 to-blue-600 rounded-full"></div>
+                    <div className="w-1 h-6 bg-gradient-to-b from-blue-500 to-blue-600 rounded-none"></div>
                     <h3 className="font-semibold text-gray-900 text-lg">Comments</h3>
                     {comments.length > 0 && (
-                      <span className="text-xs font-medium text-gray-500 bg-gray-100 px-2.5 py-1 rounded-full">
+                      <span className="text-xs font-medium text-gray-500 bg-gray-100 px-2.5 py-1 rounded-none">
                         {comments.length}
                       </span>
                     )}
@@ -412,7 +412,7 @@ const TicketDetailModal = ({ ticket, workspace, onClose, onUpdate, workspaceId: 
                       </div>
                     ) : (
                       comments.map((comment) => (
-                        <div key={comment._id} className="bg-gradient-to-br from-gray-50 to-white p-4 rounded-lg border border-gray-200 hover:shadow-sm transition-shadow duration-200">
+                        <div key={comment._id} className="bg-gradient-to-br from-gray-50 to-white p-4 rounded-none border border-gray-200 hover:shadow-none transition-shadow duration-200">
                           <div className="flex items-center justify-between mb-3">
                             <div className="flex items-center gap-2">
                               <UserAvatar user={comment.user} />
@@ -434,13 +434,13 @@ const TicketDetailModal = ({ ticket, workspace, onClose, onUpdate, workspaceId: 
                       value={newComment}
                       onChange={(e) => setNewComment(e.target.value)}
                       placeholder="Write a comment..."
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none transition-all duration-200 resize-none bg-white"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none transition-all duration-200 resize-none bg-white"
                       rows="3"
                     />
                     <button
                       type="submit"
                       disabled={submitting || !newComment.trim()}
-                      className="w-full bg-gradient-to-r from-primary-600 to-primary-500 text-white px-5 py-2.5 rounded-lg hover:from-primary-700 hover:to-primary-600 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed font-medium shadow-sm hover:shadow-md"
+                      className="w-full bg-gradient-to-r from-primary-600 to-primary-500 text-white px-5 py-2.5 rounded-none hover:from-primary-700 hover:to-primary-600 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed font-medium shadow-none hover:shadow-none"
                     >
                       {submitting ? 'Adding comment...' : 'Add Comment'}
                     </button>
@@ -451,14 +451,14 @@ const TicketDetailModal = ({ ticket, workspace, onClose, onUpdate, workspaceId: 
               {/* Sidebar */}
               <div className="space-y-4 sm:space-y-5">
                 {/* Assignee Card */}
-                <div className="bg-white rounded-xl shadow-sm border border-gray-200/60 p-5 hover:shadow-md transition-shadow duration-200">
+                <div className="bg-white rounded-none shadow-none border border-gray-200/60 p-5 hover:shadow-none transition-shadow duration-200">
                   <h3 className="font-semibold text-gray-900 mb-3 text-sm uppercase tracking-wide">Assignee</h3>
                   <div className="flex items-center gap-3 mb-3">
                     {assigneeUser && <UserAvatar user={assigneeUser} />}
                     <select
                       value={ticket.assignee?._id || (typeof ticket.assignee === 'string' ? ticket.assignee : '')}
                       onChange={(e) => onUpdate({ assignee: e.target.value })}
-                      className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none transition-all duration-200 text-sm bg-white"
+                      className="flex-1 px-3 py-2 border border-gray-300 rounded-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none transition-all duration-200 text-sm bg-white"
                     >
                       {workspace?.members?.map((member) => (
                         <option key={member._id} value={member._id}>
@@ -470,12 +470,12 @@ const TicketDetailModal = ({ ticket, workspace, onClose, onUpdate, workspaceId: 
                 </div>
 
                 {/* Status Card */}
-                <div className="bg-white rounded-xl shadow-sm border border-gray-200/60 p-5 hover:shadow-md transition-shadow duration-200">
+                <div className="bg-white rounded-none shadow-none border border-gray-200/60 p-5 hover:shadow-none transition-shadow duration-200">
                   <h3 className="font-semibold text-gray-900 mb-3 text-sm uppercase tracking-wide">Status</h3>
                   <select
                     value={ticket.status}
                     onChange={(e) => onUpdate({ status: e.target.value })}
-                    className={`w-full px-4 py-3 border-2 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none transition-all duration-200 font-medium text-sm ${getStatusColor(ticket.status)}`}
+                    className={`w-full px-4 py-3 border-2 rounded-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none transition-all duration-200 font-medium text-sm ${getStatusColor(ticket.status)}`}
                   >
                     <option value="todo">○ To Do</option>
                     <option value="in-progress">⟳ In Progress</option>
@@ -485,12 +485,12 @@ const TicketDetailModal = ({ ticket, workspace, onClose, onUpdate, workspaceId: 
 
                 {/* Payment Status Card */}
                 {ticket.status === 'completed' && (
-                  <div className="bg-white rounded-xl shadow-sm border border-gray-200/60 p-5 hover:shadow-md transition-shadow duration-200">
+                  <div className="bg-white rounded-none shadow-none border border-gray-200/60 p-5 hover:shadow-none transition-shadow duration-200">
                     <h3 className="font-semibold text-gray-900 mb-3 text-sm uppercase tracking-wide">Payment Status</h3>
                     <select
                       value={ticket.paymentStatus}
                       onChange={(e) => onUpdate({ paymentStatus: e.target.value })}
-                      className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none transition-all duration-200 font-medium text-sm bg-white"
+                      className="w-full px-4 py-3 border-2 border-gray-300 rounded-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none transition-all duration-200 font-medium text-sm bg-white"
                     >
                       <option value="pending-pay">⏳ Pending Pay</option>
                       <option value="billed">💰 Billed</option>
@@ -500,7 +500,7 @@ const TicketDetailModal = ({ ticket, workspace, onClose, onUpdate, workspaceId: 
                 )}
 
                 {/* Go Live Date Card */}
-                <div className="bg-white rounded-xl shadow-sm border border-gray-200/60 p-5 hover:shadow-md transition-shadow duration-200">
+                <div className="bg-white rounded-none shadow-none border border-gray-200/60 p-5 hover:shadow-none transition-shadow duration-200">
                   <h3 className="font-semibold text-gray-900 mb-3 text-sm uppercase tracking-wide">Go Live Date</h3>
                   <input
                     type="date"
@@ -509,12 +509,12 @@ const TicketDetailModal = ({ ticket, workspace, onClose, onUpdate, workspaceId: 
                       const value = e.target.value;
                       onUpdate({ goLiveDate: value ? new Date(value) : null });
                     }}
-                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none transition-all duration-200 text-sm bg-white"
+                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none transition-all duration-200 text-sm bg-white"
                   />
                   {ticket.goLiveDate && (
                     <button
                       onClick={() => onUpdate({ goLiveDate: null })}
-                      className="mt-3 w-full text-xs text-red-600 hover:text-red-700 hover:bg-red-50 px-3 py-2 rounded-lg transition-all duration-200 font-medium border border-red-200 hover:border-red-300"
+                      className="mt-3 w-full text-xs text-red-600 hover:text-red-700 hover:bg-red-50 px-3 py-2 rounded-none transition-all duration-200 font-medium border border-red-200 hover:border-red-300"
                     >
                       📦 Move to backlog
                     </button>
@@ -522,7 +522,7 @@ const TicketDetailModal = ({ ticket, workspace, onClose, onUpdate, workspaceId: 
                 </div>
 
                 {/* Hours Worked Card */}
-                <div className="bg-white rounded-xl shadow-sm border border-gray-200/60 p-5 hover:shadow-md transition-shadow duration-200">
+                <div className="bg-white rounded-none shadow-none border border-gray-200/60 p-5 hover:shadow-none transition-shadow duration-200">
                   <h3 className="font-semibold text-gray-900 mb-4 text-sm uppercase tracking-wide">Hours Worked</h3>
                   <div className="grid grid-cols-2 gap-3">
                     <div>
@@ -542,7 +542,7 @@ const TicketDetailModal = ({ ticket, workspace, onClose, onUpdate, workspaceId: 
                             onUpdate({ hoursWorked: decimalHours });
                           }
                         }}
-                        className="w-full px-3 py-2.5 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none transition-all duration-200 text-sm bg-white"
+                        className="w-full px-3 py-2.5 border-2 border-gray-300 rounded-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none transition-all duration-200 text-sm bg-white"
                         placeholder="0"
                       />
                     </div>
@@ -567,7 +567,7 @@ const TicketDetailModal = ({ ticket, workspace, onClose, onUpdate, workspaceId: 
                             onUpdate({ hoursWorked: decimalHours });
                           }
                         }}
-                        className="w-full px-3 py-2.5 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none transition-all duration-200 text-sm bg-white"
+                        className="w-full px-3 py-2.5 border-2 border-gray-300 rounded-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none transition-all duration-200 text-sm bg-white"
                         placeholder="0"
                       />
                     </div>
@@ -580,7 +580,7 @@ const TicketDetailModal = ({ ticket, workspace, onClose, onUpdate, workspaceId: 
                 </div>
 
                 {/* History Card */}
-                <div className="bg-white rounded-xl shadow-sm border border-gray-200/60 p-5 hover:shadow-md transition-shadow duration-200">
+                <div className="bg-white rounded-none shadow-none border border-gray-200/60 p-5 hover:shadow-none transition-shadow duration-200">
                   <h3 className="font-semibold text-gray-900 mb-4 text-sm uppercase tracking-wide">History</h3>
                   {loading ? (
                     <div className="text-sm text-gray-500 text-center py-4">Loading...</div>

@@ -224,7 +224,7 @@ const TicketDetail = () => {
       <Layout>
         <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white flex items-center justify-center">
           <div className="text-center">
-            <div className="animate-spin rounded-full h-16 w-16 border-4 border-primary-200 border-t-primary-600 mx-auto mb-4"></div>
+            <div className="animate-spin rounded-full h-16 w-16 border-4 border-gray-200 border-t-brand-accent mx-auto mb-4"></div>
             <p className="text-gray-600 font-medium">Loading ticket...</p>
           </div>
         </div>
@@ -241,7 +241,7 @@ const TicketDetail = () => {
             <p className="text-gray-600 font-medium mb-4">Ticket not found</p>
             <Link 
               to={`/workspace/${workspaceId}`} 
-              className="inline-flex items-center gap-2 text-primary-600 hover:text-primary-700 font-medium transition-colors"
+              className="inline-flex items-center gap-2 text-brand-accent hover:text-primary-700 font-medium transition-colors"
             >
               ← Back to Workspace
             </Link>
@@ -259,7 +259,7 @@ const TicketDetail = () => {
     <Layout>
       <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50">
         {/* Modern Sticky Header */}
-        <div className="sticky top-0 z-20 bg-white/80 backdrop-blur-lg border-b border-gray-200/60 shadow-sm">
+        <div className="sticky top-0 z-20 bg-transparent/80 backdrop-blur-lg border-b border-gray-200/60 shadow-none">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="py-4">
               <div className="flex flex-col gap-4">
@@ -275,7 +275,7 @@ const TicketDetail = () => {
                   {ticket.type === 'subtask' && ticket.parentTicket && (
                     <button
                       onClick={handleOpenParentTicket}
-                      className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-600 to-blue-500 text-white px-4 py-2 rounded-lg hover:from-blue-700 hover:to-blue-600 transition-all duration-200 font-medium text-sm shadow-sm hover:shadow-md"
+                      className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-600 to-blue-500 text-white px-4 py-2 rounded-none hover:from-blue-700 hover:to-blue-600 transition-all duration-200 font-medium text-sm shadow-none hover:shadow-none"
                     >
                       <span>👆</span>
                       <span className="hidden sm:inline">View Parent Ticket</span>
@@ -289,11 +289,11 @@ const TicketDetail = () => {
                   <div className="flex items-center gap-3 flex-wrap">
                     <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">{ticket.title}</h1>
                     {ticket.ticketNumber && (
-                      <span className="text-sm text-gray-600 font-mono bg-gray-100 px-3 py-1.5 rounded-lg border border-gray-200">
+                      <span className="text-sm text-gray-600 font-mono bg-gray-100 px-3 py-1.5 rounded-none border border-gray-200">
                         {ticket.ticketNumber}
                       </span>
                     )}
-                    <span className={`px-3 py-1.5 rounded-lg text-sm font-medium border ${
+                    <span className={`px-3 py-1.5 rounded-none text-sm font-medium border ${
                       ticket.type === 'story' 
                         ? 'bg-blue-100 text-blue-800 border-blue-200' 
                         : 'bg-purple-100 text-purple-800 border-purple-200'
@@ -303,24 +303,24 @@ const TicketDetail = () => {
                   </div>
                   <div className="flex flex-wrap items-center gap-3 text-sm text-gray-600">
                     {ticket.goLiveDate ? (
-                      <span className="inline-flex items-center gap-1.5 bg-white px-3 py-1.5 rounded-lg border border-gray-200">
+                      <span className="inline-flex items-center gap-1.5 bg-transparent px-3 py-1.5 rounded-none border border-gray-200">
                         <span>📅</span>
                         <span>{new Date(ticket.goLiveDate).toLocaleDateString()}</span>
                       </span>
                     ) : (
-                      <span className="inline-flex items-center gap-1.5 bg-amber-50 px-3 py-1.5 rounded-lg border border-amber-200 text-amber-800">
+                      <span className="inline-flex items-center gap-1.5 bg-amber-50 px-3 py-1.5 rounded-none border border-amber-200 text-amber-800">
                         <span>📦</span>
                         <span>Backlog</span>
                       </span>
                     )}
                     {ticket.type === 'story' && totalSubtasks > 0 && (
-                      <span className="inline-flex items-center gap-1.5 bg-white px-3 py-1.5 rounded-lg border border-gray-200">
+                      <span className="inline-flex items-center gap-1.5 bg-transparent px-3 py-1.5 rounded-none border border-gray-200">
                         <span>✅</span>
                         <span>{completedSubtasks}/{totalSubtasks} subtasks</span>
                       </span>
                     )}
                     {ticket.hoursWorked > 0 && (
-                      <span className="inline-flex items-center gap-1.5 bg-white px-3 py-1.5 rounded-lg border border-gray-200">
+                      <span className="inline-flex items-center gap-1.5 bg-transparent px-3 py-1.5 rounded-none border border-gray-200">
                         <span>⏱️</span>
                         <span>{formatHoursDisplay(ticket.hoursWorked)}</span>
                       </span>
@@ -338,12 +338,12 @@ const TicketDetail = () => {
             {/* Main Content Column */}
             <div className="lg:col-span-2 space-y-6">
               {/* Description Card */}
-              <div className="bg-white rounded-2xl shadow-sm border border-gray-200/60 p-6 sm:p-8 hover:shadow-md transition-all duration-200">
+              <div className="bg-transparent rounded-2xl shadow-none border border-gray-200/60 p-6 sm:p-8 hover:shadow-none transition-all duration-200">
                 <div className="flex items-center gap-3 mb-6">
-                  <div className="w-1.5 h-8 bg-gradient-to-b from-primary-500 to-primary-600 rounded-full"></div>
+                  <div className="w-1.5 h-8 bg-gradient-to-b from-brand-accent to-brand-accent rounded-full"></div>
                   <h2 className="font-bold text-gray-900 text-xl">Description</h2>
                 </div>
-                <div className="text-gray-700 bg-gradient-to-br from-gray-50 to-white p-5 sm:p-6 rounded-xl border border-gray-100 leading-relaxed whitespace-pre-wrap text-base">
+                <div className="text-gray-700 bg-gradient-to-br from-gray-50 to-white p-5 sm:p-6 rounded-none border border-gray-100 leading-relaxed whitespace-pre-wrap text-base">
                   {ticket.description || (
                     <span className="text-gray-400 italic">No description provided</span>
                   )}
@@ -352,7 +352,7 @@ const TicketDetail = () => {
 
               {/* Subtasks Card */}
               {ticket.type === 'story' && (
-                <div className="bg-white rounded-2xl shadow-sm border border-gray-200/60 p-6 sm:p-8 hover:shadow-md transition-all duration-200">
+                <div className="bg-transparent rounded-2xl shadow-none border border-gray-200/60 p-6 sm:p-8 hover:shadow-none transition-all duration-200">
                   <div className="flex items-center justify-between mb-6">
                     <div className="flex items-center gap-3">
                       <div className="w-1.5 h-8 bg-gradient-to-b from-purple-500 to-purple-600 rounded-full"></div>
@@ -375,15 +375,15 @@ const TicketDetail = () => {
                       subtasks.map((subtask) => (
                         <div
                           key={subtask._id}
-                          className="group bg-gradient-to-br from-gray-50 to-white p-5 rounded-xl border border-gray-200 hover:border-primary-300 hover:shadow-lg transition-all duration-200 cursor-pointer relative overflow-hidden"
+                          className="group bg-gradient-to-br from-gray-50 to-white p-5 rounded-none border border-gray-200 hover:border-primary-300 hover:shadow-none transition-all duration-200 cursor-pointer relative overflow-hidden"
                           onClick={() => handleOpenSubtask(subtask)}
                         >
-                          <div className="absolute top-0 left-0 w-1.5 h-full bg-gradient-to-b from-primary-500 to-primary-600 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                          <div className="absolute top-0 left-0 w-1.5 h-full bg-gradient-to-b from-brand-accent to-brand-accent opacity-0 group-hover:opacity-100 transition-opacity"></div>
                           <div className="flex items-start justify-between mb-3">
                             <div className="flex-1 min-w-0">
                               <div className="flex items-center gap-2 mb-3 flex-wrap">
                                 {subtask.ticketNumber && (
-                                  <span className="text-xs font-mono text-gray-500 bg-white px-2.5 py-1 rounded-lg border border-gray-200">
+                                  <span className="text-xs font-mono text-gray-500 bg-transparent px-2.5 py-1 rounded-none border border-gray-200">
                                     {subtask.ticketNumber}
                                   </span>
                                 )}
@@ -404,7 +404,7 @@ const TicketDetail = () => {
                                 e.stopPropagation();
                                 handleDeleteSubtask(subtask._id);
                               }}
-                              className="text-red-500 hover:text-red-700 hover:bg-red-50 p-2 rounded-lg transition-all duration-200 ml-3 flex-shrink-0"
+                              className="text-red-500 hover:text-red-700 hover:bg-red-50 p-2 rounded-none transition-all duration-200 ml-3 flex-shrink-0"
                               title="Delete subtask"
                             >
                               🗑️
@@ -438,12 +438,12 @@ const TicketDetail = () => {
                       value={newSubtaskTitle}
                       onChange={(e) => setNewSubtaskTitle(e.target.value)}
                       placeholder="Add a new subtask..."
-                      className="flex-1 px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none transition-all duration-200 bg-white text-sm"
+                      className="flex-1 px-4 py-3 border-2 border-gray-300 rounded-none focus:ring-2 focus:ring-brand-accent focus:border-brand-accent outline-none transition-all duration-200 bg-transparent text-sm"
                     />
                     <button
                       type="submit"
                       disabled={submitting || !newSubtaskTitle.trim()}
-                      className="bg-gradient-to-r from-primary-600 to-primary-500 text-white px-6 py-3 rounded-xl hover:from-primary-700 hover:to-primary-600 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed font-medium shadow-sm hover:shadow-md"
+                      className="bg-gradient-to-r from-brand-accent to-brand-accent text-white px-6 py-3 rounded-none hover:from-primary-700 hover:to-brand-accent transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed font-medium shadow-none hover:shadow-none"
                     >
                       {submitting ? 'Adding...' : 'Add'}
                     </button>
@@ -452,7 +452,7 @@ const TicketDetail = () => {
               )}
 
               {/* Comments Card */}
-              <div className="bg-white rounded-2xl shadow-sm border border-gray-200/60 p-6 sm:p-8 hover:shadow-md transition-all duration-200">
+              <div className="bg-transparent rounded-2xl shadow-none border border-gray-200/60 p-6 sm:p-8 hover:shadow-none transition-all duration-200">
                 <div className="flex items-center gap-3 mb-6">
                   <div className="w-1.5 h-8 bg-gradient-to-b from-blue-500 to-blue-600 rounded-full"></div>
                   <h2 className="font-bold text-gray-900 text-xl">Comments</h2>
@@ -471,7 +471,7 @@ const TicketDetail = () => {
                     </div>
                   ) : (
                     comments.map((comment) => (
-                      <div key={comment._id} className="bg-gradient-to-br from-gray-50 to-white p-5 rounded-xl border border-gray-200 hover:shadow-sm transition-shadow duration-200">
+                      <div key={comment._id} className="bg-gradient-to-br from-gray-50 to-white p-5 rounded-none border border-gray-200 hover:shadow-none transition-shadow duration-200">
                         <div className="flex items-center justify-between mb-4">
                           <div className="flex items-center gap-3">
                             <UserAvatar user={comment.user} />
@@ -493,13 +493,13 @@ const TicketDetail = () => {
                     value={newComment}
                     onChange={(e) => setNewComment(e.target.value)}
                     placeholder="Write a comment..."
-                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none transition-all duration-200 resize-none bg-white text-sm"
+                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-none focus:ring-2 focus:ring-brand-accent focus:border-brand-accent outline-none transition-all duration-200 resize-none bg-transparent text-sm"
                     rows="4"
                   />
                   <button
                     type="submit"
                     disabled={submitting || !newComment.trim()}
-                    className="w-full bg-gradient-to-r from-primary-600 to-primary-500 text-white px-6 py-3 rounded-xl hover:from-primary-700 hover:to-primary-600 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed font-medium shadow-sm hover:shadow-md"
+                    className="w-full bg-gradient-to-r from-brand-accent to-brand-accent text-white px-6 py-3 rounded-none hover:from-primary-700 hover:to-brand-accent transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed font-medium shadow-none hover:shadow-none"
                   >
                     {submitting ? 'Adding comment...' : 'Add Comment'}
                   </button>
@@ -510,14 +510,14 @@ const TicketDetail = () => {
             {/* Sidebar Column */}
             <div className="space-y-6">
               {/* Assignee Card */}
-              <div className="bg-white rounded-2xl shadow-sm border border-gray-200/60 p-6 hover:shadow-md transition-all duration-200">
+              <div className="bg-transparent rounded-2xl shadow-none border border-gray-200/60 p-6 hover:shadow-none transition-all duration-200">
                 <h3 className="font-bold text-gray-900 mb-4 text-sm uppercase tracking-wide">Assignee</h3>
                 <div className="flex items-center gap-3 mb-4">
                   {assigneeUser && <UserAvatar user={assigneeUser} />}
                   <select
                     value={ticket.assignee?._id || (typeof ticket.assignee === 'string' ? ticket.assignee : '')}
                     onChange={(e) => handleTicketUpdate({ assignee: e.target.value })}
-                    className="flex-1 px-4 py-2.5 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none transition-all duration-200 text-sm bg-white font-medium"
+                    className="flex-1 px-4 py-2.5 border-2 border-gray-300 rounded-none focus:ring-2 focus:ring-brand-accent focus:border-brand-accent outline-none transition-all duration-200 text-sm bg-transparent font-medium"
                   >
                     {workspace?.members?.map((member) => (
                       <option key={member._id} value={member._id}>
@@ -529,12 +529,12 @@ const TicketDetail = () => {
               </div>
 
               {/* Status Card */}
-              <div className="bg-white rounded-2xl shadow-sm border border-gray-200/60 p-6 hover:shadow-md transition-all duration-200">
+              <div className="bg-transparent rounded-2xl shadow-none border border-gray-200/60 p-6 hover:shadow-none transition-all duration-200">
                 <h3 className="font-bold text-gray-900 mb-4 text-sm uppercase tracking-wide">Status</h3>
                 <select
                   value={ticket.status}
                   onChange={(e) => handleTicketUpdate({ status: e.target.value })}
-                  className={`w-full px-4 py-3 border-2 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none transition-all duration-200 font-medium text-sm ${getStatusColor(ticket.status)}`}
+                  className={`w-full px-4 py-3 border-2 rounded-none focus:ring-2 focus:ring-brand-accent focus:border-brand-accent outline-none transition-all duration-200 font-medium text-sm ${getStatusColor(ticket.status)}`}
                 >
                   <option value="todo">○ To Do</option>
                   <option value="in-progress">⟳ In Progress</option>
@@ -544,12 +544,12 @@ const TicketDetail = () => {
 
               {/* Payment Status Card */}
               {ticket.status === 'completed' && (
-                <div className="bg-white rounded-2xl shadow-sm border border-gray-200/60 p-6 hover:shadow-md transition-all duration-200">
+                <div className="bg-transparent rounded-2xl shadow-none border border-gray-200/60 p-6 hover:shadow-none transition-all duration-200">
                   <h3 className="font-bold text-gray-900 mb-4 text-sm uppercase tracking-wide">Payment Status</h3>
                   <select
                     value={ticket.paymentStatus}
                     onChange={(e) => handleTicketUpdate({ paymentStatus: e.target.value })}
-                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none transition-all duration-200 font-medium text-sm bg-white"
+                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-none focus:ring-2 focus:ring-brand-accent focus:border-brand-accent outline-none transition-all duration-200 font-medium text-sm bg-transparent"
                   >
                     <option value="pending-pay">⏳ Pending Pay</option>
                     <option value="billed">💰 Billed</option>
@@ -559,7 +559,7 @@ const TicketDetail = () => {
               )}
 
               {/* Go Live Date Card */}
-              <div className="bg-white rounded-2xl shadow-sm border border-gray-200/60 p-6 hover:shadow-md transition-all duration-200">
+              <div className="bg-transparent rounded-2xl shadow-none border border-gray-200/60 p-6 hover:shadow-none transition-all duration-200">
                 <h3 className="font-bold text-gray-900 mb-4 text-sm uppercase tracking-wide">Go Live Date</h3>
                 <input
                   type="date"
@@ -568,12 +568,12 @@ const TicketDetail = () => {
                     const value = e.target.value;
                     handleTicketUpdate({ goLiveDate: value ? new Date(value) : null });
                   }}
-                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none transition-all duration-200 text-sm bg-white font-medium"
+                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-none focus:ring-2 focus:ring-brand-accent focus:border-brand-accent outline-none transition-all duration-200 text-sm bg-transparent font-medium"
                 />
                 {ticket.goLiveDate && (
                   <button
                     onClick={() => handleTicketUpdate({ goLiveDate: null })}
-                    className="mt-4 w-full text-sm text-red-600 hover:text-red-700 hover:bg-red-50 px-4 py-2.5 rounded-lg transition-all duration-200 font-medium border-2 border-red-200 hover:border-red-300"
+                    className="mt-4 w-full text-sm text-red-600 hover:text-red-700 hover:bg-red-50 px-4 py-2.5 rounded-none transition-all duration-200 font-medium border-2 border-red-200 hover:border-red-300"
                   >
                     📦 Move to backlog
                   </button>
@@ -581,7 +581,7 @@ const TicketDetail = () => {
               </div>
 
               {/* Hours Worked Card */}
-              <div className="bg-white rounded-2xl shadow-sm border border-gray-200/60 p-6 hover:shadow-md transition-all duration-200">
+              <div className="bg-transparent rounded-2xl shadow-none border border-gray-200/60 p-6 hover:shadow-none transition-all duration-200">
                 <h3 className="font-bold text-gray-900 mb-4 text-sm uppercase tracking-wide">Hours Worked</h3>
                 <div className="grid grid-cols-2 gap-3">
                   <div>
@@ -601,7 +601,7 @@ const TicketDetail = () => {
                           handleTicketUpdate({ hoursWorked: decimalHours });
                         }
                       }}
-                      className="w-full px-3 py-2.5 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none transition-all duration-200 text-sm bg-white"
+                      className="w-full px-3 py-2.5 border-2 border-gray-300 rounded-none focus:ring-2 focus:ring-brand-accent focus:border-brand-accent outline-none transition-all duration-200 text-sm bg-transparent"
                       placeholder="0"
                     />
                   </div>
@@ -626,7 +626,7 @@ const TicketDetail = () => {
                           handleTicketUpdate({ hoursWorked: decimalHours });
                         }
                       }}
-                      className="w-full px-3 py-2.5 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none transition-all duration-200 text-sm bg-white"
+                      className="w-full px-3 py-2.5 border-2 border-gray-300 rounded-none focus:ring-2 focus:ring-brand-accent focus:border-brand-accent outline-none transition-all duration-200 text-sm bg-transparent"
                       placeholder="0"
                     />
                   </div>
@@ -641,7 +641,7 @@ const TicketDetail = () => {
               </div>
 
               {/* History Card */}
-              <div className="bg-white rounded-2xl shadow-sm border border-gray-200/60 p-6 hover:shadow-md transition-all duration-200">
+              <div className="bg-transparent rounded-2xl shadow-none border border-gray-200/60 p-6 hover:shadow-none transition-all duration-200">
                 <h3 className="font-bold text-gray-900 mb-4 text-sm uppercase tracking-wide">History</h3>
                 <div className="space-y-4 max-h-[500px] overflow-y-auto pr-2">
                   {history.length === 0 ? (

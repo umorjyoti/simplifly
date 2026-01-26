@@ -19,119 +19,119 @@ const WorkspaceSettings = ({ workspace, onClose, onSave }) => {
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-md">
-        <h2 className="text-2xl font-bold text-gray-900 mb-4">Workspace Settings</h2>
-        
+    <div className="fixed inset-0 bg-brand-dark/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+      <div className="bg-white border-4 border-brand-dark p-8 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+        <h2 className="text-3xl font-black uppercase tracking-tighter text-brand-dark mb-8">System Configuration</h2>
+
         <form onSubmit={handleSubmit}>
-          <div className="mb-6">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+          <div className="mb-8">
+            <label className="block text-[10px] font-black uppercase tracking-widest text-brand-dark/60 mb-4">
               Period Type
             </label>
-            <p className="text-xs text-gray-500 mb-3">
+            <p className="text-[10px] font-bold uppercase tracking-widest text-brand-dark/40 mb-6 italic">
               Choose how tickets are organized on the board
             </p>
-            <div className="space-y-2">
-              <label className="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50 transition">
+            <div className="space-y-3">
+              <label className="flex items-center p-4 border-2 border-brand-dark cursor-pointer hover:bg-brand-dark hover:text-white transition group">
                 <input
                   type="radio"
                   name="periodType"
                   value="weekly"
                   checked={periodType === 'weekly'}
                   onChange={(e) => setPeriodType(e.target.value)}
-                  className="mr-3"
+                  className="mr-4 w-5 h-5"
                 />
-                <div>
-                  <div className="font-medium text-gray-900">Weekly</div>
-                  <div className="text-xs text-gray-500">Organize tickets by week (Monday to Sunday)</div>
+                <div className="flex-1">
+                  <div className="font-black text-brand-dark group-hover:text-white uppercase tracking-tight">Weekly</div>
+                  <div className="text-[10px] font-bold text-brand-dark/60 group-hover:text-white/60 uppercase tracking-widest mt-1">Organize tickets by week (Monday to Sunday)</div>
                 </div>
               </label>
-              
-              <label className="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50 transition">
+
+              <label className="flex items-center p-4 border-2 border-brand-dark cursor-pointer hover:bg-brand-dark hover:text-white transition group">
                 <input
                   type="radio"
                   name="periodType"
                   value="monthly"
                   checked={periodType === 'monthly'}
                   onChange={(e) => setPeriodType(e.target.value)}
-                  className="mr-3"
+                  className="mr-4 w-5 h-5"
                 />
-                <div>
-                  <div className="font-medium text-gray-900">Monthly</div>
-                  <div className="text-xs text-gray-500">Organize tickets by month (1st to end of month)</div>
+                <div className="flex-1">
+                  <div className="font-black text-brand-dark group-hover:text-white uppercase tracking-tight">Monthly</div>
+                  <div className="text-[10px] font-bold text-brand-dark/60 group-hover:text-white/60 uppercase tracking-widest mt-1">Organize tickets by month (1st to end of month)</div>
                 </div>
               </label>
-              
-              <label className="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50 transition">
+
+              <label className="flex items-center p-4 border-2 border-brand-dark cursor-pointer hover:bg-brand-dark hover:text-white transition group">
                 <input
                   type="radio"
                   name="periodType"
                   value="quarterly"
                   checked={periodType === 'quarterly'}
                   onChange={(e) => setPeriodType(e.target.value)}
-                  className="mr-3"
+                  className="mr-4 w-5 h-5"
                 />
-                <div>
-                  <div className="font-medium text-gray-900">Quarterly</div>
-                  <div className="text-xs text-gray-500">Organize tickets by quarter (Q1, Q2, Q3, Q4)</div>
+                <div className="flex-1">
+                  <div className="font-black text-brand-dark group-hover:text-white uppercase tracking-tight">Quarterly</div>
+                  <div className="text-[10px] font-bold text-brand-dark/60 group-hover:text-white/60 uppercase tracking-widest mt-1">Organize tickets by quarter (Q1, Q2, Q3, Q4)</div>
                 </div>
               </label>
             </div>
           </div>
 
-          <div className="mb-6">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+          <div className="mb-8">
+            <label className="block text-[10px] font-black uppercase tracking-widest text-brand-dark/60 mb-4">
               Currency
             </label>
-            <p className="text-xs text-gray-500 mb-3">
+            <p className="text-[10px] font-bold uppercase tracking-widest text-brand-dark/40 mb-6 italic">
               Select the currency for billing
             </p>
-            <div className="space-y-2">
-              <label className="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50 transition">
+            <div className="space-y-3">
+              <label className="flex items-center p-4 border-2 border-brand-dark cursor-pointer hover:bg-brand-dark hover:text-white transition group">
                 <input
                   type="radio"
                   name="currency"
                   value="USD"
                   checked={currency === 'USD'}
                   onChange={(e) => setCurrency(e.target.value)}
-                  className="mr-3"
+                  className="mr-4 w-5 h-5"
                 />
-                <div>
-                  <div className="font-medium text-gray-900">USD ($)</div>
-                  <div className="text-xs text-gray-500">US Dollar</div>
+                <div className="flex-1">
+                  <div className="font-black text-brand-dark group-hover:text-white uppercase tracking-tight">USD ($)</div>
+                  <div className="text-[10px] font-bold text-brand-dark/60 group-hover:text-white/60 uppercase tracking-widest mt-1">US Dollar</div>
                 </div>
               </label>
-              
-              <label className="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50 transition">
+
+              <label className="flex items-center p-4 border-2 border-brand-dark cursor-pointer hover:bg-brand-dark hover:text-white transition group">
                 <input
                   type="radio"
                   name="currency"
                   value="INR"
                   checked={currency === 'INR'}
                   onChange={(e) => setCurrency(e.target.value)}
-                  className="mr-3"
+                  className="mr-4 w-5 h-5"
                 />
-                <div>
-                  <div className="font-medium text-gray-900">INR (₹)</div>
-                  <div className="text-xs text-gray-500">Indian Rupee</div>
+                <div className="flex-1">
+                  <div className="font-black text-brand-dark group-hover:text-white uppercase tracking-tight">INR (₹)</div>
+                  <div className="text-[10px] font-bold text-brand-dark/60 group-hover:text-white/60 uppercase tracking-widest mt-1">Indian Rupee</div>
                 </div>
               </label>
             </div>
           </div>
 
-          <div className="flex space-x-3">
+          <div className="flex gap-4">
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition"
+              className="flex-1 px-6 py-3 border-2 border-brand-dark text-brand-dark font-black uppercase text-xs tracking-widest hover:bg-brand-dark hover:text-white transition"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="flex-1 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition"
+              className="flex-1 px-6 py-3 bg-brand-accent text-white font-black uppercase text-xs tracking-widest hover:bg-brand-dark transition"
             >
-              Save Settings
+              Save Configuration
             </button>
           </div>
         </form>

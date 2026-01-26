@@ -65,7 +65,7 @@ const UserAvatar = ({ user, isActive = false, onClick }) => {
       </button>
       
       {/* Tooltip */}
-      <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-1.5 bg-gray-900 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-50">
+      <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-1.5 bg-gray-900 text-white text-xs rounded-none opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-50">
         {displayName}
         <div className="absolute top-full left-1/2 transform -translate-x-1/2 -mt-1">
           <div className="border-4 border-transparent border-t-gray-900"></div>

@@ -9,47 +9,54 @@ import Billing from './pages/Billing';
 import MyTeam from './pages/MyTeam';
 import JoinWorkspace from './pages/JoinWorkspace';
 import SuperAdminDashboard from './pages/SuperAdminDashboard';
+import Login from './pages/Login';
+import Signup from './pages/Signup';
+import Profile from './pages/Profile';
 
 const PrivateRoute = ({ children }) => {
   const { user, loading } = useAuth();
-  
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-accent"></div>
       </div>
     );
   }
-  
+
   return user ? children : <Navigate to="/login" />;
 };
 
 const PublicRoute = ({ children, allowAuthenticated = false }) => {
   const { user, loading } = useAuth();
-  
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-accent"></div>
       </div>
     );
   }
-  
+
   if (allowAuthenticated) {
     return children;
   }
-  
+
   return user ? <Navigate to="/dashboard" /> : children;
 };
 
 function App() {
   return (
     <AuthProvider>
+      <div className="texture-overlay"></div>
       <Router>
         <Routes>
           <Route path="/" element={<PublicRoute allowAuthenticated={true}><Landing /></PublicRoute>} />
+          <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
+          <Route path="/signup" element={<PublicRoute><Signup /></PublicRoute>} />
           <Route path="/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
           <Route path="/my-team" element={<PrivateRoute><MyTeam /></PrivateRoute>} />
+          <Route path="/profile" element={<PrivateRoute><Profile /></PrivateRoute>} />
           <Route path="/workspace/:id" element={<PrivateRoute><WorkspaceDetail /></PrivateRoute>} />
           <Route path="/workspace/:workspaceId/ticket/:ticketId" element={<PrivateRoute><TicketDetail /></PrivateRoute>} />
           <Route path="/workspace/:id/billing" element={<PrivateRoute><Billing /></PrivateRoute>} />

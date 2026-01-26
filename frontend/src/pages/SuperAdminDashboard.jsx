@@ -47,7 +47,7 @@ const SuperAdminDashboard = () => {
     return (
       <Layout>
         <div className="flex items-center justify-center h-64">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-accent"></div>
         </div>
       </Layout>
     );
@@ -76,9 +76,9 @@ const SuperAdminDashboard = () => {
           <button
             key={p}
             onClick={() => setPeriod(p)}
-            className={`px-3 sm:px-4 py-2 rounded-lg font-semibold transition text-xs sm:text-sm ${
+            className={`px-3 sm:px-4 py-2 rounded-none font-semibold transition text-xs sm:text-sm ${
               period === p
-                ? 'bg-primary-600 text-white'
+                ? 'bg-brand-accent text-white'
                 : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
             }`}
           >
@@ -89,7 +89,7 @@ const SuperAdminDashboard = () => {
 
       {/* Statistics Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-6 sm:mb-8">
-        <div className="bg-white rounded-lg shadow p-4 sm:p-6 border border-gray-200">
+        <div className="bg-transparent rounded-none shadow p-4 sm:p-6 border border-gray-200">
           <div className="flex items-center justify-between mb-2">
             <h3 className="text-sm font-medium text-gray-600">Total Users</h3>
             <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -104,7 +104,7 @@ const SuperAdminDashboard = () => {
           )}
         </div>
 
-        <div className="bg-white rounded-lg shadow p-6 border border-gray-200">
+        <div className="bg-transparent rounded-none shadow p-6 border border-gray-200">
           <div className="flex items-center justify-between mb-2">
             <h3 className="text-sm font-medium text-gray-600">Total Workspaces</h3>
             <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -119,7 +119,7 @@ const SuperAdminDashboard = () => {
           )}
         </div>
 
-        <div className="bg-white rounded-lg shadow p-6 border border-gray-200">
+        <div className="bg-transparent rounded-none shadow p-6 border border-gray-200">
           <div className="flex items-center justify-between mb-2">
             <h3 className="text-sm font-medium text-gray-600">Total Visits</h3>
             <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -133,7 +133,7 @@ const SuperAdminDashboard = () => {
           </p>
         </div>
 
-        <div className="bg-white rounded-lg shadow p-6 border border-gray-200">
+        <div className="bg-transparent rounded-none shadow p-6 border border-gray-200">
           <div className="flex items-center justify-between mb-2">
             <h3 className="text-sm font-medium text-gray-600">Unique Visitors</h3>
             <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -148,7 +148,7 @@ const SuperAdminDashboard = () => {
       </div>
 
       {/* Workspaces List */}
-      <div className="bg-white rounded-lg shadow border border-gray-200">
+      <div className="bg-transparent rounded-none shadow border border-gray-200">
         <div className="p-4 sm:p-6 border-b border-gray-200">
           <h2 className="text-xl sm:text-2xl font-bold text-gray-900">All Workspaces</h2>
           <p className="text-gray-600 text-xs sm:text-sm mt-1">Click on any workspace to open it</p>
@@ -196,7 +196,7 @@ const SuperAdminDashboard = () => {
                       <td className="py-2 sm:py-3 px-2 sm:px-4">
                         <button
                           onClick={() => handleOpenWorkspace(workspace._id)}
-                          className="text-primary-600 hover:text-primary-700 font-semibold text-xs sm:text-sm"
+                          className="text-brand-accent hover:text-primary-700 font-semibold text-xs sm:text-sm"
                         >
                           Open →
                         </button>
