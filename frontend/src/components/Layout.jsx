@@ -52,7 +52,7 @@ const Layout = ({ children }) => {
               { label: 'Workspaces', path: '/dashboard' },
               { label: 'My Team', path: '/my-team' },
               { label: 'Profile', path: '/profile' },
-              ...(user?.role === 'super-admin' ? [{ label: 'Super Admin', path: '/superadmin' }] : []),
+              ...(user?.role === 'superadmin' ? [{ label: 'Super Admin', path: '/superadmin' }] : []),
             ].map((link, idx) => (
               <Link
                 key={link.path}

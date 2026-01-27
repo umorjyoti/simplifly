@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { Link } from 'react-router-dom';
 import Layout from '../components/Layout';
 import api from '../utils/api';
@@ -9,8 +10,42 @@ const Dashboard = () => {
   const [workspaces, setWorkspaces] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [isPanelClosing, setIsPanelClosing] = useState(false);
+  const [isPanelReady, setIsPanelReady] = useState(false);
   const [newWorkspace, setNewWorkspace] = useState({ name: '', description: '' });
   const { user } = useAuth();
+
+  // Match hamburger menu: transition duration 500ms, slide in from right when "ready"
+  useEffect(() => {
+    if (showCreateModal && !isPanelClosing) {
+      const id = requestAnimationFrame(() => {
+        requestAnimationFrame(() => setIsPanelReady(true));
+      });
+      return () => cancelAnimationFrame(id);
+    }
+    if (!showCreateModal) {
+      setIsPanelReady(false);
+    }
+  }, [showCreateModal, isPanelClosing]);
+
+  const closeCreatePanel = () => {
+    const prefersReducedMotion =
+      typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const closeDurationMs = prefersReducedMotion ? 0 : 500;
+
+    // Double rAF: ensure "open" state is committed and painted before starting close (smoother transition)
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        setIsPanelClosing(true);
+        setTimeout(() => {
+          setShowCreateModal(false);
+          setIsPanelClosing(false);
+          setIsPanelReady(false);
+          setNewWorkspace({ name: '', description: '' });
+        }, closeDurationMs);
+      });
+    });
+  };
 
   useEffect(() => {
     fetchWorkspaces();
@@ -38,8 +73,7 @@ const Dashboard = () => {
     try {
       const response = await api.post('/workspaces', newWorkspace);
       setWorkspaces([...workspaces, response.data]);
-      setNewWorkspace({ name: '', description: '' });
-      setShowCreateModal(false);
+      closeCreatePanel();
     } catch (error) {
       console.error('Error creating workspace:', error);
       alert(error.response?.data?.message || 'Failed to create workspace');
@@ -163,63 +197,92 @@ const Dashboard = () => {
           </div>
         )}
 
-        {showCreateModal && (
-          <div className="fixed inset-0 bg-brand-dark/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-none shadow-none w-full max-w-md max-h-[90vh] overflow-y-auto sharp-card">
-              {/* Clean Header */}
-              <div className="p-6 border-b border-gray-100">
-                <h2 className="text-2xl font-bold text-gray-900 mb-1">Create Workspace</h2>
-                <p className="text-sm text-gray-500">Set up a new workspace for your team</p>
-              </div>
+        {(showCreateModal || isPanelClosing) &&
+          createPortal(
+            <div
+              className="fixed inset-0 z-[70]"
+              onClick={closeCreatePanel}
+            >
+              {/* Backdrop: fades out in sync with panel slide (GPU-friendly opacity), respects reduced-motion */}
+              <div
+                className={`absolute inset-0 bg-brand-dark/40 backdrop-blur-sm transition-opacity duration-500 ease-[cubic-bezier(0.19,1,0.22,1)] motion-reduce:duration-0 ${
+                  isPanelClosing ? 'opacity-0' : 'opacity-100'
+                }`}
+                aria-hidden="true"
+              />
+              {/* Right-hand panel: full viewport height, half width, slides out right (left→right close); will-change only during transition */}
+              <div
+                className={`fixed top-0 right-0 h-screen w-[50vw] bg-white overflow-y-auto sharp-card border-l border-brand-dark/10 transition-transform duration-500 ease-[cubic-bezier(0.19,1,0.22,1)] motion-reduce:duration-0 ${
+                  showCreateModal && !isPanelClosing && isPanelReady ? 'translate-x-0' : 'translate-x-full'
+                }`}
+                style={{
+                  boxShadow: '-8px 0 32px rgba(26, 26, 26, 0.12)',
+                  willChange: (showCreateModal || isPanelClosing) ? 'transform' : undefined,
+                }}
+                role="dialog"
+                aria-labelledby="create-workspace-title"
+                aria-modal="true"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <div className="p-8 md:p-10 flex flex-col min-h-full">
+                  {/* Header */}
+                  <div className="pb-6 border-b border-brand-dark/10 mb-8">
+                    <h2 id="create-workspace-title" className="text-2xl font-bold text-brand-dark mb-1">
+                      Create Workspace
+                    </h2>
+                    <p className="text-sm text-brand-dark/60">Set up a new workspace for your team</p>
+                  </div>
 
-              <form onSubmit={handleCreateWorkspace} className="p-6">
-                <div className="mb-5">
-                  <label className="block text-sm font-semibold text-gray-900 mb-2">
-                    Workspace Name
-                  </label>
-                  <input
-                    type="text"
-                    value={newWorkspace.name}
-                    onChange={(e) => setNewWorkspace({ ...newWorkspace, name: e.target.value })}
-                    required
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-gray-900 outline-none transition-all text-gray-900 placeholder-gray-400"
-                    placeholder="Enter workspace name"
-                  />
+                  <form onSubmit={handleCreateWorkspace} className="flex flex-col flex-1">
+                    <div className="mb-5">
+                      <label htmlFor="workspace-name" className="block text-sm font-semibold text-brand-dark mb-2">
+                        Workspace Name
+                      </label>
+                      <input
+                        id="workspace-name"
+                        type="text"
+                        value={newWorkspace.name}
+                        onChange={(e) => setNewWorkspace({ ...newWorkspace, name: e.target.value })}
+                        required
+                        className="w-full px-4 py-3 border border-brand-dark/20 rounded-sm focus:ring-2 focus:ring-brand-dark focus:border-brand-dark outline-none transition-all text-brand-dark placeholder-brand-dark/40"
+                        placeholder="Enter workspace name"
+                      />
+                    </div>
+                    <div className="mb-8">
+                      <label htmlFor="workspace-desc" className="block text-sm font-semibold text-brand-dark mb-2">
+                        Description <span className="text-brand-dark/40 font-normal">(optional)</span>
+                      </label>
+                      <textarea
+                        id="workspace-desc"
+                        value={newWorkspace.description}
+                        onChange={(e) => setNewWorkspace({ ...newWorkspace, description: e.target.value })}
+                        className="w-full px-4 py-3 border border-brand-dark/20 rounded-sm focus:ring-2 focus:ring-brand-dark focus:border-brand-dark outline-none transition-all text-brand-dark placeholder-brand-dark/40 resize-none"
+                        rows="4"
+                        placeholder="Add a description..."
+                      />
+                    </div>
+
+                    <div className="mt-auto flex gap-3 pt-4">
+                      <button
+                        type="button"
+                        onClick={closeCreatePanel}
+                        className="flex-1 px-4 py-3 border border-brand-dark/20 text-brand-dark rounded-sm hover:bg-brand-dark/5 transition-all font-medium"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        type="submit"
+                        className="flex-1 px-4 py-3 bg-brand-dark hover:bg-brand-dark/90 text-white rounded-sm transition-all font-semibold"
+                      >
+                        Create
+                      </button>
+                    </div>
+                  </form>
                 </div>
-                <div className="mb-6">
-                  <label className="block text-sm font-semibold text-gray-900 mb-2">
-                    Description <span className="text-gray-400 font-normal text-xs">(optional)</span>
-                  </label>
-                  <textarea
-                    value={newWorkspace.description}
-                    onChange={(e) => setNewWorkspace({ ...newWorkspace, description: e.target.value })}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-gray-900 outline-none transition-all text-gray-900 placeholder-gray-400 resize-none"
-                    rows="3"
-                    placeholder="Add a description..."
-                  />
-                </div>
-                <div className="flex gap-3">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setShowCreateModal(false);
-                      setNewWorkspace({ name: '', description: '' });
-                    }}
-                    className="flex-1 px-4 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-all font-medium"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    className="flex-1 px-4 py-3 bg-gray-900 hover:bg-gray-800 text-white rounded-lg transition-all font-semibold shadow-sm hover:shadow"
-                  >
-                    Create
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
-        )}
+              </div>
+            </div>,
+            document.body
+          )}
       </div>
     </Layout>
   );

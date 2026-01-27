@@ -40,7 +40,7 @@ const Profile = () => {
                                 </div>
                                 <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-widest text-white/40">
                                     <span>Node Level</span>
-                                    <span>{user?.role === 'super-admin' ? 'ROOT_ADMIN' : 'STANDARD'}</span>
+                                    <span>{user?.role === 'superadmin' ? 'ROOT_ADMIN' : 'STANDARD'}</span>
                                 </div>
                             </div>
                         </div>

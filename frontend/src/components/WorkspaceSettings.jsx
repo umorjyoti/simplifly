@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 
 const WorkspaceSettings = ({ workspace, onClose, onSave }) => {
   const [periodType, setPeriodType] = useState(
@@ -7,23 +8,67 @@ const WorkspaceSettings = ({ workspace, onClose, onSave }) => {
   const [currency, setCurrency] = useState(
     workspace?.settings?.currency || 'USD'
   );
+  const [isPanelClosing, setIsPanelClosing] = useState(false);
+  const [isPanelReady, setIsPanelReady] = useState(false);
+
+  useEffect(() => {
+    const id = requestAnimationFrame(() => {
+      requestAnimationFrame(() => setIsPanelReady(true));
+    });
+    return () => cancelAnimationFrame(id);
+  }, []);
+
+  const closeSettingsPanel = () => {
+    const prefersReducedMotion =
+      typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const closeDurationMs = prefersReducedMotion ? 0 : 500;
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        setIsPanelClosing(true);
+        setTimeout(() => {
+          onClose?.();
+          setIsPanelClosing(false);
+          setIsPanelReady(false);
+        }, closeDurationMs);
+      });
+    });
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       await onSave({ periodType, currency });
-      onClose();
+      closeSettingsPanel();
     } catch (error) {
       alert('Failed to update settings');
     }
   };
 
-  return (
-    <div className="fixed inset-0 bg-brand-dark/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-white border-4 border-brand-dark p-8 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-        <h2 className="text-3xl font-black uppercase tracking-tighter text-brand-dark mb-8">System Configuration</h2>
+  return createPortal(
+    <div className="fixed inset-0 z-[70]" onClick={closeSettingsPanel}>
+      <div
+        className={`absolute inset-0 bg-brand-dark/40 backdrop-blur-sm transition-opacity duration-500 ease-[cubic-bezier(0.19,1,0.22,1)] motion-reduce:duration-0 ${
+          isPanelClosing ? 'opacity-0' : 'opacity-100'
+        }`}
+        aria-hidden="true"
+      />
+      <div
+        className={`fixed top-0 right-0 h-screen w-[50vw] bg-white overflow-y-auto sharp-card border-l border-brand-dark/10 transition-transform duration-500 ease-[cubic-bezier(0.19,1,0.22,1)] motion-reduce:duration-0 ${
+          !isPanelClosing && isPanelReady ? 'translate-x-0' : 'translate-x-full'
+        }`}
+        style={{
+          boxShadow: '-8px 0 32px rgba(26, 26, 26, 0.12)',
+          willChange: isPanelClosing || isPanelReady ? 'transform' : undefined,
+        }}
+        role="dialog"
+        aria-labelledby="settings-panel-title"
+        aria-modal="true"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="p-8 md:p-10">
+          <h2 id="settings-panel-title" className="text-3xl font-black uppercase tracking-tighter text-brand-dark mb-8">System Configuration</h2>
 
-        <form onSubmit={handleSubmit}>
+          <form onSubmit={handleSubmit}>
           <div className="mb-8">
             <label className="block text-[10px] font-black uppercase tracking-widest text-brand-dark/60 mb-4">
               Period Type
@@ -42,8 +87,8 @@ const WorkspaceSettings = ({ workspace, onClose, onSave }) => {
                   className="mr-4 w-5 h-5"
                 />
                 <div className="flex-1">
-                  <div className="font-black text-brand-dark group-hover:text-white uppercase tracking-tight">Weekly</div>
-                  <div className="text-[10px] font-bold text-brand-dark/60 group-hover:text-white/60 uppercase tracking-widest mt-1">Organize tickets by week (Monday to Sunday)</div>
+                  <div className="font-black text-brand-dark group-hover:!text-white uppercase tracking-tight transition-colors">Weekly</div>
+                  <div className="text-[10px] font-bold text-brand-dark/60 group-hover:!text-white uppercase tracking-widest mt-1 transition-colors">Organize tickets by week (Monday to Sunday)</div>
                 </div>
               </label>
 
@@ -57,8 +102,8 @@ const WorkspaceSettings = ({ workspace, onClose, onSave }) => {
                   className="mr-4 w-5 h-5"
                 />
                 <div className="flex-1">
-                  <div className="font-black text-brand-dark group-hover:text-white uppercase tracking-tight">Monthly</div>
-                  <div className="text-[10px] font-bold text-brand-dark/60 group-hover:text-white/60 uppercase tracking-widest mt-1">Organize tickets by month (1st to end of month)</div>
+                  <div className="font-black text-brand-dark group-hover:!text-white uppercase tracking-tight transition-colors">Monthly</div>
+                  <div className="text-[10px] font-bold text-brand-dark/60 group-hover:!text-white uppercase tracking-widest mt-1 transition-colors">Organize tickets by month (1st to end of month)</div>
                 </div>
               </label>
 
@@ -72,8 +117,8 @@ const WorkspaceSettings = ({ workspace, onClose, onSave }) => {
                   className="mr-4 w-5 h-5"
                 />
                 <div className="flex-1">
-                  <div className="font-black text-brand-dark group-hover:text-white uppercase tracking-tight">Quarterly</div>
-                  <div className="text-[10px] font-bold text-brand-dark/60 group-hover:text-white/60 uppercase tracking-widest mt-1">Organize tickets by quarter (Q1, Q2, Q3, Q4)</div>
+                  <div className="font-black text-brand-dark group-hover:!text-white uppercase tracking-tight transition-colors">Quarterly</div>
+                  <div className="text-[10px] font-bold text-brand-dark/60 group-hover:!text-white uppercase tracking-widest mt-1 transition-colors">Organize tickets by quarter (Q1, Q2, Q3, Q4)</div>
                 </div>
               </label>
             </div>
@@ -97,8 +142,8 @@ const WorkspaceSettings = ({ workspace, onClose, onSave }) => {
                   className="mr-4 w-5 h-5"
                 />
                 <div className="flex-1">
-                  <div className="font-black text-brand-dark group-hover:text-white uppercase tracking-tight">USD ($)</div>
-                  <div className="text-[10px] font-bold text-brand-dark/60 group-hover:text-white/60 uppercase tracking-widest mt-1">US Dollar</div>
+                  <div className="font-black text-brand-dark group-hover:!text-white uppercase tracking-tight transition-colors">USD ($)</div>
+                  <div className="text-[10px] font-bold text-brand-dark/60 group-hover:!text-white uppercase tracking-widest mt-1 transition-colors">US Dollar</div>
                 </div>
               </label>
 
@@ -112,8 +157,8 @@ const WorkspaceSettings = ({ workspace, onClose, onSave }) => {
                   className="mr-4 w-5 h-5"
                 />
                 <div className="flex-1">
-                  <div className="font-black text-brand-dark group-hover:text-white uppercase tracking-tight">INR (₹)</div>
-                  <div className="text-[10px] font-bold text-brand-dark/60 group-hover:text-white/60 uppercase tracking-widest mt-1">Indian Rupee</div>
+                  <div className="font-black text-brand-dark group-hover:!text-white uppercase tracking-tight transition-colors">INR (₹)</div>
+                  <div className="text-[10px] font-bold text-brand-dark/60 group-hover:!text-white uppercase tracking-widest mt-1 transition-colors">Indian Rupee</div>
                 </div>
               </label>
             </div>
@@ -122,7 +167,7 @@ const WorkspaceSettings = ({ workspace, onClose, onSave }) => {
           <div className="flex gap-4">
             <button
               type="button"
-              onClick={onClose}
+              onClick={closeSettingsPanel}
               className="flex-1 px-6 py-3 border-2 border-brand-dark text-brand-dark font-black uppercase text-xs tracking-widest hover:bg-brand-dark hover:text-white transition"
             >
               Cancel
@@ -135,8 +180,11 @@ const WorkspaceSettings = ({ workspace, onClose, onSave }) => {
             </button>
           </div>
         </form>
+        </div>
       </div>
     </div>
+  ,
+  document.body
   );
 };
 

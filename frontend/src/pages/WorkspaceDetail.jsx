@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { createPortal } from 'react-dom';
 import { useParams, Link } from 'react-router-dom';
 import Layout from '../components/Layout';
 import TicketBoard from '../components/TicketBoard';
@@ -19,6 +20,8 @@ const WorkspaceDetail = () => {
   const [tickets, setTickets] = useState([]); // Filtered tickets for current view
   const [loading, setLoading] = useState(true);
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [isPanelClosing, setIsPanelClosing] = useState(false);
+  const [isPanelReady, setIsPanelReady] = useState(false);
   const [showSettingsModal, setShowSettingsModal] = useState(false);
   const [selectedTicket, setSelectedTicket] = useState(null);
   const [showHoursModal, setShowHoursModal] = useState(null);
@@ -37,6 +40,36 @@ const WorkspaceDetail = () => {
   const isOwner = workspace?.owner._id === user?.id;
 
   const periodType = workspace?.settings?.periodType || 'monthly';
+
+  // Deploy panel: same slide-in-from-right behaviour as Create Workspace (hamburger-style transition)
+  useEffect(() => {
+    if (showCreateModal && !isPanelClosing) {
+      const id = requestAnimationFrame(() => {
+        requestAnimationFrame(() => setIsPanelReady(true));
+      });
+      return () => cancelAnimationFrame(id);
+    }
+    if (!showCreateModal) {
+      setIsPanelReady(false);
+    }
+  }, [showCreateModal, isPanelClosing]);
+
+  const closeDeployPanel = () => {
+    const prefersReducedMotion =
+      typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const closeDurationMs = prefersReducedMotion ? 0 : 500;
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        setIsPanelClosing(true);
+        setTimeout(() => {
+          setShowCreateModal(false);
+          setIsPanelClosing(false);
+          setIsPanelReady(false);
+          setNewTicket({ title: '', description: '', goLiveDate: '', assignee: '' });
+        }, closeDurationMs);
+      });
+    });
+  };
 
   useEffect(() => {
     fetchWorkspace();
@@ -101,8 +134,7 @@ const WorkspaceDetail = () => {
 
       const response = await api.post('/tickets', payload);
       setAllTickets([response.data, ...allTickets]);
-      setNewTicket({ title: '', description: '', goLiveDate: '', assignee: '' });
-      setShowCreateModal(false);
+      closeDeployPanel();
     } catch (error) {
       alert(error.response?.data?.message || 'Failed to create ticket');
     }
@@ -461,91 +493,112 @@ const WorkspaceDetail = () => {
         </div>
       </div>
 
-      {/* Create Ticket Modal */}
-      {showCreateModal && (
-        <div className="fixed inset-0 bg-brand-dark/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white border-4 border-brand-dark p-8 w-full max-w-lg max-h-[90vh] overflow-y-auto">
-            <h2 className="text-3xl font-black uppercase tracking-tighter text-brand-dark mb-8">Deploy New Task</h2>
-            <form onSubmit={handleCreateTicket}>
-              <div className="mb-6">
-                <label className="block text-[10px] font-black uppercase tracking-widest text-brand-dark/60 mb-3">
-                  Task Identifier *
-                </label>
-                <input
-                  type="text"
-                  value={newTicket.title}
-                  onChange={(e) => setNewTicket({ ...newTicket, title: e.target.value })}
-                  required
-                  className="w-full px-4 py-3 border-2 border-brand-dark bg-white text-brand-dark font-bold focus:outline-none focus:border-brand-accent"
-                  placeholder="Enter task title"
-                />
+      {/* Deploy New Task panel: same behaviour as Create Workspace — full height, half width, slide from right, portal from top */}
+      {(showCreateModal || isPanelClosing) &&
+        createPortal(
+          <div className="fixed inset-0 z-[70]" onClick={closeDeployPanel}>
+            <div
+              className={`absolute inset-0 bg-brand-dark/40 backdrop-blur-sm transition-opacity duration-500 ease-[cubic-bezier(0.19,1,0.22,1)] motion-reduce:duration-0 ${
+                isPanelClosing ? 'opacity-0' : 'opacity-100'
+              }`}
+              aria-hidden="true"
+            />
+            <div
+              className={`fixed top-0 right-0 h-screen w-[50vw] bg-white overflow-y-auto sharp-card border-l border-brand-dark/10 transition-transform duration-500 ease-[cubic-bezier(0.19,1,0.22,1)] motion-reduce:duration-0 ${
+                showCreateModal && !isPanelClosing && isPanelReady ? 'translate-x-0' : 'translate-x-full'
+              }`}
+              style={{
+                boxShadow: '-8px 0 32px rgba(26, 26, 26, 0.12)',
+                willChange: showCreateModal || isPanelClosing ? 'transform' : undefined,
+              }}
+              role="dialog"
+              aria-labelledby="deploy-task-title"
+              aria-modal="true"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="p-8 md:p-10 flex flex-col min-h-full">
+                <h2 id="deploy-task-title" className="text-3xl font-black uppercase tracking-tighter text-brand-dark mb-8">
+                  Deploy New Task
+                </h2>
+                <form onSubmit={handleCreateTicket} className="flex flex-col flex-1">
+                  <div className="mb-6">
+                    <label className="block text-[10px] font-black uppercase tracking-widest text-brand-dark/60 mb-3">
+                      Task Identifier *
+                    </label>
+                    <input
+                      type="text"
+                      value={newTicket.title}
+                      onChange={(e) => setNewTicket({ ...newTicket, title: e.target.value })}
+                      required
+                      className="w-full px-4 py-3 border-2 border-brand-dark bg-white text-brand-dark font-bold focus:outline-none focus:border-brand-accent"
+                      placeholder="Enter task title"
+                    />
+                  </div>
+                  <div className="mb-6">
+                    <label className="block text-[10px] font-black uppercase tracking-widest text-brand-dark/60 mb-3">
+                      Task Description
+                    </label>
+                    <textarea
+                      value={newTicket.description}
+                      onChange={(e) => setNewTicket({ ...newTicket, description: e.target.value })}
+                      className="w-full px-4 py-3 border-2 border-brand-dark bg-white text-brand-dark font-bold focus:outline-none focus:border-brand-accent"
+                      rows="4"
+                      placeholder="Enter task description"
+                    />
+                  </div>
+                  <div className="mb-6">
+                    <label className="block text-[10px] font-black uppercase tracking-widest text-brand-dark/60 mb-3">
+                      Deployment Date
+                    </label>
+                    <input
+                      type="date"
+                      value={newTicket.goLiveDate}
+                      onChange={(e) => setNewTicket({ ...newTicket, goLiveDate: e.target.value })}
+                      className="w-full px-4 py-3 border-2 border-brand-dark bg-white text-brand-dark font-bold focus:outline-none focus:border-brand-accent"
+                    />
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-brand-dark/40 mt-2 italic">
+                      Leave empty to add to backlog queue
+                    </p>
+                  </div>
+                  <div className="mb-8">
+                    <label className="block text-[10px] font-black uppercase tracking-widest text-brand-dark/60 mb-3">
+                      Assigned Operator *
+                    </label>
+                    <select
+                      value={newTicket.assignee}
+                      onChange={(e) => setNewTicket({ ...newTicket, assignee: e.target.value })}
+                      required
+                      className="w-full px-4 py-3 border-2 border-brand-dark bg-white text-brand-dark font-bold focus:outline-none focus:border-brand-accent"
+                    >
+                      <option value="">Select operator</option>
+                      {workspace?.members?.map((member) => (
+                        <option key={member._id} value={member._id}>
+                          {member.name || member.username}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="mt-auto flex gap-4 pt-4">
+                    <button
+                      type="button"
+                      onClick={closeDeployPanel}
+                      className="flex-1 px-6 py-3 border-2 border-brand-dark text-brand-dark font-black uppercase text-xs tracking-widest hover:bg-brand-dark hover:text-white transition"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      className="flex-1 px-6 py-3 bg-brand-accent text-white font-black uppercase text-xs tracking-widest hover:bg-brand-dark transition"
+                    >
+                      Deploy
+                    </button>
+                  </div>
+                </form>
               </div>
-              <div className="mb-6">
-                <label className="block text-[10px] font-black uppercase tracking-widest text-brand-dark/60 mb-3">
-                  Task Description
-                </label>
-                <textarea
-                  value={newTicket.description}
-                  onChange={(e) => setNewTicket({ ...newTicket, description: e.target.value })}
-                  className="w-full px-4 py-3 border-2 border-brand-dark bg-white text-brand-dark font-bold focus:outline-none focus:border-brand-accent"
-                  rows="4"
-                  placeholder="Enter task description"
-                />
-              </div>
-              <div className="mb-6">
-                <label className="block text-[10px] font-black uppercase tracking-widest text-brand-dark/60 mb-3">
-                  Deployment Date
-                </label>
-                <input
-                  type="date"
-                  value={newTicket.goLiveDate}
-                  onChange={(e) => setNewTicket({ ...newTicket, goLiveDate: e.target.value })}
-                  className="w-full px-4 py-3 border-2 border-brand-dark bg-white text-brand-dark font-bold focus:outline-none focus:border-brand-accent"
-                />
-                <p className="text-[10px] font-bold uppercase tracking-widest text-brand-dark/40 mt-2 italic">
-                  Leave empty to add to backlog queue
-                </p>
-              </div>
-              <div className="mb-8">
-                <label className="block text-[10px] font-black uppercase tracking-widest text-brand-dark/60 mb-3">
-                  Assigned Operator *
-                </label>
-                <select
-                  value={newTicket.assignee}
-                  onChange={(e) => setNewTicket({ ...newTicket, assignee: e.target.value })}
-                  required
-                  className="w-full px-4 py-3 border-2 border-brand-dark bg-white text-brand-dark font-bold focus:outline-none focus:border-brand-accent"
-                >
-                  <option value="">Select operator</option>
-                  {workspace.members.map((member) => (
-                    <option key={member._id} value={member._id}>
-                      {member.name || member.username}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div className="flex gap-4">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setShowCreateModal(false);
-                    setNewTicket({ title: '', description: '', goLiveDate: '', assignee: '' });
-                  }}
-                  className="flex-1 px-6 py-3 border-2 border-brand-dark text-brand-dark font-black uppercase text-xs tracking-widest hover:bg-brand-dark hover:text-white transition"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="flex-1 px-6 py-3 bg-brand-accent text-white font-black uppercase text-xs tracking-widest hover:bg-brand-dark transition"
-                >
-                  Deploy
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+            </div>
+          </div>,
+          document.body
+        )}
 
       {/* Settings Modal */}
       {showSettingsModal && (
