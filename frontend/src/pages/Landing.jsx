@@ -276,6 +276,14 @@ const Landing = () => {
               <span className="text-sm font-bold uppercase tracking-widest">© {new Date().getFullYear()} Simplifly</span>
               <span className="text-sm font-bold tracking-tight opacity-40">umorjyotichetia@gmail.com</span>
             </div>
+            <div className="flex flex-wrap items-center gap-6">
+              <a href="https://fazier.com" target="_blank" rel="noopener noreferrer" className="inline-block focus:outline-none focus:ring-2 focus:ring-brand-accent focus:ring-offset-2 rounded-sm">
+                <img src="https://fazier.com/api/v1//public/badges/launch_badges.svg?badge_type=launched&theme=neutral" width={120} alt="Fazier badge" />
+              </a>
+              <a href="https://fazier.com" target="_blank" rel="noopener noreferrer" className="inline-block focus:outline-none focus:ring-2 focus:ring-brand-accent focus:ring-offset-2 rounded-sm">
+                <img src="https://fazier.com/api/v1//public/badges/launch_badges.svg?badge_type=featured&theme=light" width={250} alt="Fazier badge" />
+              </a>
+            </div>
           </div>
         </div>
 
